@@ -1,0 +1,25 @@
+# Byte-compiled / optimized / compiled Python files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment folder
+is3107_venv/
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# Pytest cache files
+.pytest_cache/
+
+# VS Code settings
+.vscode/
+
+# Environment variables or secrets
+.env
+*.env
