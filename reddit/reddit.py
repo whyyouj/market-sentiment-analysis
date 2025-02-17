@@ -18,13 +18,13 @@ reddit = praw.Reddit(
 )
 
 # Gathering Reddit Posts
-def collect_posts(subreddits, search_terms, time_limit_days):
+def collect_posts(subreddits, search_terms, dt_from, dt_to):
     posts_data = []
     stats = {
         'total_posts': 0,
         'posts_per_subreddit': {},
-        'start_date': datetime.now().strftime('%Y-%m-%d'),
-        'end_date': (datetime.now() - timedelta(days=time_limit_days)).strftime('%Y-%m-%d')
+        'start_date': dt_from.strftime('%Y-%m-%d'),
+        'end_date': dt_to.strftime('%Y-%m-%d')
     }
     '''
     # Note that this takes in one value, without the 'r/' prefix
@@ -47,11 +47,11 @@ def collect_posts(subreddits, search_terms, time_limit_days):
         for term in search_terms:
             try:
                 # Search for posts within time limit
-                for submission in subreddit.search(term, sort='new', time_filter='month'):
+                for submission in subreddit.search(term, sort='new'):
                     post_date = datetime.fromtimestamp(submission.created_utc)
                     
                     # Check if post is within our time limit
-                    if (datetime.now() - post_date).days <= time_limit_days:
+                    if (post_date >= dt_from) and (post_date <= dt_to):
                         post_data = {
                             'subreddit': subreddit_name,
                             'title': submission.title,
@@ -93,18 +93,20 @@ def main():
     # Define parameters
     subreddits = ['Gold', 'Economics', 'investing', 'wallstreetbets']
     search_terms = ['gold price', 'gold market', 'gold investment']
-    time_limit_days = 30
+    dt_from = datetime(2025, 1, 1)
+    dt_to = datetime(2025, 2, 1)
     
     print("Starting data collection...")
     print(f"Searching in subreddits: {', '.join(['r/' + s for s in subreddits])}")
     print(f"Search terms: {', '.join(search_terms)}")
     
     # Collect data
-    posts_data, stats = collect_posts(subreddits, search_terms, time_limit_days)
+    posts_data, stats = collect_posts(subreddits, search_terms, dt_from, dt_to)
     
     # Save data
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    filename = f'reddit_gold_data_{timestamp}.json'
+    timestamp_from = dt_from.strftime('%Y%m%d_%H%M%S')
+    timestamp_to = dt_to.strftime('%Y%m%d_%H%M%S')
+    filename = f'reddit_gold_data_{timestamp_from}_{timestamp_to}.json'
     save_to_json(posts_data, filename)
     
     # Print summary
