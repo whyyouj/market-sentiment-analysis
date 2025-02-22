@@ -23,6 +23,6 @@ def save_to_file(ticker, data):
     print(f"Data saved to {filename}")
     return data
 
-ticker = "WPM"
+ticker = "SPY"
 data = get_news_sentiment(ticker, time_from, time_to)
 save_to_file(ticker, data)
