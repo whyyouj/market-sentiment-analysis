@@ -91,7 +91,7 @@ def print_summary(stats):
 
 def main():
     # Define parameters
-    subreddits = ['Gold', 'Economics', 'investing', 'wallstreetbets']
+    subreddits = ['Gold', 'Economics', 'investing', 'wallstreetbets','news']
     search_terms = ['gold price', 'gold market', 'gold investment']
     dt_from = datetime(2025, 1, 1)
     dt_to = datetime(2025, 2, 1)
