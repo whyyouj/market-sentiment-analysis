@@ -27,7 +27,8 @@ def preprocess_text(text):
     return " ".join(processed_tokens)
 
 def main():
-    input_filename = "reddit_gold_data_20250101_000000_20250201_000000.json"
+    # input_filename = "reddit_gold_data_20250101_000000_20250201_000000.json"
+    input_filename = "reddit_gold_data_20250201_000000_20250301_000000.json"
     results_folder = "results"
     # os.makedirs(results_folder, exist_ok=True)
     

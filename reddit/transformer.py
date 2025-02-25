@@ -5,7 +5,8 @@ from transformers import pipeline
 
 
 def main():
-    input_filename = "reddit_gold_data_20250101_000000_20250201_000000.json"
+    # input_filename = "reddit_gold_data_20250101_000000_20250201_000000.json"
+    input_filename = "reddit_gold_data_20250201_000000_20250301_000000.json"
     results_folder = "results"
     output_filename = f"results_{input_filename}"
     output_filepath = os.path.join(results_folder, output_filename)
