@@ -1,0 +1,15 @@
+[2025-03-10T01:16:03.858+0800] {processor.py:186} INFO - Started process (PID=38455) to work on /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_dag_decorator.py
+[2025-03-10T01:16:03.859+0800] {processor.py:914} INFO - Processing file /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_dag_decorator.py for tasks to queue
+[2025-03-10T01:16:03.860+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:16:03.859+0800] {dagbag.py:588} INFO - Filling up the DagBag from /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_dag_decorator.py
+[2025-03-10T01:16:04.030+0800] {processor.py:925} INFO - DAG(s) 'example_dag_decorator' retrieved from /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_dag_decorator.py
+[2025-03-10T01:16:04.135+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:16:04.135+0800] {override.py:1912} INFO - Created Permission View: can read on DAG:example_dag_decorator
+[2025-03-10T01:16:04.138+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:16:04.138+0800] {override.py:1912} INFO - Created Permission View: can edit on DAG:example_dag_decorator
+[2025-03-10T01:16:04.141+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:16:04.140+0800] {override.py:1912} INFO - Created Permission View: can delete on DAG:example_dag_decorator
+[2025-03-10T01:16:04.143+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:16:04.143+0800] {override.py:1912} INFO - Created Permission View: can read on DAG Run:example_dag_decorator
+[2025-03-10T01:16:04.146+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:16:04.146+0800] {override.py:1912} INFO - Created Permission View: can create on DAG Run:example_dag_decorator
+[2025-03-10T01:16:04.148+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:16:04.147+0800] {override.py:1912} INFO - Created Permission View: menu access on DAG Run:example_dag_decorator
+[2025-03-10T01:16:04.149+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:16:04.149+0800] {override.py:1912} INFO - Created Permission View: can delete on DAG Run:example_dag_decorator
+[2025-03-10T01:16:04.150+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:16:04.150+0800] {dag.py:3239} INFO - Sync 1 DAGs
+[2025-03-10T01:16:04.154+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:16:04.154+0800] {dag.py:3262} INFO - Creating ORM DAG for example_dag_decorator
+[2025-03-10T01:16:04.154+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:16:04.154+0800] {dag.py:4180} INFO - Setting next_dagrun for example_dag_decorator to None, run_after=None
+[2025-03-10T01:16:04.160+0800] {processor.py:208} INFO - Processing /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_dag_decorator.py took 0.303 seconds

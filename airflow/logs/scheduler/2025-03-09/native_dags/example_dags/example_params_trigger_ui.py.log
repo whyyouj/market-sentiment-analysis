@@ -1,0 +1,15 @@
+[2025-03-10T01:15:32.580+0800] {processor.py:186} INFO - Started process (PID=38137) to work on /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_params_trigger_ui.py
+[2025-03-10T01:15:32.582+0800] {processor.py:914} INFO - Processing file /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_params_trigger_ui.py for tasks to queue
+[2025-03-10T01:15:32.583+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:32.583+0800] {dagbag.py:588} INFO - Filling up the DagBag from /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_params_trigger_ui.py
+[2025-03-10T01:15:32.607+0800] {processor.py:925} INFO - DAG(s) 'example_params_trigger_ui' retrieved from /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_params_trigger_ui.py
+[2025-03-10T01:15:32.702+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:32.702+0800] {override.py:1912} INFO - Created Permission View: can delete on DAG:example_params_trigger_ui
+[2025-03-10T01:15:32.705+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:32.705+0800] {override.py:1912} INFO - Created Permission View: can read on DAG:example_params_trigger_ui
+[2025-03-10T01:15:32.708+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:32.708+0800] {override.py:1912} INFO - Created Permission View: can edit on DAG:example_params_trigger_ui
+[2025-03-10T01:15:32.710+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:32.710+0800] {override.py:1912} INFO - Created Permission View: can create on DAG Run:example_params_trigger_ui
+[2025-03-10T01:15:32.712+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:32.712+0800] {override.py:1912} INFO - Created Permission View: can delete on DAG Run:example_params_trigger_ui
+[2025-03-10T01:15:32.714+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:32.714+0800] {override.py:1912} INFO - Created Permission View: can read on DAG Run:example_params_trigger_ui
+[2025-03-10T01:15:32.716+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:32.716+0800] {override.py:1912} INFO - Created Permission View: menu access on DAG Run:example_params_trigger_ui
+[2025-03-10T01:15:32.716+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:32.716+0800] {dag.py:3239} INFO - Sync 1 DAGs
+[2025-03-10T01:15:32.721+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:32.721+0800] {dag.py:3262} INFO - Creating ORM DAG for example_params_trigger_ui
+[2025-03-10T01:15:32.721+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:32.721+0800] {dag.py:4180} INFO - Setting next_dagrun for example_params_trigger_ui to None, run_after=None
+[2025-03-10T01:15:32.755+0800] {processor.py:208} INFO - Processing /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_params_trigger_ui.py took 0.177 seconds

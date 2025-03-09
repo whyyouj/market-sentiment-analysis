@@ -1,0 +1,24 @@
+[2025-03-10T01:15:46.538+0800] {processor.py:186} INFO - Started process (PID=38279) to work on /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_inlet_event_extra.py
+[2025-03-10T01:15:46.539+0800] {processor.py:914} INFO - Processing file /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_inlet_event_extra.py for tasks to queue
+[2025-03-10T01:15:46.539+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:46.539+0800] {dagbag.py:588} INFO - Filling up the DagBag from /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_inlet_event_extra.py
+[2025-03-10T01:15:46.603+0800] {processor.py:925} INFO - DAG(s) 'read_dataset_event', 'read_dataset_event_from_classic' retrieved from /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_inlet_event_extra.py
+[2025-03-10T01:15:46.777+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:46.776+0800] {override.py:1912} INFO - Created Permission View: can delete on DAG:read_dataset_event
+[2025-03-10T01:15:46.780+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:46.780+0800] {override.py:1912} INFO - Created Permission View: can edit on DAG:read_dataset_event
+[2025-03-10T01:15:46.783+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:46.782+0800] {override.py:1912} INFO - Created Permission View: can read on DAG:read_dataset_event
+[2025-03-10T01:15:46.786+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:46.786+0800] {override.py:1912} INFO - Created Permission View: can delete on DAG Run:read_dataset_event
+[2025-03-10T01:15:46.788+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:46.788+0800] {override.py:1912} INFO - Created Permission View: menu access on DAG Run:read_dataset_event
+[2025-03-10T01:15:46.791+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:46.791+0800] {override.py:1912} INFO - Created Permission View: can create on DAG Run:read_dataset_event
+[2025-03-10T01:15:46.793+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:46.793+0800] {override.py:1912} INFO - Created Permission View: can read on DAG Run:read_dataset_event
+[2025-03-10T01:15:46.798+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:46.798+0800] {override.py:1912} INFO - Created Permission View: can delete on DAG:read_dataset_event_from_classic
+[2025-03-10T01:15:46.801+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:46.800+0800] {override.py:1912} INFO - Created Permission View: can edit on DAG:read_dataset_event_from_classic
+[2025-03-10T01:15:46.803+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:46.803+0800] {override.py:1912} INFO - Created Permission View: can read on DAG:read_dataset_event_from_classic
+[2025-03-10T01:15:46.806+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:46.806+0800] {override.py:1912} INFO - Created Permission View: can delete on DAG Run:read_dataset_event_from_classic
+[2025-03-10T01:15:46.808+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:46.808+0800] {override.py:1912} INFO - Created Permission View: menu access on DAG Run:read_dataset_event_from_classic
+[2025-03-10T01:15:46.810+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:46.810+0800] {override.py:1912} INFO - Created Permission View: can create on DAG Run:read_dataset_event_from_classic
+[2025-03-10T01:15:46.812+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:46.812+0800] {override.py:1912} INFO - Created Permission View: can read on DAG Run:read_dataset_event_from_classic
+[2025-03-10T01:15:46.812+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:46.812+0800] {dag.py:3239} INFO - Sync 2 DAGs
+[2025-03-10T01:15:46.855+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:46.855+0800] {dag.py:3262} INFO - Creating ORM DAG for read_dataset_event_from_classic
+[2025-03-10T01:15:46.855+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:46.855+0800] {dag.py:3262} INFO - Creating ORM DAG for read_dataset_event
+[2025-03-10T01:15:46.859+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:46.859+0800] {dag.py:4180} INFO - Setting next_dagrun for read_dataset_event to 2025-03-08 00:00:00+00:00, run_after=2025-03-09 00:00:00+00:00
+[2025-03-10T01:15:46.860+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:46.860+0800] {dag.py:4180} INFO - Setting next_dagrun for read_dataset_event_from_classic to 2025-03-08 00:00:00+00:00, run_after=2025-03-09 00:00:00+00:00
+[2025-03-10T01:15:46.867+0800] {processor.py:208} INFO - Processing /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_inlet_event_extra.py took 0.331 seconds

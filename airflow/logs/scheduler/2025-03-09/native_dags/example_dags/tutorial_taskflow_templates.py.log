@@ -1,0 +1,15 @@
+[2025-03-10T01:14:38.065+0800] {processor.py:186} INFO - Started process (PID=37578) to work on /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/tutorial_taskflow_templates.py
+[2025-03-10T01:14:38.066+0800] {processor.py:914} INFO - Processing file /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/tutorial_taskflow_templates.py for tasks to queue
+[2025-03-10T01:14:38.067+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:14:38.067+0800] {dagbag.py:588} INFO - Filling up the DagBag from /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/tutorial_taskflow_templates.py
+[2025-03-10T01:14:38.092+0800] {processor.py:925} INFO - DAG(s) 'tutorial_taskflow_templates' retrieved from /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/tutorial_taskflow_templates.py
+[2025-03-10T01:14:38.200+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:14:38.199+0800] {override.py:1912} INFO - Created Permission View: can read on DAG:tutorial_taskflow_templates
+[2025-03-10T01:14:38.203+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:14:38.203+0800] {override.py:1912} INFO - Created Permission View: can delete on DAG:tutorial_taskflow_templates
+[2025-03-10T01:14:38.206+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:14:38.205+0800] {override.py:1912} INFO - Created Permission View: can edit on DAG:tutorial_taskflow_templates
+[2025-03-10T01:14:38.209+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:14:38.209+0800] {override.py:1912} INFO - Created Permission View: can read on DAG Run:tutorial_taskflow_templates
+[2025-03-10T01:14:38.211+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:14:38.211+0800] {override.py:1912} INFO - Created Permission View: menu access on DAG Run:tutorial_taskflow_templates
+[2025-03-10T01:14:38.213+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:14:38.213+0800] {override.py:1912} INFO - Created Permission View: can delete on DAG Run:tutorial_taskflow_templates
+[2025-03-10T01:14:38.215+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:14:38.215+0800] {override.py:1912} INFO - Created Permission View: can create on DAG Run:tutorial_taskflow_templates
+[2025-03-10T01:14:38.215+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:14:38.215+0800] {dag.py:3239} INFO - Sync 1 DAGs
+[2025-03-10T01:14:38.219+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:14:38.219+0800] {dag.py:3262} INFO - Creating ORM DAG for tutorial_taskflow_templates
+[2025-03-10T01:14:38.250+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:14:38.250+0800] {dag.py:4180} INFO - Setting next_dagrun for tutorial_taskflow_templates to 2025-03-08 00:00:00+00:00, run_after=2025-03-09 00:00:00+00:00
+[2025-03-10T01:14:38.257+0800] {processor.py:208} INFO - Processing /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/tutorial_taskflow_templates.py took 0.193 seconds

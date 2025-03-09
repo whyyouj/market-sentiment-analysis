@@ -1,0 +1,6 @@
+apache-airflow-providers-mongo
+kaggle
+yfinance
+transformers
+vaderSentiment
+torch

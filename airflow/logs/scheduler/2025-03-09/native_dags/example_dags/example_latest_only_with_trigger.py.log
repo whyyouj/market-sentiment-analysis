@@ -1,0 +1,15 @@
+[2025-03-10T01:15:40.759+0800] {processor.py:186} INFO - Started process (PID=38226) to work on /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_latest_only_with_trigger.py
+[2025-03-10T01:15:40.760+0800] {processor.py:914} INFO - Processing file /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_latest_only_with_trigger.py for tasks to queue
+[2025-03-10T01:15:40.760+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:40.760+0800] {dagbag.py:588} INFO - Filling up the DagBag from /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_latest_only_with_trigger.py
+[2025-03-10T01:15:40.765+0800] {processor.py:925} INFO - DAG(s) 'latest_only_with_trigger' retrieved from /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_latest_only_with_trigger.py
+[2025-03-10T01:15:40.856+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:40.856+0800] {override.py:1912} INFO - Created Permission View: can delete on DAG:latest_only_with_trigger
+[2025-03-10T01:15:40.861+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:40.860+0800] {override.py:1912} INFO - Created Permission View: can edit on DAG:latest_only_with_trigger
+[2025-03-10T01:15:40.863+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:40.863+0800] {override.py:1912} INFO - Created Permission View: can read on DAG:latest_only_with_trigger
+[2025-03-10T01:15:40.866+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:40.866+0800] {override.py:1912} INFO - Created Permission View: can delete on DAG Run:latest_only_with_trigger
+[2025-03-10T01:15:40.868+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:40.868+0800] {override.py:1912} INFO - Created Permission View: can create on DAG Run:latest_only_with_trigger
+[2025-03-10T01:15:40.870+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:40.870+0800] {override.py:1912} INFO - Created Permission View: can read on DAG Run:latest_only_with_trigger
+[2025-03-10T01:15:40.872+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:40.872+0800] {override.py:1912} INFO - Created Permission View: menu access on DAG Run:latest_only_with_trigger
+[2025-03-10T01:15:40.873+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:40.872+0800] {dag.py:3239} INFO - Sync 1 DAGs
+[2025-03-10T01:15:40.877+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:40.876+0800] {dag.py:3262} INFO - Creating ORM DAG for latest_only_with_trigger
+[2025-03-10T01:15:40.880+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:40.880+0800] {dag.py:4180} INFO - Setting next_dagrun for latest_only_with_trigger to 2025-03-09 12:00:00+00:00, run_after=2025-03-09 16:00:00+00:00
+[2025-03-10T01:15:40.885+0800] {processor.py:208} INFO - Processing /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_latest_only_with_trigger.py took 0.128 seconds

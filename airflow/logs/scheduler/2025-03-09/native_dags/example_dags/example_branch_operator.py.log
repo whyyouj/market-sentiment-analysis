@@ -1,0 +1,15 @@
+[2025-03-10T01:16:12.833+0800] {processor.py:186} INFO - Started process (PID=38554) to work on /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_branch_operator.py
+[2025-03-10T01:16:12.834+0800] {processor.py:914} INFO - Processing file /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_branch_operator.py for tasks to queue
+[2025-03-10T01:16:12.835+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:16:12.835+0800] {dagbag.py:588} INFO - Filling up the DagBag from /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_branch_operator.py
+[2025-03-10T01:16:12.856+0800] {processor.py:925} INFO - DAG(s) 'example_branch_operator' retrieved from /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_branch_operator.py
+[2025-03-10T01:16:12.945+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:16:12.945+0800] {override.py:1912} INFO - Created Permission View: can edit on DAG:example_branch_operator
+[2025-03-10T01:16:12.949+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:16:12.948+0800] {override.py:1912} INFO - Created Permission View: can read on DAG:example_branch_operator
+[2025-03-10T01:16:12.951+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:16:12.951+0800] {override.py:1912} INFO - Created Permission View: can delete on DAG:example_branch_operator
+[2025-03-10T01:16:12.954+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:16:12.954+0800] {override.py:1912} INFO - Created Permission View: can read on DAG Run:example_branch_operator
+[2025-03-10T01:16:12.956+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:16:12.956+0800] {override.py:1912} INFO - Created Permission View: can delete on DAG Run:example_branch_operator
+[2025-03-10T01:16:12.958+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:16:12.958+0800] {override.py:1912} INFO - Created Permission View: menu access on DAG Run:example_branch_operator
+[2025-03-10T01:16:12.960+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:16:12.960+0800] {override.py:1912} INFO - Created Permission View: can create on DAG Run:example_branch_operator
+[2025-03-10T01:16:12.961+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:16:12.961+0800] {dag.py:3239} INFO - Sync 1 DAGs
+[2025-03-10T01:16:12.965+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:16:12.964+0800] {dag.py:3262} INFO - Creating ORM DAG for example_branch_operator
+[2025-03-10T01:16:12.997+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:16:12.997+0800] {dag.py:4180} INFO - Setting next_dagrun for example_branch_operator to 2025-03-08 00:00:00+00:00, run_after=2025-03-09 00:00:00+00:00
+[2025-03-10T01:16:13.004+0800] {processor.py:208} INFO - Processing /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_branch_operator.py took 0.172 seconds

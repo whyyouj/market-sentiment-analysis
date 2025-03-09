@@ -1,0 +1,15 @@
+[2025-03-10T01:15:37.318+0800] {processor.py:186} INFO - Started process (PID=38189) to work on /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_nested_branch_dag.py
+[2025-03-10T01:15:37.320+0800] {processor.py:914} INFO - Processing file /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_nested_branch_dag.py for tasks to queue
+[2025-03-10T01:15:37.321+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:37.321+0800] {dagbag.py:588} INFO - Filling up the DagBag from /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_nested_branch_dag.py
+[2025-03-10T01:15:37.352+0800] {processor.py:925} INFO - DAG(s) 'example_nested_branch_dag' retrieved from /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_nested_branch_dag.py
+[2025-03-10T01:15:37.447+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:37.447+0800] {override.py:1912} INFO - Created Permission View: can edit on DAG:example_nested_branch_dag
+[2025-03-10T01:15:37.451+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:37.450+0800] {override.py:1912} INFO - Created Permission View: can delete on DAG:example_nested_branch_dag
+[2025-03-10T01:15:37.453+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:37.453+0800] {override.py:1912} INFO - Created Permission View: can read on DAG:example_nested_branch_dag
+[2025-03-10T01:15:37.456+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:37.456+0800] {override.py:1912} INFO - Created Permission View: can delete on DAG Run:example_nested_branch_dag
+[2025-03-10T01:15:37.458+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:37.458+0800] {override.py:1912} INFO - Created Permission View: can read on DAG Run:example_nested_branch_dag
+[2025-03-10T01:15:37.460+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:37.460+0800] {override.py:1912} INFO - Created Permission View: can create on DAG Run:example_nested_branch_dag
+[2025-03-10T01:15:37.463+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:37.463+0800] {override.py:1912} INFO - Created Permission View: menu access on DAG Run:example_nested_branch_dag
+[2025-03-10T01:15:37.463+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:37.463+0800] {dag.py:3239} INFO - Sync 1 DAGs
+[2025-03-10T01:15:37.467+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:37.467+0800] {dag.py:3262} INFO - Creating ORM DAG for example_nested_branch_dag
+[2025-03-10T01:15:37.503+0800] {logging_mixin.py:190} INFO - [2025-03-10T01:15:37.503+0800] {dag.py:4180} INFO - Setting next_dagrun for example_nested_branch_dag to 2025-03-08 00:00:00+00:00, run_after=2025-03-09 00:00:00+00:00
+[2025-03-10T01:15:37.510+0800] {processor.py:208} INFO - Processing /Users/sinler/Documents/GitHub/market-sentiment-analysis/.airflow/lib/python3.12/site-packages/airflow/example_dags/example_nested_branch_dag.py took 0.194 seconds
