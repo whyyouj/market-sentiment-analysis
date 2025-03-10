@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from airflow.providers.mongo.hooks.mongo import MongoHook
 from airflow.providers.mysql.hooks.mysql import MySqlHook
 from bson import ObjectId
+import yfinance as yf
 
 DATABASE_NAME = "IS3107_Project"
 MONGO_COLLECTION_NAME = "news_sentiment"
@@ -62,9 +63,11 @@ def sentiment_pipeline():
     @task
     def insert_data_to_mysql():
         print("attampting to insert data to mysql....")
-        sample_gold_data = {
-            "date": "2025-03-10",
-            "price": 2911.5,
+        gold = yf.Ticker("GC=F")
+        gold_price = gold.history(period="1d")["Close"].iloc[-1]
+        latest_gold_price = {
+            "date": datetime.today().strftime('%Y-%m-%d'),
+            "price": gold_price,
             "currency": "USD"
         }
         mysql_hook = MySqlHook(mysql_conn_id="mysql_default")
@@ -72,17 +75,17 @@ def sentiment_pipeline():
         insert_query = f'''
             INSERT INTO {SQL_TABLE_NAME} (date, price, currency)
             VALUES (
-                '{sample_gold_data["date"]}', 
-                {sample_gold_data["price"]}, 
-                '{sample_gold_data["currency"]}'
+                '{latest_gold_price["date"]}', 
+                {latest_gold_price["price"]}, 
+                '{latest_gold_price["currency"]}'
             );
         '''
         mysql_hook.run(insert_query)
-        print(f"Gold price for {sample_gold_data['date']} inserted successfully!")
-        return sample_gold_data
+        print(f"Gold price for {latest_gold_price['date']} inserted successfully!")
+        return latest_gold_price
 
     @task
-    def read_data_from_mysql(sample_gold_data):
+    def read_data_from_mysql(latest_gold_price):
         print("attempting to read data from mysql....")
         mysql_hook = MySqlHook(mysql_conn_id="mysql_default")
         

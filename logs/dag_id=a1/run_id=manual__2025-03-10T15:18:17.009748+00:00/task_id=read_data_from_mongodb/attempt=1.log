@@ -1,0 +1,47 @@
+[2025-03-10T15:18:40.773+0000] {local_task_job_runner.py:123} INFO - ::group::Pre task execution logs
+[2025-03-10T15:18:40.825+0000] {taskinstance.py:2614} INFO - Dependencies all met for dep_context=non-requeueable deps ti=<TaskInstance: a1.read_data_from_mongodb manual__2025-03-10T15:18:17.009748+00:00 [queued]>
+[2025-03-10T15:18:40.838+0000] {taskinstance.py:2614} INFO - Dependencies all met for dep_context=requeueable deps ti=<TaskInstance: a1.read_data_from_mongodb manual__2025-03-10T15:18:17.009748+00:00 [queued]>
+[2025-03-10T15:18:40.838+0000] {taskinstance.py:2867} INFO - Starting attempt 1 of 4
+[2025-03-10T15:18:40.868+0000] {taskinstance.py:2890} INFO - Executing <Task(_PythonDecoratedOperator): read_data_from_mongodb> on 2025-03-10 15:18:17.009748+00:00
+[2025-03-10T15:18:40.994+0000] {warnings.py:112} WARNING - /home/***/.local/lib/python3.12/site-packages/***/task/task_runner/standard_task_runner.py:70: DeprecationWarning: This process (pid=773) is multi-threaded, use of fork() may lead to deadlocks in the child.
+  pid = os.fork()
+
+[2025-03-10T15:18:41.002+0000] {standard_task_runner.py:72} INFO - Started process 774 to run task
+[2025-03-10T15:18:41.003+0000] {standard_task_runner.py:104} INFO - Running: ['***', 'tasks', 'run', 'a1', 'read_data_from_mongodb', 'manual__2025-03-10T15:18:17.009748+00:00', '--job-id', '65', '--raw', '--subdir', 'DAGS_FOLDER/pipeline.py', '--cfg-path', '/tmp/tmpjkhzuidc']
+[2025-03-10T15:18:41.005+0000] {standard_task_runner.py:105} INFO - Job 65: Subtask read_data_from_mongodb
+[2025-03-10T15:18:41.434+0000] {task_command.py:467} INFO - Running <TaskInstance: a1.read_data_from_mongodb manual__2025-03-10T15:18:17.009748+00:00 [running]> on host 29fec35ab0e4
+[2025-03-10T15:18:41.615+0000] {taskinstance.py:3134} INFO - Exporting env vars: AIRFLOW_CTX_DAG_EMAIL='example@gmail.com' AIRFLOW_CTX_DAG_OWNER='***' AIRFLOW_CTX_DAG_ID='a1' AIRFLOW_CTX_TASK_ID='read_data_from_mongodb' AIRFLOW_CTX_EXECUTION_DATE='2025-03-10T15:18:17.009748+00:00' AIRFLOW_CTX_TRY_NUMBER='1' AIRFLOW_CTX_DAG_RUN_ID='manual__2025-03-10T15:18:17.009748+00:00'
+[2025-03-10T15:18:41.623+0000] {logging_mixin.py:190} INFO - Task instance is in running state
+[2025-03-10T15:18:41.625+0000] {logging_mixin.py:190} INFO -  Previous state of the Task instance: queued
+[2025-03-10T15:18:41.625+0000] {logging_mixin.py:190} INFO - Current task name:read_data_from_mongodb state:running start_date:2025-03-10 15:18:40.827222+00:00
+[2025-03-10T15:18:41.625+0000] {logging_mixin.py:190} INFO - Dag name:a1 and current dag run status:running
+[2025-03-10T15:18:41.625+0000] {taskinstance.py:732} INFO - ::endgroup::
+[2025-03-10T15:18:41.629+0000] {logging_mixin.py:190} INFO - attempting to read data from MongoDB....
+[2025-03-10T15:18:41.676+0000] {base.py:84} INFO - Retrieving connection 'mongo_default'
+[2025-03-10T15:18:42.532+0000] {logging_mixin.py:190} INFO - {'_id': ObjectId('67cde60ceacfa79e1d4ac5c0'), 'date': '2025-01-01', 'sentiment_score': 0.8, 'sentiment': 'positive'}
+[2025-03-10T15:18:42.544+0000] {logging_mixin.py:190} INFO - {'_id': ObjectId('67cde64df1e6101a8070c4ec'), 'date': '2025-01-01', 'sentiment_score': 0.8, 'sentiment': 'positive'}
+[2025-03-10T15:18:42.546+0000] {logging_mixin.py:190} INFO - {'_id': ObjectId('67cde68c391e9f4fc3c1c224'), 'date': '2025-01-01', 'sentiment_score': 0.8, 'sentiment': 'positive'}
+[2025-03-10T15:18:42.546+0000] {logging_mixin.py:190} INFO - {'_id': ObjectId('67cde6cbb8239f438606febd'), 'date': '2025-01-01', 'sentiment_score': 0.8, 'sentiment': 'positive'}
+[2025-03-10T15:18:42.546+0000] {logging_mixin.py:190} INFO - {'_id': ObjectId('67cde79ef7f78d9d77b0c31b'), 'date': '2025-01-01', 'sentiment_score': 0.8, 'sentiment': 'positive'}
+[2025-03-10T15:18:42.546+0000] {logging_mixin.py:190} INFO - {'_id': ObjectId('67cde7f2b157fab0eab0ad8f'), 'date': '2025-01-01', 'sentiment_score': 0.8, 'sentiment': 'positive'}
+[2025-03-10T15:18:42.547+0000] {logging_mixin.py:190} INFO - {'_id': ObjectId('67cde8362885be2973fa8d32'), 'date': '2025-01-01', 'sentiment_score': 0.8, 'sentiment': 'positive'}
+[2025-03-10T15:18:42.547+0000] {logging_mixin.py:190} INFO - {'_id': ObjectId('67cde877aee9453a08c3cf45'), 'date': '2025-01-01', 'sentiment_score': 0.8, 'sentiment': 'positive'}
+[2025-03-10T15:18:42.548+0000] {logging_mixin.py:190} INFO - {'_id': ObjectId('67cde99a57d4d3405f7d6000'), 'date': '2025-01-01', 'sentiment_score': 0.8, 'sentiment': 'positive'}
+[2025-03-10T15:18:42.548+0000] {logging_mixin.py:190} INFO - {'_id': ObjectId('67cde9dd60af49631ecc516e'), 'date': '2025-01-01', 'sentiment_score': 0.8, 'sentiment': 'positive'}
+[2025-03-10T15:18:42.548+0000] {logging_mixin.py:190} INFO - {'_id': ObjectId('67cdea1d6e5f37a400bda10e'), 'date': '2025-01-01', 'sentiment_score': 0.8, 'sentiment': 'positive'}
+[2025-03-10T15:18:42.549+0000] {logging_mixin.py:190} INFO - {'_id': ObjectId('67cdea5de9f66dd578915bf9'), 'date': '2025-01-01', 'sentiment_score': 0.8, 'sentiment': 'positive'}
+[2025-03-10T15:18:42.549+0000] {logging_mixin.py:190} INFO - {'_id': ObjectId('67cdeb038f2fb86dff84df90'), 'date': '2025-01-01', 'sentiment_score': 0.8, 'sentiment': 'positive'}
+[2025-03-10T15:18:42.549+0000] {logging_mixin.py:190} INFO - {'_id': ObjectId('67ce2d321afcdbfbdd2dce42'), 'date': '2025-01-01', 'sentiment_score': 0.8, 'sentiment': 'positive'}
+[2025-03-10T15:18:42.549+0000] {logging_mixin.py:190} INFO - {'_id': ObjectId('67cefd47f304b9db781e93a9'), 'date': '2025-01-01', 'sentiment_score': 0.8, 'sentiment': 'positive'}
+[2025-03-10T15:18:42.549+0000] {logging_mixin.py:190} INFO - {'_id': ObjectId('67cf02c5c963243e23530fe7'), 'date': '2025-01-01', 'sentiment_score': 0.8, 'sentiment': 'positive'}
+[2025-03-10T15:18:42.550+0000] {logging_mixin.py:190} INFO - Data read successfully!
+[2025-03-10T15:18:42.579+0000] {python.py:240} INFO - Done. Returned value was: None
+[2025-03-10T15:18:42.844+0000] {taskinstance.py:341} INFO - ::group::Post task execution logs
+[2025-03-10T15:18:42.849+0000] {taskinstance.py:353} INFO - Marking task as SUCCESS. dag_id=a1, task_id=read_data_from_mongodb, run_id=manual__2025-03-10T15:18:17.009748+00:00, execution_date=20250310T151817, start_date=20250310T151840, end_date=20250310T151842
+[2025-03-10T15:18:42.973+0000] {logging_mixin.py:190} INFO - Task instance in success state
+[2025-03-10T15:18:42.975+0000] {logging_mixin.py:190} INFO -  Previous state of the Task instance: running
+[2025-03-10T15:18:42.976+0000] {logging_mixin.py:190} INFO - Dag name:a1 queued_at:2025-03-10 15:18:17.279474+00:00
+[2025-03-10T15:18:42.976+0000] {logging_mixin.py:190} INFO - Task hostname:29fec35ab0e4 operator:_PythonDecoratedOperator
+[2025-03-10T15:18:43.132+0000] {local_task_job_runner.py:266} INFO - Task exited with return code 0
+[2025-03-10T15:18:43.415+0000] {taskinstance.py:3901} INFO - 0 downstream tasks scheduled from follow-on schedule check
+[2025-03-10T15:18:43.418+0000] {local_task_job_runner.py:245} INFO - ::endgroup::
