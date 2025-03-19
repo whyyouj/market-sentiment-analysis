@@ -1,0 +1,21 @@
+[2025-03-14T13:31:52.807+0000] {processor.py:186} INFO - Started process (PID=92) to work on /home/airflow/.local/lib/python3.12/site-packages/airflow/example_dags/example_dataset_alias.py
+[2025-03-14T13:31:52.814+0000] {processor.py:914} INFO - Processing file /home/airflow/.local/lib/python3.12/site-packages/airflow/example_dags/example_dataset_alias.py for tasks to queue
+[2025-03-14T13:31:52.834+0000] {logging_mixin.py:190} INFO - [2025-03-14T13:31:52.831+0000] {dagbag.py:588} INFO - Filling up the DagBag from /home/airflow/.local/lib/python3.12/site-packages/airflow/example_dags/example_dataset_alias.py
+[2025-03-14T13:32:25.970+0000] {logging_mixin.py:190} INFO - [2025-03-14T13:32:25.910+0000] {timeout.py:68} ERROR - Process timed out, PID: 92
+[2025-03-14T13:32:25.979+0000] {logging_mixin.py:190} WARNING - Exception ignored in: <function WeakKeyDictionary.__init__.<locals>.remove at 0xffff836fd6c0>
+[2025-03-14T13:32:25.984+0000] {logging_mixin.py:190} WARNING - Traceback (most recent call last):
+[2025-03-14T13:32:25.987+0000] {logging_mixin.py:190} WARNING -   File "/usr/local/lib/python3.12/weakref.py", line 369, in remove
+[2025-03-14T13:32:26.007+0000] {logging_mixin.py:190} WARNING -     def remove(k, selfref=ref(self)):
+[2025-03-14T13:32:26.010+0000] {logging_mixin.py:190} WARNING -   File "/home/airflow/.local/lib/python3.12/site-packages/airflow/utils/timeout.py", line 69, in handle_timeout
+[2025-03-14T13:32:26.019+0000] {logging_mixin.py:190} WARNING -     raise AirflowTaskTimeout(self.error_message)
+[2025-03-14T13:32:26.026+0000] {logging_mixin.py:190} WARNING - airflow.exceptions.AirflowTaskTimeout: DagBag import timeout for /home/airflow/.local/lib/python3.12/site-packages/airflow/example_dags/example_dataset_alias.py after 30.0s.
+Please take a look at these docs to improve your DAG import time:
+* https://airflow.apache.org/docs/apache-airflow/2.10.5/best-practices.html#top-level-python-code
+* https://airflow.apache.org/docs/apache-airflow/2.10.5/best-practices.html#reducing-dag-complexity, PID: 92
+[2025-03-14T13:32:35.675+0000] {processor.py:925} INFO - DAG(s) 'dataset_alias_example_alias_consumer', 'dataset_alias_example_alias_producer', 'dataset_s3_bucket_producer', 'dataset_s3_bucket_consumer' retrieved from /home/airflow/.local/lib/python3.12/site-packages/airflow/example_dags/example_dataset_alias.py
+[2025-03-14T13:32:36.477+0000] {logging_mixin.py:190} INFO - [2025-03-14T13:32:36.439+0000] {dag.py:3239} INFO - Sync 4 DAGs
+[2025-03-14T13:32:36.947+0000] {logging_mixin.py:190} INFO - [2025-03-14T13:32:36.939+0000] {dag.py:4180} INFO - Setting next_dagrun for dataset_alias_example_alias_consumer to None, run_after=None
+[2025-03-14T13:32:36.960+0000] {logging_mixin.py:190} INFO - [2025-03-14T13:32:36.959+0000] {dag.py:4180} INFO - Setting next_dagrun for dataset_alias_example_alias_producer to None, run_after=None
+[2025-03-14T13:32:36.962+0000] {logging_mixin.py:190} INFO - [2025-03-14T13:32:36.961+0000] {dag.py:4180} INFO - Setting next_dagrun for dataset_s3_bucket_consumer to None, run_after=None
+[2025-03-14T13:32:36.965+0000] {logging_mixin.py:190} INFO - [2025-03-14T13:32:36.965+0000] {dag.py:4180} INFO - Setting next_dagrun for dataset_s3_bucket_producer to None, run_after=None
+[2025-03-14T13:32:37.076+0000] {processor.py:208} INFO - Processing /home/airflow/.local/lib/python3.12/site-packages/airflow/example_dags/example_dataset_alias.py took 44.339 seconds
