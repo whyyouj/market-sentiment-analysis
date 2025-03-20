@@ -5,6 +5,7 @@ __pycache__/
 
 # Virtual environment folder
 is3107_venv/
+venv/
 
 # Distribution / packaging
 build/
