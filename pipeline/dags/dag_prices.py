@@ -1,25 +1,41 @@
 from airflow import DAG
 from airflow.operators.python import PythonOperator
-from datetime import datetime
+from datetime import datetime, timedelta
 from kafka import KafkaProducer, KafkaConsumer
 import json
 import pandas as pd
 from google.cloud import bigquery
 import os
 from google.oauth2 import service_account
+from airflow.providers.mysql.hooks.mysql import MySqlHook
 
 
 # Kafka Configurations
 KAFKA_BROKER = "kafka:9092"
-KAFKA_TOPIC = "gold-news-sentiment"
+KAFKA_TOPIC = "gold-prices"
 
 # BigQuery Configurations
 BQ_PROJECT_ID = "market-sentiment-analysis101"
 BQ_DATASET = "gold_market_data"
-BQ_TABLE = "news_sentiment"
+BQ_TABLE = "gold_prices"
 
-# Initialize BigQuery client
-# bq_client = bigquery.Client()
+# MongoDB and MySQL Configurations
+DATABASE_NAME = "IS3107_Project"
+MONGO_COLLECTION_NAME = "news_sentiment"
+SQL_TABLE_NAME = 'gold_prices'
+
+def read_data_from_mysql(latest_gold_price):
+    print("attempting to read data from mysql....")
+    mysql_hook = MySqlHook(mysql_conn_id="mysql_default")
+    
+    select_query = f'''
+        SELECT * FROM {SQL_TABLE_NAME} ORDER BY date DESC
+    '''
+    records = mysql_hook.get_records(select_query)
+    print("gold prices:")
+    for record in records:
+        print(record)
+    print("Data read successfully!")
 
 def produce_to_kafka():
     """Send sample market sentiment data to Kafka"""
@@ -105,9 +121,8 @@ default_args = {
 }
 
 with DAG(
-    "kafka_to_bigquery_dag",
+    "gold_prices_dag",
     default_args=default_args,
-    schedule_interval="@hourly",  # Run every hour
     catchup=False
 ) as dag:
 
