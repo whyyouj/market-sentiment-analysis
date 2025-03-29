@@ -1,7 +1,0 @@
-[2025-03-14T13:31:52.774+0000] {processor.py:186} INFO - Started process (PID=91) to work on /opt/airflow/dags/pipeline.py
-[2025-03-14T13:31:52.793+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/pipeline.py for tasks to queue
-[2025-03-14T13:31:52.835+0000] {logging_mixin.py:190} INFO - [2025-03-14T13:31:52.831+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/pipeline.py
-[2025-03-14T13:31:56.545+0000] {processor.py:925} INFO - DAG(s) 'a1' retrieved from /opt/airflow/dags/pipeline.py
-[2025-03-14T13:31:57.771+0000] {logging_mixin.py:190} INFO - [2025-03-14T13:31:57.707+0000] {dag.py:3239} INFO - Sync 1 DAGs
-[2025-03-14T13:31:58.791+0000] {logging_mixin.py:190} INFO - [2025-03-14T13:31:58.784+0000] {dag.py:4180} INFO - Setting next_dagrun for a1 to 2025-03-14 00:00:00+00:00, run_after=2025-03-15 00:00:00+00:00
-[2025-03-14T13:31:59.032+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/pipeline.py took 6.401 seconds
