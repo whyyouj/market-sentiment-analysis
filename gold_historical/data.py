@@ -135,8 +135,10 @@ def load_data():
     ## Sentiment Features
     # News Data
     sentiment_data = load_sentiment_data('./data/gold-dataset-sinha-khandait.csv')
-
     merged_data = data.join([dxy, real_yields, vix, cpi_data, sentiment_data], how='left').ffill() # .bfill()
+
+    sentiment_score_data = pd.read_csv("./data/gold-daily-sentiment-with-weighting.csv", index_col = 0, parse_dates = True)
+    merged_data = merged_data.join(sentiment_score_data[["Sentiment_Score", "Exponential_Weighted_Score"]], how="left")
 
     ## Technicals Features
     # Exponential Moving Average with alpha = 0.9
@@ -145,5 +147,5 @@ def load_data():
 
     # RSI
     merged_data["RSI"] = calculate_rsi(merged_data["Price"])
-
+    
     return merged_data
