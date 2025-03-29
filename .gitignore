@@ -24,3 +24,10 @@ dist/
 # Environment variables or secrets
 .env
 *.env
+
+logs/
+airflow-webserver.pid
+airflow-scheduler.pid
+airflow-worker.pid
+airflow-monitor.pid
+airflow-db/
