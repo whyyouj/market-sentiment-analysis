@@ -24,3 +24,9 @@ dist/
 # Environment variables or secrets
 .env
 *.env
+
+# .DS_Store
+.DS_Store
+
+# Airflow logs
+airflow/logs/
