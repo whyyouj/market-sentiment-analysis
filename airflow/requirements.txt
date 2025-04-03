@@ -1,0 +1,12 @@
+Pillow
+kagglehub
+kafka-python
+google-cloud-bigquery
+pandas
+numpy
+matplotlib
+kaggle
+apache-airflow-providers-mongo
+apache-airflow-providers-mysql
+cryptography
+pymongo
