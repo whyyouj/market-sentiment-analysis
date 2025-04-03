@@ -194,16 +194,6 @@ with DAG(
     default_args=default_args,
     catchup=False
 ) as dag:
-    test_mongo = PythonOperator(
-        task_id="test_mongo_connection",
-        python_callable=lambda: MongoHook(conn_id="mongo_default").get_conn()
-    )
-    
-    test_kafka = PythonOperator(
-        task_id="test_kafka_connection",
-        python_callable=lambda: KafkaProducer(bootstrap_servers=KAFKA_BROKER)
-    )
-
     task_produce = PythonOperator(
         task_id="produce_to_kafka",
         python_callable=produce_to_kafka
@@ -220,4 +210,4 @@ with DAG(
     )
 
     # Define task dependencies
-    test_mongo >> test_kafka >> task_produce >> task_consume >> task_load_bq
+    task_produce >> task_consume >> task_load_bq
