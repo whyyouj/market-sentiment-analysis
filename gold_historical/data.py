@@ -35,48 +35,48 @@ def clean_CPI(cpi_csv):
     df.set_index('Date', inplace=True)
     return df
 
-def load_sentiment_data(sentiment_csv):
-    """
-    Load and clean sentiment analysis data from a CSV file.
+# def load_sentiment_data(sentiment_csv):
+#     """
+#     Load and clean sentiment analysis data from a CSV file.
 
-    Parameters:
-        sentiment_csv (str): Path to the CSV file containing sentiment analysis data
+#     Parameters:
+#         sentiment_csv (str): Path to the CSV file containing sentiment analysis data
        
-    Returns:
-        DataFrame: Pandas DataFrame with loaded data
-    """
-    df = pd.read_csv(sentiment_csv)
-    def correct_date_format(date_str):
-        parts = date_str.split('/')
-        if len(parts) > 1:
-            return pd.to_datetime(date_str, format='%d/%m/%Y')
-        else:
-            # If parsing fails, try to correct the format
-            parts = date_str.split('-')
-            if len(parts) == 3:
-                if len(parts[0]) > 2:
-                    # Correct the corrupted year format by moving the first part to the end
-                    corrected_date_str = f"{parts[2]}-{parts[1]}-{parts[0][1]}{parts[0][0]}{parts[0][2:]}"
-                    return pd.to_datetime(corrected_date_str, dayfirst=True)
-                else:
-                    # Try to parse the date with day/month/year format
-                    corrected_date_str = f"{parts[0]}/{parts[1]}/{parts[2]}"
-                    return pd.to_datetime(corrected_date_str, dayfirst=True)
-            else:
-                raise
-    df['Dates'] = df['Dates'].apply(correct_date_format)
+#     Returns:
+#         DataFrame: Pandas DataFrame with loaded data
+#     """
+#     df = pd.read_csv(sentiment_csv)
+#     def correct_date_format(date_str):
+#         parts = date_str.split('/')
+#         if len(parts) > 1:
+#             return pd.to_datetime(date_str, format='%d/%m/%Y')
+#         else:
+#             # If parsing fails, try to correct the format
+#             parts = date_str.split('-')
+#             if len(parts) == 3:
+#                 if len(parts[0]) > 2:
+#                     # Correct the corrupted year format by moving the first part to the end
+#                     corrected_date_str = f"{parts[2]}-{parts[1]}-{parts[0][1]}{parts[0][0]}{parts[0][2:]}"
+#                     return pd.to_datetime(corrected_date_str, dayfirst=True)
+#                 else:
+#                     # Try to parse the date with day/month/year format
+#                     corrected_date_str = f"{parts[0]}/{parts[1]}/{parts[2]}"
+#                     return pd.to_datetime(corrected_date_str, dayfirst=True)
+#             else:
+#                 raise
+#     df['Dates'] = df['Dates'].apply(correct_date_format)
 
-    # Create Sentiment_Numeric column
-    df['Sentiment_Numeric'] = df['Price Sentiment'].map({'positive': 1, 'negative': -1, 'neutral': 0, 'none': 0})
+#     # Create Sentiment_Numeric column
+#     df['Sentiment_Numeric'] = df['Price Sentiment'].map({'positive': 1, 'negative': -1, 'neutral': 0, 'none': 0})
 
-    # Set Dates column as index and calculate average Sentiment_Numeric for each date
-    df.set_index('Dates', inplace=True)
-    df_avg_sentiment = df.groupby('Dates')['Sentiment_Numeric'].mean()
+#     # Set Dates column as index and calculate average Sentiment_Numeric for each date
+#     df.set_index('Dates', inplace=True)
+#     df_avg_sentiment = df.groupby('Dates')['Sentiment_Numeric'].mean()
 
-    # Create a new DataFrame with only Dates and Avg_Sentiment_Numeric columns
-    df_final = df_avg_sentiment.reset_index()
-    df_final.set_index('Dates', inplace=True)
-    return df_final
+#     # Create a new DataFrame with only Dates and Avg_Sentiment_Numeric columns
+#     df_final = df_avg_sentiment.reset_index()
+#     df_final.set_index('Dates', inplace=True)
+#     return df_final
 
 # Relative Strength Index (RSI)
 def calculate_rsi(price_series, window=14):
@@ -134,8 +134,9 @@ def load_data():
 
     ## Sentiment Features
     # News Data
-    sentiment_data = load_sentiment_data('./data/gold-dataset-sinha-khandait.csv')
-    merged_data = data.join([dxy, real_yields, vix, cpi_data, sentiment_data], how='left').ffill() # .bfill()
+    # sentiment_data = load_sentiment_data('./data/gold-dataset-sinha-khandait.csv')
+    # merged_data = data.join([dxy, real_yields, vix, cpi_data, sentiment_data], how='left').ffill() # .bfill()
+    merged_data = data.join([dxy, real_yields, vix, cpi_data], how='left').ffill()
 
     sentiment_score_data = pd.read_csv("./data/gold-daily-sentiment-with-weighting.csv", index_col = 0, parse_dates = True)
     merged_data = merged_data.join(sentiment_score_data[["Sentiment_Score", "Exponential_Weighted_Score"]], how="left")

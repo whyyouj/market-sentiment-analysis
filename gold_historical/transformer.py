@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 import matplotlib.pyplot as plt
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import math
 
@@ -80,8 +80,8 @@ class TransformerEncoderLayer(tf.keras.layers.Layer):
             num_heads=num_heads, key_dim=d_model//num_heads)
         
         self.ffn = tf.keras.Sequential([
-            tf.keras.layers.Dense(ff_dim, activation='relu'),
-            tf.keras.layers.Dense(d_model)
+            tf.keras.layers.Dense(ff_dim, activation='relu', kernel_regularizer=tf.keras.regularizers.l1_l2(l1=0.01, l2=0.01)),
+            tf.keras.layers.Dense(d_model, kernel_regularizer=tf.keras.regularizers.l1_l2(l1=0.01, l2=0.01))
         ])
         
         self.layernorm1 = tf.keras.layers.LayerNormalization(epsilon=1e-6)
@@ -287,45 +287,10 @@ def backtest_trading_strategy(y_true, y_pred, initial_capital=10000):
     
     return trades, equity_curve
 
-# 6a. Directional MSE Loss
-def directional_mse_loss(alpha=0.5):
-    def loss(y_true, y_pred):
-        # Calculate MSE component manually
-        mse = tf.reduce_mean(tf.square(y_true - y_pred))
-        
-        # For directional component, we need to reshape y_true and y_pred
-        # as they are 1D in your backtesting context
-        # Get true values for current and previous time steps
-        y_true_current = y_true[1:]
-        y_true_prev = y_true[:-1]
-        
-        # Get predicted values for current and previous time steps
-        y_pred_current = y_pred[1:]
-        y_pred_prev = y_pred[:-1]
-        
-        # Calculate directional component
-        true_diff = y_true_current - y_true_prev
-        pred_diff = y_pred_current - y_pred_prev
-        
-        # Get signs of differences
-        true_sign = tf.sign(true_diff)
-        pred_sign = tf.sign(pred_diff)
-        
-        # Calculate direction agreement (1 when directions match, 0 otherwise)
-        dir_agree = tf.cast(tf.equal(true_sign, pred_sign), tf.float32)
-        dir_loss = 1.0 - tf.reduce_mean(dir_agree)
-        
-        # Combine losses with weighting factor alpha
-        return alpha * mse + (1 - alpha) * dir_loss
-    
-    return loss
-
-# 7. Main Backtesting Process
+# 6. Main Backtesting Process
 def run_gold_price_backtesting(df, features = ["Price"], seq_length=60, test_size=0.2, 
                               d_model=64, num_heads=4, num_layers=2, 
-                              dropout_rate=0.1, batch_size=32, epochs=50,
-                              # use_one_cycle_lr=True, max_lr=0.01, min_lr=1e-6,
-                              directional_loss_weight=0.5):
+                              dropout_rate=0.1, batch_size=32, epochs=50):
     """
     Complete backtesting process for gold price prediction
     """
@@ -358,11 +323,9 @@ def run_gold_price_backtesting(df, features = ["Price"], seq_length=60, test_siz
     )
     
     # 5. Compile the model
-    initial_lr = 0.001
-
     model.compile(
         optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
-        loss=directional_mse_loss(alpha=1-directional_loss_weight)
+        loss="mean_squared_error"
     )
     
     # 6. Define callbacks
@@ -375,14 +338,6 @@ def run_gold_price_backtesting(df, features = ["Price"], seq_length=60, test_siz
         restore_best_weights=True
     )
     callbacks.append(early_stopping)
-    
-    # Add model checkpoint
-    model_checkpoint = tf.keras.callbacks.ModelCheckpoint(
-        'gold_transformer_model.keras',
-        monitor='val_loss',
-        save_best_only=True
-    )
-    callbacks.append(model_checkpoint)
 
     # 7. Train the model
     history = model.fit(
