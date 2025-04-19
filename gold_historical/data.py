@@ -97,7 +97,6 @@ def load_data():
 
     # VIX
     vix = pd.read_csv('./data/vix.csv',index_col = 0, parse_dates=True)
-    #interest_rates = pd.read_csv('.data/real-long-term-rates-2000-2024.csv',index_col = 0, parse_dates=True)
 
     # CPI Data
     cpi_data = clean_CPI('./data/CPI_report.csv')
@@ -120,5 +119,6 @@ def load_data():
     
     # Bollinger bands
     merged_data["Upper_Band"], merged_data["Lower_Band"] = add_bollinger_bands(merged_data["Price"])
+    merged_data = merged_data.dropna()
 
     return merged_data
