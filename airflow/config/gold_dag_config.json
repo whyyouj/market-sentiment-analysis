@@ -1,0 +1,63 @@
+{
+  "datasets": [
+    {
+      "name": "prices",
+      "mysql_table": "gold_prices",
+      "date_format_function": "mdy_format",
+      "columns_to_extract": ["Price"],
+      "kafka_topic": "gold-prices-topic",
+      "transformation_function": "price_transform"
+    },
+    {
+      "name": "usd_rates",
+      "mysql_table": "dxy",
+      "date_format_function": "standard_date_format",
+      "columns_to_extract": ["DXY"],
+      "kafka_topic": "usd-rates-topic",
+      "transformation_function": "None"
+    },
+    {
+      "name": "real_yields",
+      "mysql_table": "real_yields",
+      "date_format_function": "standard_date_format",
+      "columns_to_extract": ["DFII10"],
+      "kafka_topic": "real-yields-topic",
+      "transformation_function": "None"
+    },
+    {
+      "name": "vix",
+      "mysql_table": "volatility_index",
+      "date_format_function": "standard_date_format",
+      "columns_to_extract": ["VIX"],
+      "kafka_topic": "vix-topic",
+      "transformation_function": "None"
+    },
+    {
+      "name": "cpi",
+      "mysql_table": "cpi_report",
+      "date_format_function": "year_month_format",
+      "columns_to_extract": ["Value"],
+      "kafka_topic": "cpi-topic",
+      "transformation_function": "rename_key"
+    },
+    {
+      "name": "gold_news",
+      "mysql_table": "gold_news",
+      "date_format_function": "dmy_format",
+      "columns_to_extract": ["News"],
+      "kafka_topic": "gold-news-topic",
+      "transformation_function": "calculate_sentiment_score"
+    }
+  ],
+  "window_sizes": {
+    "rsi": 14,
+    "bollinger": 20,
+    "ema30": 30,
+    "ema252": 252
+  },
+  "bigquery": {
+    "project_id": "skillful-mason-454117-m5",
+    "dataset_id": "IS3107_Project",
+    "table_id": "gold_market_data"
+  }
+}
