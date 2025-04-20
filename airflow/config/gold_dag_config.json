@@ -58,6 +58,8 @@
   "bigquery": {
     "project_id": "skillful-mason-454117-m5",
     "dataset_id": "IS3107_Project",
-    "table_id": "gold_market_data"
+    "gold_market_data_table": "gold_market_data",
+    "exp_weighted_sentiment_table": "exp_weighted_sentiment",
+    "model_predictions_table": "model_predictions"
   }
 }
