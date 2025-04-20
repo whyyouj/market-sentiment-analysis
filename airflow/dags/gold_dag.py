@@ -2,7 +2,6 @@ import json
 import os
 from datetime import datetime, timedelta
 from typing import Dict, List, Any
-
 from airflow import DAG
 from airflow.operators.python import PythonOperator
 from airflow.operators.dummy import DummyOperator
@@ -14,8 +13,7 @@ from airflow.utils.trigger_rule import TriggerRule
 from confluent_kafka import Producer, Consumer, KafkaException
 import pandas as pd
 import numpy as np
-from transformers import AutoModelForSequenceClassification, AutoTokenizer
-import torch
+from airflow.scripts.feature_transformations import calculate_sentiment_score, calculate_rsi, add_bollinger_bands
 
 # Configuration file path - stored as an Airflow Variable
 DAG_CONFIG = Variable.get("gold_prediction_dag_config", deserialize_json=True)
@@ -137,19 +135,6 @@ def extract_from_mysql(dataset_config, execution_date, **kwargs):
         print(f"Error extracting {dataset_name} data: {str(e)}")
         raise
 
-def calculate_sentiment_score(news):
-    # load model and tokenizer
-    model_name = "LHF/finbert-regressor"
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    model = AutoModelForSequenceClassification.from_pretrained(model_name)
-
-    inputs = tokenizer(news, return_tensors="pt", padding=True, truncation=True, max_length=512)
-    with torch.no_grad():
-        outputs = model(**inputs)
-        score = outputs.logits.item()
-
-    return score
-
 def transform_data(dataset_config, **kwargs):
     """Consume data from Kafka and apply transformations"""
     dataset_name = dataset_config['name']
@@ -246,48 +231,6 @@ def get_historical_data(date_str, max_window_size, bq_hook, project_id, dataset_
     
     return result if not result.empty else pd.DataFrame()
 
-# Relative Strength Index (RSI)
-def calculate_rsi(price_series, window=14):
-    # Calculate price changes
-    delta = price_series.diff()
-    
-    # Create copies for gain and loss
-    gain = delta.copy()
-    loss = delta.copy()
-    
-    # Set gains to 0 where price decreased
-    gain[gain < 0] = 0
-    
-    # Set losses to 0 where price increased (and make losses positive)
-    loss[loss > 0] = 0
-    loss = abs(loss)
-    
-    # Calculate average gain and loss over the specified window
-    avg_gain = gain.rolling(window=window).mean()
-    avg_loss = loss.rolling(window=window).mean()
-    
-    # Calculate relative strength (RS)
-    rs = avg_gain / avg_loss
-    
-    # Calculate RSI
-    rsi = 100 - (100 / (1 + rs))
-    
-    return rsi
-
-# Bollinger Bands
-def add_bollinger_bands(price_series, window=20, num_std_dev=2):
-    # Calculate the moving average (middle band)
-    sma = price_series.rolling(window=window).mean()
-    
-    # Calculate the rolling standard deviation
-    std_dev = price_series.rolling(window=window).std()
-    
-    # Calculate the upper and lower Bollinger Bands
-    upper_band = sma + (std_dev * num_std_dev)
-    lower_band = sma - (std_dev * num_std_dev)
-    
-    return upper_band, lower_band
-
 def apply_feature_engineering(hist_df, current_data):
     """Apply feature engineering to the combined dataset"""
     # create a DataFrame for the current day
@@ -319,9 +262,10 @@ def apply_feature_engineering(hist_df, current_data):
     combined_df['RSI'] = calculate_rsi(combined_df['Price'])
 
     # Bollinger Bands and Spread
-    combined_df["Upper_Band"], combined_df["Lower_Band"] = add_bollinger_bands(combined_df['Price'])
-    combined_df['band_spread'] = combined_df["Upper_Band"] - combined_df["Lower_Band"]
-    combined_df = combined_df.drop(["Upper_Band", "Lower_Band"], axis = 1)
+    combined_df['Band_Spread'] = add_bollinger_bands(combined_df['Price'])
+    # combined_df["Upper_Band"], combined_df["Lower_Band"] = add_bollinger_bands(combined_df['Price'])
+    # combined_df['Band_Spread'] = combined_df["Upper_Band"] - combined_df["Lower_Band"]
+    # combined_df = combined_df.drop(["Upper_Band", "Lower_Band"], axis = 1)
     
     # TODO: exponential weighted score for news sentiment score
 
@@ -335,7 +279,7 @@ def load_to_bigquery(**kwargs):
     
     project_id = bigquery_config['project_id']
     dataset_id = bigquery_config['dataset_id']
-    table_id = bigquery_config['table_id']
+    gold_market_data_table = bigquery_config['gold_market_data_table']
     
     # get combined data
     combined_data = ti.xcom_pull(task_ids='combine_datasets', key='combined_data')
@@ -351,20 +295,20 @@ def load_to_bigquery(**kwargs):
     bq_hook = BigQueryHook(bigquery_conn_id='bigquery_default')
     
     # get historical data for feature engineering
-    hist_df = get_historical_data(combined_data['Date'], max_window_size, bq_hook, project_id, dataset_id, table_id)
+    hist_df = get_historical_data(combined_data['Date'], max_window_size, bq_hook, project_id, dataset_id, gold_market_data_table)
     
     # apply feature engineering
     processed_df = apply_feature_engineering(hist_df, combined_data)
     
     # load the processed data to BigQuery
     processed_df.to_gbq(
-        destination_table=f"{dataset_id}.{table_id}",
+        destination_table=f"{dataset_id}.{gold_market_data_table}",
         project_id=project_id,
         if_exists='append',
         location='US'
     )
     
-    print(f"[BigQuery] Loaded data for {combined_data['Date']} to BigQuery table {project_id}.{dataset_id}.{table_id}")
+    print(f"[BigQuery] Loaded data for {combined_data['Date']} to BigQuery table {project_id}.{dataset_id}.{gold_market_data_table}")
 
 # Default arguments for the DAG
 default_args = {
