@@ -119,7 +119,7 @@ def load_data():
     
     # Bollinger bands
     merged_data["Upper_Band"], merged_data["Lower_Band"] = add_bollinger_bands(merged_data["Price"])
-    merged_data["band_spread"] = (merged_data["Upper_Band"] - merged_data["Lower_Band"])
+    merged_data["Band_Spread"] = (merged_data["Upper_Band"] - merged_data["Lower_Band"])
 
     merged_data = merged_data.drop(["Upper_Band", "Lower_Band"], axis = 1)
 
