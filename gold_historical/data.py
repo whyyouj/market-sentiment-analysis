@@ -122,6 +122,5 @@ def load_data():
     merged_data["Band_Spread"] = (merged_data["Upper_Band"] - merged_data["Lower_Band"])
 
     merged_data = merged_data.drop(["Upper_Band", "Lower_Band"], axis = 1)
-    merged_data = merged_data.dropna()
 
-    return merged_data
+    return merged_data.dropna()
