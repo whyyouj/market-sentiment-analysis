@@ -21,6 +21,12 @@ def calculate_sentiment_score(news):
 
     return score
 
+# Exponential Moving Average for Price
+def ema_price(price_df, alpha=0.9):
+    ema30 = price_df.ewm(alpha=alpha, min_periods=30, adjust=False).mean()
+    ema252 = price_df.ewm(alpha=alpha, min_periods=252, adjust=False).mean()
+    return ema30, ema252
+
 # Relative Strength Index (RSI)
 def calculate_rsi(price_series, window=14):
     # Calculate price changes

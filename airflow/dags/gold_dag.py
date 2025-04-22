@@ -13,12 +13,12 @@ from airflow.utils.trigger_rule import TriggerRule
 from confluent_kafka import Producer, Consumer, KafkaException
 import pandas as pd
 import numpy as np
-from airflow.scripts.feature_transformations import calculate_sentiment_score, calculate_rsi, add_bollinger_bands
+from airflow.scripts.feature_transformations import calculate_sentiment_score, ema_price, calculate_rsi, add_bollinger_bands, exp_weighting_sentiment_score
 
-# Configuration file path - stored as an Airflow Variable
+# fetch configuration file stored as an airflow variable
 DAG_CONFIG = Variable.get("gold_prediction_dag_config", deserialize_json=True)
 
-# Define date range for historical data
+# define date range for dag run
 START_DATE = datetime(2015, 11, 16)
 END_DATE = datetime(2019, 2, 1)
 
@@ -213,15 +213,19 @@ def combine_datasets(**kwargs):
     
     return True
 
-def get_historical_data(date_str, max_window_size, bq_hook, project_id, dataset_id, table_id):
+def get_historical_data(date_str, bq_hook, bq_config, max_window_size):
     """Get historical data from BigQuery for feature engineering"""
     # calculate the start date for historical data
     start_date = (datetime.strptime(date_str, '%Y-%m-%d') - timedelta(days=max_window_size)).strftime('%Y-%m-%d')
     
     # query historical data
+    project_id = bq_config['project_id']
+    dataset_id = bq_config['dataset_id']
+    gold_market_data_table = bq_config['gold_market_data_table']
+
     query = f"""
     SELECT *
-    FROM `{project_id}.{dataset_id}.{table_id}`
+    FROM `{project_id}.{dataset_id}.{gold_market_data_table}`
     WHERE Date >= '{start_date}' AND Date < '{date_str}'
     ORDER BY Date ASC
     """
@@ -231,17 +235,28 @@ def get_historical_data(date_str, max_window_size, bq_hook, project_id, dataset_
     
     return result if not result.empty else pd.DataFrame()
 
-def apply_feature_engineering(hist_df, current_data):
+def apply_feature_engineering(**kwargs):
     """Apply feature engineering to the combined dataset"""
-    # create a DataFrame for the current day
+    ti = kwargs['ti']
+
+    # connect to BigQuery and get config
+    bq_hook = BigQueryHook(bigquery_conn_id='bigquery_default')
+    bq_config = DAG_CONFIG['bigquery']
+
+    # create a dataframe for the current day's combined data
+    current_data = ti.xcom_pull(task_ids='combine_datasets', key='combined_data')
     current_df = pd.DataFrame([current_data])
+
+    # get historical data for feature engineering
+    max_window_size = max(DAG_CONFIG['window_sizes'].values())
+    hist_df = get_historical_data(current_data['Date'], bq_hook, bq_config, max_window_size)
     
-    # convert date to datetime
+    # convert date string to datetime in current data
     if 'Date' in current_df.columns:
         current_df['Date'] = pd.to_datetime(current_df['Date'])
     
     if not hist_df.empty:
-        # ensure date is in datetime format
+        # convert date string to datetime in historical data
         if 'Date' in hist_df.columns:
             hist_df['Date'] = pd.to_datetime(hist_df['Date'])
         
@@ -255,22 +270,25 @@ def apply_feature_engineering(hist_df, current_data):
     
     # apply feature engineering functions
     # exponential moving average for price
-    combined_df["EMA30"] = combined_df[["Price"]].ewm(alpha=0.9, min_periods=30, adjust=False).mean()
-    combined_df["EMA252"] = combined_df[["Price"]].ewm(alpha=0.9, min_periods=252, adjust=False).mean()
+    combined_df["EMA30"], combined_df["EMA252"] = ema_price(combined_df[["Price"]])
 
     # RSI
     combined_df['RSI'] = calculate_rsi(combined_df['Price'])
 
     # Bollinger Bands and Spread
     combined_df['Band_Spread'] = add_bollinger_bands(combined_df['Price'])
-    # combined_df["Upper_Band"], combined_df["Lower_Band"] = add_bollinger_bands(combined_df['Price'])
-    # combined_df['Band_Spread'] = combined_df["Upper_Band"] - combined_df["Lower_Band"]
-    # combined_df = combined_df.drop(["Upper_Band", "Lower_Band"], axis = 1)
-    
-    # TODO: exponential weighted score for news sentiment score
 
-    # return only the current day's data with all features
-    return combined_df.iloc[-1:].reset_index(drop=True)
+    # obtain the current day's data with all features
+    full_current_data = combined_df.iloc[-1:].to_dict('records')[0]
+    
+    # exponential weighting for news sentiment score
+    full_current_data['Exponential_Weighted_Score'] = exp_weighting_sentiment_score(bq_config, bq_hook, current_data['Sentiment_Score'], current_data['Date'])
+
+    # store the full data in XCom
+    ti.xcom_push(key='full_current_data', value=json.dumps(full_current_data).encode('utf-8'))
+    print(f"[apply_feature_engineering] Feature engineering completed for {current_data['Date']}")
+
+    return True
 
 def load_to_bigquery(**kwargs):
     """Load the processed data to BigQuery"""
@@ -281,34 +299,26 @@ def load_to_bigquery(**kwargs):
     dataset_id = bigquery_config['dataset_id']
     gold_market_data_table = bigquery_config['gold_market_data_table']
     
-    # get combined data
-    combined_data = ti.xcom_pull(task_ids='combine_datasets', key='combined_data')
-    
-    if not combined_data:
-        print("[BigQuery] No data to load to BigQuery")
-        return
-    
-    # get the date string and max_window_size
-    max_window_size = max(DAG_CONFIG['window_sizes'].values())
+    # get current day's data after feature engineering
+    full_current_data = ti.xcom_pull(task_ids='apply_feature_engineering', key='full_current_data')
     
     # connect to BigQuery
     bq_hook = BigQueryHook(bigquery_conn_id='bigquery_default')
     
-    # get historical data for feature engineering
-    hist_df = get_historical_data(combined_data['Date'], max_window_size, bq_hook, project_id, dataset_id, gold_market_data_table)
+    # get BigQueryHook client and table
+    client = bq_hook.get_client()
+    table_ref = f"{project_id}.{dataset_id}.{gold_market_data_table}"
+    table = client.get_table(table_ref)
     
-    # apply feature engineering
-    processed_df = apply_feature_engineering(hist_df, combined_data)
+    # insert the current day's data as a row
+    errors = client.insert_rows_json(table, [full_current_data])
     
-    # load the processed data to BigQuery
-    processed_df.to_gbq(
-        destination_table=f"{dataset_id}.{gold_market_data_table}",
-        project_id=project_id,
-        if_exists='append',
-        location='US'
-    )
+    if errors:
+        raise Exception(f"[load_to_bigquery] Errors inserting data for {full_current_data['Date']} into {table_ref}: {errors}")
+    else:
+        print(f"[load_to_bigquery] Successfully inserted data for {full_current_data['Date']} into {table_ref}")
     
-    print(f"[BigQuery] Loaded data for {combined_data['Date']} to BigQuery table {project_id}.{dataset_id}.{gold_market_data_table}")
+    return True
 
 # Default arguments for the DAG
 default_args = {
@@ -376,8 +386,15 @@ with DAG(
         provide_context=True,
         trigger_rule=TriggerRule.ALL_SUCCESS # Only run if all upstream tasks succeed
     )
+
+    # feature engineering task
+    feature_eng_task = PythonOperator(
+        task_id='apply_feature_engineering',
+        python_callable=apply_feature_engineering,
+        provide_context=True
+    )
     
-    # load to BigQuery task: includes fetching historical data, forward filling, feature engineering
+    # load to BigQuery task
     load_bq_task = PythonOperator(
         task_id='load_to_bigquery',
         python_callable=load_to_bigquery,
@@ -392,4 +409,4 @@ with DAG(
     
     # set the final dependencies
     start_task >> check_date_task
-    transform_tasks >> combine_task >> load_bq_task >> end_task
+    transform_tasks >> combine_task >> feature_eng_task >> load_bq_task >> end_task
