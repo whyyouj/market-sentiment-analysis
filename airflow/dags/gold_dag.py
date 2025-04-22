@@ -14,6 +14,7 @@ from confluent_kafka import Producer, Consumer, KafkaException
 import pandas as pd
 import numpy as np
 from airflow.scripts.feature_transformations import calculate_sentiment_score, ema_price, calculate_rsi, add_bollinger_bands, exp_weighting_sentiment_score
+from airflow.modelling.transformer import train_transformer, transformer_predict
 
 # fetch configuration file stored as an airflow variable
 DAG_CONFIG = Variable.get("gold_prediction_dag_config", deserialize_json=True)
