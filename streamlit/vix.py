@@ -1,0 +1,406 @@
+import streamlit as st
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from scipy import stats
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+import utils
+import statsmodels.api as sm
+from statsmodels.tsa.stattools import grangercausalitytests
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+
+def app():
+    """VIX analysis page"""
+    st.title("VIX and Gold Price Analysis")
+    
+    # Get authenticated BigQuery client
+    client = utils.get_bigquery_client()
+    
+    if client is None:
+        st.error("Could not create BigQuery client. Please check your credentials.")
+        return
+    
+    try:
+        # Load data
+        with st.spinner("Loading data from BigQuery..."):
+            query = """
+            SELECT Date, Price, VIX
+            FROM `IS3107_Project.gold_market_data`
+            WHERE VIX IS NOT NULL AND Price IS NOT NULL
+            ORDER BY Date
+            """
+            data = client.query(query).to_dataframe()
+            
+        # Check if data loaded successfully
+        if data is None or data.empty:
+            st.error("No data was retrieved from BigQuery. Please check your query and connection.")
+            return
+            
+        # Ensure date is in datetime format
+        if 'Date' in data.columns and data['Date'].dtype != 'datetime64[ns]':
+            data['Date'] = pd.to_datetime(data['Date'])
+            
+        # Clean the data - remove any remaining NaN values
+        clean_data = data.dropna(subset=['Date', 'Price', 'VIX']).copy()
+        
+        # Now that data is clean, run the feature analysis
+        utils.run_feature_analysis(clean_data, 'VIX')
+        
+        st.success(f"Data loaded successfully! Total records: {len(clean_data)}")
+        
+        # Information about VIX - retained from original file with expanded hypothesis
+        with st.expander("What is VIX and its relation to gold?"):
+            st.markdown("""
+            ## VIX and Gold
+            
+            The VIX (CBOE Volatility Index) is a real-time market index representing the market's expectations for volatility over the coming 30 days.
+            Often referred to as the "fear index" or "fear gauge," the VIX is a measure of market risk and investors' sentiments.
+            
+            ### Hypothesis
+            
+            Our hypothesis is that there is a **linear relationship** between VIX and gold prices. Specifically, we expect that higher VIX values (indicating greater market uncertainty) will correspond to higher gold prices.
+            
+            ### Economic Reasoning
+            
+            This hypothesis is based on economic theory that suggests:
+            
+            1. **Safe Haven Effect**: Gold is traditionally viewed as a "safe haven" asset during times of market uncertainty and volatility.
+            
+            2. **Fear Factor**: When the VIX rises (indicating market fear), investors often shift capital toward perceived safe assets like gold.
+            
+            3. **Portfolio Diversification**: During volatile periods, institutional investors increase gold allocations to diversify risk.
+            
+            4. **Historical Patterns**: Historically, gold prices have often risen during periods of market stress and high volatility.
+            """)
+            
+        # Linear Relationship Hypothesis Visualization
+        st.header("Testing the Linear Relationship Hypothesis")
+        
+        # Calculate Pearson correlation coefficient
+        correlation = clean_data['VIX'].corr(clean_data['Price'])
+        correlation_text = f"Correlation: {correlation:.3f}"
+        relationship_strength = "strong" if abs(correlation) > 0.7 else "moderate" if abs(correlation) > 0.3 else "weak"
+        
+        # Create a dual y-axis time series plot
+        fig1, ax1 = plt.subplots(figsize=(12, 6))
+        
+        # Plot gold price
+        color = 'goldenrod'
+        ax1.set_xlabel('Date')
+        ax1.set_ylabel('Gold Price (USD)', color=color)
+        ax1.plot(clean_data['Date'], clean_data['Price'], color=color, linewidth=2)
+        ax1.tick_params(axis='y', labelcolor=color)
+        
+        # Create second y-axis for VIX
+        ax2 = ax1.twinx()
+        color = 'darkred'
+        ax2.set_ylabel('VIX', color=color)
+        ax2.plot(clean_data['Date'], clean_data['VIX'], color=color, linewidth=2)
+        ax2.tick_params(axis='y', labelcolor=color)
+        
+        # Add a title and annotation
+        plt.title('Gold Price and VIX Over Time', fontsize=14)
+        plt.figtext(0.15, 0.85, correlation_text, 
+                    bbox=dict(facecolor='white', alpha=0.8, boxstyle='round,pad=0.5'))
+        
+        fig1.tight_layout()
+        st.pyplot(fig1)
+        
+        # Linear regression scatter plot to explicitly test the hypothesis
+        st.subheader("Linear Relationship Analysis")
+        
+        fig2, ax = plt.subplots(figsize=(10, 6))
+        
+        # Create scatter plot
+        ax.scatter(clean_data['VIX'], clean_data['Price'], alpha=0.6, c='goldenrod')
+        
+        # Add regression line
+        X = clean_data['VIX'].values.reshape(-1, 1)
+        y = clean_data['Price'].values
+        
+        # Fit the model
+        model = LinearRegression()
+        model.fit(X, y)
+        
+        # Get regression metrics
+        r_squared = model.score(X, y)
+        slope = model.coef_[0]
+        intercept = model.intercept_
+        
+        # Calculate p-value for the slope
+        n = len(clean_data)
+        y_pred = model.predict(X)
+        residual = y - y_pred
+        sse = np.sum(residual**2)
+        variance = sse / (n - 2)
+        se = np.sqrt(variance / np.sum((X - np.mean(X))**2))
+        t_stat = slope / se
+        p_value = 2 * (1 - stats.t.cdf(abs(t_stat), n - 2))
+        
+        # Generate predictions for the line
+        x_range = np.linspace(clean_data['VIX'].min(), clean_data['VIX'].max(), 100)
+        y_pred = model.predict(x_range.reshape(-1, 1))
+        
+        # Plot the regression line
+        ax.plot(x_range, y_pred, color='red', linewidth=2)
+        
+        # Add equation and R² to the plot
+        equation = f"Price = {intercept:.2f} + {slope:.2f} × VIX"
+        r2_text = f"R² = {r_squared:.3f}, p-value = {p_value:.4f}"
+        ax.annotate(equation + "\n" + r2_text,
+                   xy=(0.05, 0.95), xycoords='axes fraction',
+                   bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="gray", alpha=0.8),
+                   va='top')
+        
+        # Set labels and title
+        ax.set_xlabel('VIX Index')
+        ax.set_ylabel('Gold Price (USD)')
+        ax.set_title('Gold Price vs. VIX: Linear Regression Analysis', fontsize=14)
+        ax.grid(True, alpha=0.3)
+        
+        st.pyplot(fig2)
+        
+        # Insight about the regression results
+        if p_value < 0.05:
+            significance = "statistically significant"
+            evidence = "supports"
+        else:
+            significance = "not statistically significant"
+            evidence = "does not support"
+            
+        st.markdown(f"""
+        ### Regression Analysis Summary:
+        - The slope coefficient is {slope:.2f}, indicating that for each one-point increase in VIX, gold price changes by ${slope:.2f} on average.
+        - This relationship is {significance} (p-value: {p_value:.4f}), which {evidence} our hypothesis of a linear relationship.
+        - The R² value of {r_squared:.3f} indicates that VIX explains approximately {r_squared*100:.1f}% of the variation in gold prices.
+        - The relationship is {relationship_strength} based on the correlation coefficient of {correlation:.3f}.
+        """)
+        
+        # Create tabs for additional analysis
+        tab1, tab2, tab3 = st.tabs(["Rolling Correlation", "VIX Regimes", "Normalized Comparison"])
+        
+        with tab1:
+            st.subheader("Rolling Correlation Analysis")
+            
+            # Add rolling window selector
+            window_size = st.slider("Select rolling window size (days)", 30, 365, 90)
+            
+            # Calculate rolling correlation
+            clean_data['rolling_corr'] = clean_data['VIX'].rolling(window=window_size).corr(clean_data['Price'])
+            
+            # Identify valid indices where we have correlation values
+            valid_indices = clean_data['rolling_corr'].notna()
+            
+            # Create the rolling correlation plot with properly aligned data
+            fig4, ax = plt.subplots(figsize=(12, 6))
+            
+            # Use only non-NaN values for plotting
+            valid_dates = clean_data.loc[valid_indices, 'Date']
+            valid_corr = clean_data.loc[valid_indices, 'rolling_corr']
+            
+            # Plot the line
+            ax.plot(valid_dates, valid_corr, color='purple', linewidth=2)
+            
+            # Add horizontal line at zero
+            ax.axhline(y=0, color='black', linestyle='--', alpha=0.5)
+            
+            # Fill areas based on correlation sign
+            ax.fill_between(valid_dates, valid_corr, 0, 
+                           where=(valid_corr > 0),
+                           color='green', alpha=0.3, label='Positive Correlation\n(Supports Safe-Haven Hypothesis)')
+            
+            ax.fill_between(valid_dates, valid_corr, 0, 
+                           where=(valid_corr <= 0),
+                           color='red', alpha=0.3, label='Negative Correlation\n(Contradicts Safe-Haven Hypothesis)')
+            
+            # Add visualization enhancements
+            ax.set_xlabel('Date')
+            ax.set_ylabel('Correlation Coefficient')
+            ax.grid(True, alpha=0.3)
+            ax.legend()
+            
+            # Add title with window size information
+            plt.title(f'{window_size}-day Rolling Correlation between Gold Price and VIX')
+            
+            # Display correlation statistics
+            mean_corr = valid_corr.mean()
+            pos_pct = (valid_corr > 0).mean() * 100
+            corr_stats = f"Mean correlation: {mean_corr:.3f} | Positive correlation: {pos_pct:.1f}% of time"
+            
+            # Add annotation for correlation stats
+            plt.figtext(0.5, 0.01, corr_stats, ha='center', 
+                        bbox=dict(facecolor='whitesmoke', alpha=0.8, boxstyle='round,pad=0.5'))
+            
+            fig4.tight_layout(rect=[0, 0.03, 1, 0.95])  # Adjust layout to make room for the annotation
+            st.pyplot(fig4)
+            
+            # Additional interpretation based on rolling correlation
+            st.markdown(f"""
+            **Rolling Correlation Insights:**
+            - The mean correlation between VIX and gold prices over this period is **{mean_corr:.3f}**.
+            - Gold prices show a positive correlation with VIX **{pos_pct:.1f}%** of the time.
+            - {'This suggests gold generally acts as a safe-haven during market volatility.' if pos_pct > 60 else 
+              'This suggests gold does not consistently act as a safe-haven during all market volatility periods.' if pos_pct < 40 else
+              'This suggests gold sometimes acts as a safe-haven during market volatility, but the relationship is not consistent.'}
+            """)
+            
+        with tab2:
+            st.subheader("VIX Regime Analysis")
+            
+            # Define VIX regimes
+            low_vix = clean_data['VIX'].quantile(0.33)
+            high_vix = clean_data['VIX'].quantile(0.67)
+            
+            # Create VIX regime column
+            clean_data['VIX_regime'] = pd.cut(
+                clean_data['VIX'], 
+                bins=[0, low_vix, high_vix, float('inf')],
+                labels=['Low', 'Medium', 'High']
+            )
+            
+            # Create a boxplot of gold prices by VIX regime
+            fig5, ax = plt.subplots(figsize=(10, 6))
+            sns.boxplot(x='VIX_regime', y='Price', data=clean_data, ax=ax, palette=['green', 'goldenrod', 'red'])
+            
+            # Calculate means for each regime
+            regime_means = clean_data.groupby('VIX_regime')['Price'].mean()
+            
+            # Add mean values as text
+            for i, regime in enumerate(regime_means.index):
+                ax.text(i, regime_means[regime] + 20, f"Mean: ${regime_means[regime]:.2f}", 
+                        ha='center', va='bottom', fontweight='bold')
+                
+            ax.set_xlabel('VIX Regime')
+            ax.set_ylabel('Gold Price (USD)')
+            ax.set_title('Gold Prices across VIX Regimes', fontsize=14)
+            
+            st.pyplot(fig5)
+            
+            # ANOVA test to compare gold prices across VIX regimes
+            groups = [clean_data.loc[clean_data['VIX_regime'] == regime, 'Price'] for regime in ['Low', 'Medium', 'High']]
+            anova_result = stats.f_oneway(*groups)
+            
+            # Provide insights based on ANOVA results
+            if anova_result.pvalue < 0.05:
+                st.success(f"ANOVA p-value: {anova_result.pvalue:.4f} - There is a statistically significant difference in gold prices across VIX regimes.")
+                
+                # Post-hoc analysis: which regimes differ?
+                st.markdown("### Post-hoc analysis: Tukey HSD test")
+                from statsmodels.stats.multicomp import pairwise_tukeyhsd
+                tukey = pairwise_tukeyhsd(endog=clean_data['Price'], groups=clean_data['VIX_regime'], alpha=0.05)
+                
+                # Convert Tukey results to DataFrame for display
+                tukey_data = pd.DataFrame(
+                    data=tukey._results_table.data[1:], 
+                    columns=tukey._results_table.data[0]
+                )
+                st.dataframe(tukey_data)
+                
+            else:
+                st.info(f"ANOVA p-value: {anova_result.pvalue:.4f} - There is NOT a statistically significant difference in gold prices across VIX regimes.")
+                
+            # Check if means increase monotonically with VIX regime
+            monotonic = regime_means['Low'] < regime_means['Medium'] < regime_means['High']
+            
+            if monotonic:
+                st.success("Gold prices increase monotonically as VIX increases, supporting the safe-haven hypothesis.")
+            else:
+                st.warning("Gold prices do not increase monotonically as VIX increases, which challenges the simple linear relationship hypothesis.")
+                
+        with tab3:
+            st.subheader("Normalized Comparison")
+            
+            # Normalize both series for better comparison
+            vix_norm = (clean_data['VIX'] - clean_data['VIX'].min()) / (clean_data['VIX'].max() - clean_data['VIX'].min())
+            price_norm = (clean_data['Price'] - clean_data['Price'].min()) / (clean_data['Price'].max() - clean_data['Price'].min())
+            
+            # Create plot
+            fig6, ax = plt.subplots(figsize=(12, 6))
+            
+            # Plot normalized values
+            ax.plot(clean_data['Date'], price_norm, color='goldenrod', linewidth=2, label='Gold Price (normalized)')
+            ax.plot(clean_data['Date'], vix_norm, color='darkred', linewidth=2, linestyle='--', label='VIX (normalized)')
+            
+            # Add visualization enhancements
+            ax.set_xlabel('Date')
+            ax.set_ylabel('Normalized Value')
+            ax.set_title('Normalized Gold Price and VIX Comparison', fontsize=14)
+            ax.grid(True, alpha=0.3)
+            ax.legend()
+            
+            st.pyplot(fig6)
+            
+            # Calculate correlation of normalized series
+            norm_corr = vix_norm.corr(price_norm)
+            st.markdown(f"""
+            The correlation between normalized series is {norm_corr:.3f}, {'supporting' if norm_corr > 0.3 else 'not strongly supporting'} 
+            the hypothesis of a positive relationship between VIX and gold prices.
+            
+            Normalizing the series allows us to compare the pattern of movements rather than the absolute values.
+            """)
+            
+        # Final Summary
+        st.subheader("Hypothesis Testing Summary")
+        
+        # Summarize all findings
+        st.markdown("""
+        ### Summary of Findings
+        
+        Based on our comprehensive analysis, we can draw the following conclusions about the hypothesis that there is a 
+        linear relationship between VIX and gold prices:
+        """)
+        
+        # Check if correlation, regression, and ANOVA support the hypothesis
+        correlation_supports = abs(correlation) > 0.3
+        regression_supports = p_value < 0.05
+        anova_supports = 'anova_result' in locals() and anova_result.pvalue < 0.05
+        
+        # Create summary table
+        results_table = pd.DataFrame({
+            'Analysis Method': ['Correlation Analysis', 'Linear Regression', 'VIX Regime Analysis', 'Rolling Correlation'],
+            'Finding': [
+                f"Correlation coefficient: {correlation:.3f} ({relationship_strength})",
+                f"Slope: {slope:.2f}, R-squared: {r_squared:.3f}, p-value: {p_value:.4f}",
+                f"ANOVA p-value: {anova_result.pvalue:.4f}" if 'anova_result' in locals() else "Not computed",
+                f"Mean rolling correlation: {mean_corr:.3f}" if 'mean_corr' in locals() else "Not computed"
+            ],
+            'Supports Linear Relationship': [
+                "✓ Yes" if correlation_supports else "✗ No",
+                "✓ Yes" if regression_supports else "✗ No",
+                "✓ Yes" if anova_supports else "✗ No",
+                "✓ Yes" if 'mean_corr' in locals() and mean_corr > 0.3 else "✗ No"
+            ]
+        })
+        
+        st.table(results_table)
+        
+        # Final conclusion
+        st.subheader("Conclusion")
+        
+        # Count how many tests support the hypothesis
+        if 'results_table' in locals():
+            support_count = results_table['Supports Linear Relationship'].str.contains('Yes').sum()
+            total_tests = len(results_table)
+            
+            # Provide overall conclusion
+            if support_count / total_tests > 0.6:
+                st.success(f"The data largely supports the hypothesis of a linear relationship between VIX and gold prices. {support_count} out of {total_tests} tests provide evidence for this relationship.")
+            elif support_count / total_tests > 0.4:
+                st.info(f"The data shows mixed evidence regarding the hypothesis of a linear relationship between VIX and gold prices. {support_count} out of {total_tests} tests provide evidence for this relationship.")
+            else:
+                st.warning(f"The data largely does not support the hypothesis of a linear relationship between VIX and gold prices. Only {support_count} out of {total_tests} tests provide evidence for this relationship.")
+            
+            # Direction of relationship if it exists
+            if correlation > 0.1:
+                st.success("The relationship appears to be positive, suggesting that higher VIX levels are associated with higher gold prices, consistent with gold's role as a safe-haven asset during periods of market uncertainty.")
+            elif correlation < -0.1:
+                st.warning("The relationship appears to be negative, contrary to the expected direction. This suggests that higher VIX levels are associated with lower gold prices, which is inconsistent with gold's traditional role as a safe-haven asset.")
+                
+    except Exception as e:
+        st.error(f"An error occurred: {str(e)}")
+        st.exception(e)  # This will display the full traceback for debugging
+
+if __name__ == "__main__":
+    app()
