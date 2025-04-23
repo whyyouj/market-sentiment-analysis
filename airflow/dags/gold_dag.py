@@ -13,14 +13,29 @@ from airflow.utils.trigger_rule import TriggerRule
 from confluent_kafka import Producer, Consumer, KafkaException
 import pandas as pd
 import numpy as np
-from airflow.scripts.feature_transformations import calculate_sentiment_score, calculate_rsi, add_bollinger_bands
+from scripts.feature_transformations import calculate_sentiment_score, calculate_rsi, add_bollinger_bands
+from pathlib import Path
+import yfinance as yf
+import pandas_datareader as pdr
 
-# Configuration file path - stored as an Airflow Variable
-DAG_CONFIG = Variable.get("gold_prediction_dag_config", deserialize_json=True)
+CONFIG_PATH = Path("/opt/airflow/config/gold_dag_config.json")
 
 # Define date range for historical data
 START_DATE = datetime(2015, 11, 16)
 END_DATE = datetime(2019, 2, 1)
+
+def load_config():
+    try:
+        with open(CONFIG_PATH, "r") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        raise Exception(f"Config file missing at {CONFIG_PATH}")
+    except json.JSONDecodeError:
+        raise Exception(f"Invalid JSON in {CONFIG_PATH}")
+    
+# Configuration file path - stored as an Airflow Variable
+# DAG_CONFIG = Variable.get("gold_dag_config", deserialize_json=True)
+DAG_CONFIG = load_config()
 
 def get_current_date():
     """Get the current date in the format YYYY-MM-DD"""
@@ -88,35 +103,18 @@ def get_mysql_extraction_query(cols_to_extract, date_format_func, mysql_table, e
     
     return query
 
-def extract_from_mysql(dataset_config, execution_date, **kwargs):
-    """Extract data from MySQL for a specific dataset and the given date"""
+def extract_data(dataset_config, execution_date, **kwargs):
+    """Extract data from MySQL or API based on the dataset configuration"""
     dataset_name = dataset_config['name']
-    mysql_table = dataset_config['mysql_table']
-    date_format_func = dataset_config['date_format_function']
-    cols_to_extract = dataset_config['columns_to_extract']
-    
-    # apply custom date formatting function for data source to get the correct mysql query
-    sql_query = get_mysql_extraction_query(cols_to_extract, date_format_func, mysql_table, execution_date)
-    
-    # connect to MySQL
-    mysql_hook = MySqlHook(mysql_conn_id='mysql_default')
     
     try:
-        # execute query
-        results = mysql_hook.get_pandas_df(sql_query)
-        
-        # if no data found for the date, create null record
-        if results.empty:
-            print(f"[MySQL] No data found for {dataset_name} on {execution_date}: Creating null record")
-            # create a record with null values
-            cols_string = ', '.join(cols_to_extract)
-            columns = mysql_hook.get_pandas_df(f"SELECT {cols_string} FROM {mysql_table} LIMIT 0").columns
-            null_record = {col: None for col in columns}
-            result_dict = null_record
+        if dataset_name in ['cpi', 'prices']:
+            # Extract from MySQL
+            result_dict = extract_from_mysql(dataset_config, execution_date, **kwargs)
         else:
-            print(f"[MySQL] Successfully extracted {dataset_name} data for {execution_date}")
-            result_dict = results.iloc[0].to_dict()
-        
+            result_dict = extract_from_api(dataset_config, execution_date, **kwargs)
+    
+        # convert to json and send to kafka
         data_json = json.dumps(result_dict).encode('utf-8')
         
         # produce to Kafka
@@ -134,6 +132,61 @@ def extract_from_mysql(dataset_config, execution_date, **kwargs):
     except Exception as e:
         print(f"Error extracting {dataset_name} data: {str(e)}")
         raise
+
+def extract_from_mysql(dataset_config, execution_date, **kwargs):
+    """Extract data from MySQL for a specific dataset and the given date"""
+    dataset_name = dataset_config['name']
+    mysql_table = dataset_config['mysql_table']
+    date_format_func = dataset_config['date_format_function']
+    cols_to_extract = dataset_config['columns_to_extract']
+    
+    # apply custom date formatting function for data source to get the correct mysql query
+    sql_query = get_mysql_extraction_query(cols_to_extract, date_format_func, mysql_table, execution_date)
+    
+    # connect to MySQL
+    mysql_hook = MySqlHook(mysql_conn_id='mysql_default')
+    
+    # execute query
+    results = mysql_hook.get_pandas_df(sql_query)
+        
+    # if no data found for the date, create null record
+    if results.empty:
+        print(f"[MySQL] No data found for {dataset_name} on {execution_date}: Creating null record")
+        # create a record with null values
+        cols_string = ', '.join(cols_to_extract)
+        columns = mysql_hook.get_pandas_df(f"SELECT {cols_string} FROM {mysql_table} LIMIT 0").columns
+        null_record = {col: None for col in columns}
+        return null_record
+    else:
+        print(f"[MySQL] Successfully extracted {dataset_name} data for {execution_date}")
+        return results.iloc[0].to_dict()
+    
+def extract_from_api(dataset_config, execution_date, **kwargs):
+    """Extract data from APIs (for real yields, VIX, DXY)"""
+    dataset_name = dataset_config['name']
+    
+    result_dict = {}
+        
+    if dataset_name == "real_yields":
+        df = pdr.DataReader('DFII10', 'fred', start=execution_date, end=execution_date)
+        if not df.empty:
+            result_dict = {'real_yields': float(df.iloc[0]['DFII10'])}
+    elif dataset_name == "vix":
+        df = yf.download('^VIX', start=execution_date, end=execution_date)
+        if not df.empty:
+            result_dict = {'vix': float(df.iloc[0]['Close'])}
+    elif dataset_name == "dxy":
+        df = yf.download('DX-Y.NYB', start=execution_date, end=execution_date)
+        if not df.empty:
+            result_dict = {'vix': float(df.iloc[0]['Close'])}
+    if not result_dict:
+        print(f"[API] No data found for {dataset_name} on {execution_date}: Creating null record")
+        # create a record with null values
+        null_record = {col: None for col in dataset_config['columns_to_extract']}
+        return null_record
+    else:
+        print(f"[API] Successfully extracted {dataset_name} data for {execution_date}")
+        return result_dict
 
 def transform_data(dataset_config, **kwargs):
     """Consume data from Kafka and apply transformations"""
