@@ -8,6 +8,7 @@ from scipy import stats
 import statsmodels.api as sm
 from statsmodels.tsa.stattools import grangercausalitytests
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
+from sklearn.linear_model import LinearRegression
 
 def app():
     """Main function to run the sentiment score analysis page"""
@@ -81,7 +82,7 @@ def app():
                     st.dataframe(clean_data.head(10))
                 
                 # Analysis tabs
-                tab1, tab2, tab3, tab4, tab5 = st.tabs(["Basic Analysis", "Time Series Analysis", "Correlation Analysis", "Impact on Price", "Hypothesis Testing"])
+                tab1, tab2, tab3, tab4 = st.tabs(["Basic Analysis", "Raw Sentiment Analysis", "Exponential Weighted Analysis", "Hypothesis Testing"])
                 
                 with tab1:
                     st.subheader("Summary Statistics")
@@ -120,497 +121,611 @@ def app():
                         st.metric("Neutral Sentiment Days", f"{neutral_days} ({neutral_days/len(clean_data)*100:.1f}%)")
                 
                 with tab2:
-                    st.subheader("Time Series Analysis")
+                    st.header("Testing Raw Sentiment Score Relationship with Gold")
                     
-                    # Create a figure for the sentiment time series
-                    fig, ax = plt.subplots(figsize=(12, 6))
+                    # Calculate Pearson correlation coefficient
+                    correlation = clean_data['Sentiment_Score'].corr(clean_data['Price'])
+                    correlation_text = f"Correlation: {correlation:.3f}"
+                    relationship_strength = "strong" if abs(correlation) > 0.7 else "moderate" if abs(correlation) > 0.3 else "weak"
                     
-                    # Plot raw sentiment scores
-                    ax.plot(clean_data['Date'], clean_data['Sentiment_Score'], 
-                           label='Raw Sentiment Score', color='blue', alpha=0.5)
+                    # Create a dual y-axis time series plot
+                    fig1, ax1 = plt.subplots(figsize=(12, 6))
                     
-                    # Plot exponential weighted scores
-                    ax.plot(clean_data['Date'], clean_data['Exponential_Weighted_Score'], 
-                           label='Exponential Weighted Score', color='red', 
-                           linestyle='-', alpha=0.3)
+                    # Plot gold price
+                    color = 'goldenrod'
+                    ax1.set_xlabel('Date')
+                    ax1.set_ylabel('Gold Price (USD)', color=color)
+                    ax1.plot(clean_data['Date'], clean_data['Price'], color=color, linewidth=2)
+                    ax1.tick_params(axis='y', labelcolor=color)
                     
-                    # Customize the plot
-                    ax.set_title('Sentiment Score Over Time')
-                    ax.set_xlabel('Date')
-                    ax.set_ylabel('Sentiment Score')
-                    ax.legend()
+                    # Create second y-axis for Sentiment Score
+                    ax2 = ax1.twinx()
+                    color = 'blue'
+                    ax2.set_ylabel('Raw Sentiment Score', color=color)
+                    ax2.plot(clean_data['Date'], clean_data['Sentiment_Score'], color=color, linewidth=2, alpha = 0.5)
+                    ax2.tick_params(axis='y', labelcolor=color)
+                    
+                    # Add a title and annotation
+                    plt.title('Gold Price and Raw Sentiment Score Over Time', fontsize=14)
+                    plt.figtext(0.15, 0.85, correlation_text, 
+                                bbox=dict(facecolor='white', alpha=0.8, boxstyle='round,pad=0.5'))
+                    
+                    fig1.tight_layout()
+                    st.pyplot(fig1)
+                    
+                    # Linear regression scatter plot to explicitly test the hypothesis
+                    fig2, ax = plt.subplots(figsize=(10, 6))
+                    
+                    # Create scatter plot
+                    ax.scatter(clean_data['Sentiment_Score'], clean_data['Price'], alpha=0.6, c='blue')
+                    
+                    # Add regression line
+                    X = clean_data['Sentiment_Score'].values.reshape(-1, 1)
+                    y = clean_data['Price'].values
+                    
+                    # Fit the model
+                    model = LinearRegression()
+                    model.fit(X, y)
+                    
+                    # Get regression metrics
+                    r_squared = model.score(X, y)
+                    slope = model.coef_[0]
+                    intercept = model.intercept_
+                    
+                    # Generate predictions for the line
+                    x_range = np.linspace(clean_data['Sentiment_Score'].min(), clean_data['Sentiment_Score'].max(), 100)
+                    y_pred = model.predict(x_range.reshape(-1, 1))
+                    
+                    # Plot the regression line
+                    ax.plot(x_range, y_pred, color='red', linewidth=2)
+                    
+                    # Add equation and R² to the plot
+                    equation = f"Price = {intercept:.2f} + {slope:.2f} × Sentiment"
+                    r2_text = f"R² = {r_squared:.3f}"
+                    ax.annotate(equation + "\n" + r2_text,
+                               xy=(0.05, 0.95), xycoords='axes fraction',
+                               bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="gray", alpha=0.8),
+                               va='top')
+                    
+                    # Set labels and title
+                    ax.set_xlabel('Raw Sentiment Score')
+                    ax.set_ylabel('Gold Price (USD)')
+                    ax.set_title('Gold Price vs. Raw Sentiment Score: Testing Relationship', fontsize=14)
                     ax.grid(True, alpha=0.3)
                     
-                    # Rotate x-tick labels for better readability
-                    plt.xticks(rotation=45)
-                    plt.tight_layout()
+                    st.pyplot(fig2)
                     
-                    st.pyplot(fig)
+                    # Emphasize the concept of relationship
+                    if slope > 0:
+                        st.success(f"The regression slope is positive ({slope:.2f}), supporting the hypothesis that positive sentiment correlates with higher gold prices.")
+                    else:
+                        st.warning(f"The regression slope is negative ({slope:.2f}), which does not support the hypothesis that positive sentiment correlates with higher gold prices.")
                     
-                    # Plot sentiment and price together
-                    st.subheader("Sentiment Score vs Gold Price")
+                    # More detailed regression with statsmodels for p-values
+                    X_sm = sm.add_constant(X)
+                    model_sm = sm.OLS(y, X_sm).fit()
                     
-                    fig, ax1 = plt.subplots(figsize=(12, 6))
+                    # Extract p-value for Sentiment Score coefficient
+                    p_value = model_sm.pvalues[1]
                     
-                    # Plot sentiment on primary y-axis
-                    ax1.set_xlabel('Date')
-                    ax1.set_ylabel('Sentiment Score', color='tab:blue')
-                    ax1.plot(clean_data['Date'], clean_data['Exponential_Weighted_Score'], color='tab:blue', alpha=0.7, label='Sentiment')
-                    ax1.tick_params(axis='y', labelcolor='tab:blue')
+                    # Display regression summary in expandable section
+                    with st.expander("View Detailed Regression Statistics"):
+                        st.text(model_sm.summary().as_text())
                     
-                    # Create secondary y-axis for price
-                    ax2 = ax1.twinx()
-                    ax2.set_ylabel('Gold Price', color='tab:orange')
-                    ax2.plot(clean_data['Date'], clean_data['Price'], color='tab:orange', alpha=0.7, label='Gold Price')
-                    ax2.tick_params(axis='y', labelcolor='tab:orange')
-                    
-                    # Add legend
-                    lines1, labels1 = ax1.get_legend_handles_labels()
-                    lines2, labels2 = ax2.get_legend_handles_labels()
-                    ax1.legend(lines1 + lines2, labels1 + labels2, loc='upper left')
-                    
-                    plt.title('Sentiment Score and Gold Price Over Time')
-                    plt.tight_layout()
-                    st.pyplot(fig)
-                
-                with tab3:
-                    st.subheader("Correlation Analysis")
-                    
-                    # Create correlation matrix
-                    corr_data = clean_data[['Price', 'Sentiment_Score', 'Exponential_Weighted_Score']].copy()
-                    corr_matrix = corr_data.corr()
-                    
-                    # Plot correlation heatmap
-                    fig, ax = plt.subplots(figsize=(8, 6))
-                    sns.heatmap(corr_matrix, annot=True, cmap='coolwarm', fmt='.3f', ax=ax)
-                    plt.tight_layout()
-                    st.pyplot(fig)
-                    
-                    # Explanation of findings
-                    st.markdown("### Key Observations")
-                    
-                    # Calculate correlations explicitly for better readability
-                    corr_sentiment_price = corr_data['Sentiment_Score'].corr(corr_data['Price'])
-                    corr_exp_price = corr_data['Exponential_Weighted_Score'].corr(corr_data['Price'])
-                    corr_sentiment_exp = corr_data['Sentiment_Score'].corr(corr_data['Exponential_Weighted_Score'])
-                    
-                    st.markdown(f"- Correlation between Raw Sentiment and Price: **{corr_sentiment_price:.3f}**")
-                    st.markdown(f"- Correlation between Exponential Weighted Sentiment and Price: **{corr_exp_price:.3f}**")
-                    st.markdown(f"- Correlation between Raw and Exponential Weighted Sentiment: **{corr_sentiment_exp:.3f}**")
-                    
-                    # Rolling correlation
+                    # Add rolling correlation analysis
                     st.subheader("Rolling Correlation Analysis")
                     
+                    # Add rolling window selector
+                    window_size = st.slider("Select rolling window size (days) for Raw Sentiment", 30, 365, 90)
+                    
                     # Calculate rolling correlation
-                    window_size = st.slider("Select window size (days)", min_value=10, max_value=100, value=30, step=5)
+                    clean_data['rolling_corr_raw'] = clean_data['Sentiment_Score'].rolling(window=window_size).corr(clean_data['Price'])
                     
-                    # Compute rolling correlation
-                    rolling_df = clean_data.copy()
-                    rolling_df['rolling_corr'] = clean_data['Sentiment_Score'].rolling(window=window_size).corr(clean_data['Price'])
+                    # Create the rolling correlation plot with properly aligned data
+                    fig4, ax = plt.subplots(figsize=(12, 6))
                     
-                    # Filter to only valid correlation values
-                    valid_indices = rolling_df['rolling_corr'].notna()
-                    valid_dates = rolling_df.loc[valid_indices, 'Date']
-                    valid_corr = rolling_df.loc[valid_indices, 'rolling_corr']
+                    # Filter out NaN values for plotting
+                    valid_data = clean_data.dropna(subset=['rolling_corr_raw'])
                     
-                    # Plot rolling correlation
-                    fig, ax = plt.subplots(figsize=(12, 6))
-                    ax.plot(valid_dates, valid_corr, color='purple')
-                    ax.axhline(y=0, color='r', linestyle='-', alpha=0.3)
+                    # Plot the correlation line
+                    ax.plot(valid_data['Date'], valid_data['rolling_corr_raw'], 
+                           color='purple', linewidth=2)
+                    
+                    # Add horizontal line at zero
+                    ax.axhline(y=0, color='black', linestyle='--', alpha=0.5)
+                    
+                    # Fill areas based on correlation sign
+                    ax.fill_between(valid_data['Date'], 
+                                  valid_data['rolling_corr_raw'], 
+                                  0, 
+                                  where=(valid_data['rolling_corr_raw'] > 0),
+                                  color='green', alpha=0.3, label='Positive Correlation\n(Higher sentiment → Higher prices)')
+                    
+                    ax.fill_between(valid_data['Date'], 
+                                  valid_data['rolling_corr_raw'], 
+                                  0, 
+                                  where=(valid_data['rolling_corr_raw'] <= 0),
+                                  color='red', alpha=0.3, label='Negative Correlation\n(Higher sentiment → Lower prices)')
+                    
+                    # Add visualization enhancements
                     ax.set_xlabel('Date')
-                    ax.set_ylabel(f'{window_size}-day Rolling Correlation')
-                    ax.set_title(f'{window_size}-day Rolling Correlation between Sentiment and Gold Price')
+                    ax.set_ylabel('Correlation Coefficient')
                     ax.grid(True, alpha=0.3)
-                    plt.tight_layout()
-                    st.pyplot(fig)
+                    ax.legend()
                     
-                    # Interpretation
-                    mean_corr = valid_corr.mean()
-                    st.markdown(f"**Average Rolling Correlation:** {mean_corr:.3f}")
+                    # Add title with window size information
+                    plt.title(f'{window_size}-day Rolling Correlation between Raw Sentiment and Gold Price')
                     
-                    if abs(mean_corr) < 0.1:
-                        st.info("The rolling correlation analysis shows a very weak relationship between sentiment and gold prices over time.")
-                    elif mean_corr > 0:
-                        st.success(f"The rolling correlation is generally positive ({mean_corr:.3f}), suggesting that positive sentiment tends to correlate with higher gold prices.")
+                    # Display correlation statistics
+                    mean_corr = valid_data['rolling_corr_raw'].mean()
+                    pos_pct = (valid_data['rolling_corr_raw'] > 0).mean() * 100
+                    corr_stats = f"Mean correlation: {mean_corr:.3f} | Positive correlation: {pos_pct:.1f}% of time"
+                    
+                    # Add annotation for correlation stats
+                    plt.figtext(0.5, 0.01, corr_stats, ha='center', 
+                                bbox=dict(facecolor='whitesmoke', alpha=0.8, boxstyle='round,pad=0.5'))
+                    
+                    fig4.tight_layout(rect=[0, 0.03, 1, 0.95])  # Adjust layout to make room for the annotation
+                    st.pyplot(fig4)
+                    
+                    # Additional interpretation based on rolling correlation
+                    st.markdown(f"""
+                    **Rolling Correlation Insights:**
+                    - The mean correlation between raw sentiment and gold prices over this period is **{mean_corr:.3f}**.
+                    - Sentiment shows a positive correlation with gold prices **{pos_pct:.1f}%** of the time.
+                    - {'This suggests that market sentiment generally drives gold prices in the same direction.' if pos_pct > 60 else 
+                    'This suggests that market sentiment generally drives gold prices in the opposite direction.' if pos_pct < 40 else
+                    'This suggests that the relationship between sentiment and gold prices is inconsistent or context-dependent.'}
+                    """)
+
+                with tab3:
+                    st.header("Testing Exponential Weighted Score Relationship with Gold")
+                    
+                    # Calculate Pearson correlation coefficient
+                    exp_correlation = clean_data['Exponential_Weighted_Score'].corr(clean_data['Price'])
+                    exp_correlation_text = f"Correlation: {exp_correlation:.3f}"
+                    exp_relationship_strength = "strong" if abs(exp_correlation) > 0.7 else "moderate" if abs(exp_correlation) > 0.3 else "weak"
+                    
+                    # Create a dual y-axis time series plot
+                    fig1, ax1 = plt.subplots(figsize=(12, 6))
+                    
+                    # Plot gold price
+                    color = 'goldenrod'
+                    ax1.set_xlabel('Date')
+                    ax1.set_ylabel('Gold Price (USD)', color=color)
+                    ax1.plot(clean_data['Date'], clean_data['Price'], color=color, linewidth=2)
+                    ax1.tick_params(axis='y', labelcolor=color)
+                    
+                    # Create second y-axis for Exponential Weighted Score
+                    ax2 = ax1.twinx()
+                    color = 'red'
+                    ax2.set_ylabel('Exponential Weighted Score', color=color)
+                    ax2.plot(clean_data['Date'], clean_data['Exponential_Weighted_Score'], color=color, linewidth=2)
+                    ax2.tick_params(axis='y', labelcolor=color)
+                    
+                    # Add a title and annotation
+                    plt.title('Gold Price and Exponential Weighted Score Over Time', fontsize=14)
+                    plt.figtext(0.15, 0.85, exp_correlation_text, 
+                                bbox=dict(facecolor='white', alpha=0.8, boxstyle='round,pad=0.5'))
+                    
+                    fig1.tight_layout()
+                    st.pyplot(fig1)
+                    
+                    # Linear regression scatter plot to explicitly test the hypothesis
+                    fig2, ax = plt.subplots(figsize=(10, 6))
+                    
+                    # Create scatter plot
+                    ax.scatter(clean_data['Exponential_Weighted_Score'], clean_data['Price'], alpha=0.6, c='red')
+                    
+                    # Add regression line
+                    X_exp = clean_data['Exponential_Weighted_Score'].values.reshape(-1, 1)
+                    y = clean_data['Price'].values
+                    
+                    # Fit the model
+                    model_exp = LinearRegression()
+                    model_exp.fit(X_exp, y)
+                    
+                    # Get regression metrics
+                    r_squared_exp = model_exp.score(X_exp, y)
+                    slope_exp = model_exp.coef_[0]
+                    intercept_exp = model_exp.intercept_
+                    
+                    # Generate predictions for the line
+                    x_range_exp = np.linspace(clean_data['Exponential_Weighted_Score'].min(), 
+                                             clean_data['Exponential_Weighted_Score'].max(), 100)
+                    y_pred_exp = model_exp.predict(x_range_exp.reshape(-1, 1))
+                    
+                    # Plot the regression line
+                    ax.plot(x_range_exp, y_pred_exp, color='red', linewidth=2)
+                    
+                    # Add equation and R² to the plot
+                    equation_exp = f"Price = {intercept_exp:.2f} + {slope_exp:.2f} × ExpWeightedScore"
+                    r2_text_exp = f"R² = {r_squared_exp:.3f}"
+                    ax.annotate(equation_exp + "\n" + r2_text_exp,
+                               xy=(0.05, 0.95), xycoords='axes fraction',
+                               bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="gray", alpha=0.8),
+                               va='top')
+                    
+                    # Set labels and title
+                    ax.set_xlabel('Exponential Weighted Score')
+                    ax.set_ylabel('Gold Price (USD)')
+                    ax.set_title('Gold Price vs. Exponential Weighted Score: Testing Relationship', fontsize=14)
+                    ax.grid(True, alpha=0.3)
+                    
+                    st.pyplot(fig2)
+                    
+                    # Emphasize the concept of relationship
+                    if slope_exp > 0:
+                        st.success(f"The regression slope is positive ({slope_exp:.2f}), supporting the hypothesis that positive exponential weighted sentiment correlates with higher gold prices.")
                     else:
-                        st.warning(f"The rolling correlation is generally negative ({mean_corr:.3f}), suggesting that positive sentiment tends to correlate with lower gold prices.")
+                        st.warning(f"The regression slope is negative ({slope_exp:.2f}), which does not support the hypothesis that positive exponential weighted sentiment correlates with higher gold prices.")
+                    
+                    # More detailed regression with statsmodels for p-values
+                    X_exp_sm = sm.add_constant(X_exp)
+                    model_exp_sm = sm.OLS(y, X_exp_sm).fit()
+                    
+                    # Extract p-value for Exponential Score coefficient
+                    p_value_exp = model_exp_sm.pvalues[1]
+                    
+                    # Display regression summary in expandable section
+                    with st.expander("View Detailed Regression Statistics"):
+                        st.text(model_exp_sm.summary().as_text())
+                    
+                    # Add rolling correlation analysis
+                    st.subheader("Rolling Correlation Analysis")
+                    
+                    # Add rolling window selector
+                    window_size_exp = st.slider("Select rolling window size (days) for Exponential Weighted Score", 30, 365, 90)
+                    
+                    # Calculate rolling correlation
+                    clean_data['rolling_corr_exp'] = clean_data['Exponential_Weighted_Score'].rolling(window=window_size_exp).corr(clean_data['Price'])
+                    
+                    # Create the rolling correlation plot with properly aligned data
+                    fig5, ax = plt.subplots(figsize=(12, 6))
+                    
+                    # Filter out NaN values for plotting
+                    valid_data_exp = clean_data.dropna(subset=['rolling_corr_exp'])
+                    
+                    # Plot the correlation line
+                    ax.plot(valid_data_exp['Date'], valid_data_exp['rolling_corr_exp'], 
+                           color='purple', linewidth=2)
+                    
+                    # Add horizontal line at zero
+                    ax.axhline(y=0, color='black', linestyle='--', alpha=0.5)
+                    
+                    # Fill areas based on correlation sign
+                    ax.fill_between(valid_data_exp['Date'], 
+                                  valid_data_exp['rolling_corr_exp'], 
+                                  0, 
+                                  where=(valid_data_exp['rolling_corr_exp'] > 0),
+                                  color='green', alpha=0.3, label='Positive Correlation\n(Higher sentiment → Higher prices)')
+                    
+                    ax.fill_between(valid_data_exp['Date'], 
+                                  valid_data_exp['rolling_corr_exp'], 
+                                  0, 
+                                  where=(valid_data_exp['rolling_corr_exp'] <= 0),
+                                  color='red', alpha=0.3, label='Negative Correlation\n(Higher sentiment → Lower prices)')
+                    
+                    # Add visualization enhancements
+                    ax.set_xlabel('Date')
+                    ax.set_ylabel('Correlation Coefficient')
+                    ax.grid(True, alpha=0.3)
+                    ax.legend()
+                    
+                    # Add title with window size information
+                    plt.title(f'{window_size_exp}-day Rolling Correlation between Exponential Weighted Score and Gold Price')
+                    
+                    # Display correlation statistics
+                    mean_corr_exp = valid_data_exp['rolling_corr_exp'].mean()
+                    pos_pct_exp = (valid_data_exp['rolling_corr_exp'] > 0).mean() * 100
+                    corr_stats_exp = f"Mean correlation: {mean_corr_exp:.3f} | Positive correlation: {pos_pct_exp:.1f}% of time"
+                    
+                    # Add annotation for correlation stats
+                    plt.figtext(0.5, 0.01, corr_stats_exp, ha='center', 
+                                bbox=dict(facecolor='whitesmoke', alpha=0.8, boxstyle='round,pad=0.5'))
+                    
+                    fig5.tight_layout(rect=[0, 0.03, 1, 0.95])  # Adjust layout to make room for the annotation
+                    st.pyplot(fig5)
+                    
+                    # Additional interpretation based on rolling correlation
+                    st.markdown(f"""
+                    **Rolling Correlation Insights:**
+                    - The mean correlation between exponential weighted sentiment and gold prices over this period is **{mean_corr_exp:.3f}**.
+                    - Exponential weighted sentiment shows a positive correlation with gold prices **{pos_pct_exp:.1f}%** of the time.
+                    - {'This suggests that market sentiment generally drives gold prices in the same direction.' if pos_pct_exp > 60 else 
+                    'This suggests that market sentiment generally drives gold prices in the opposite direction.' if pos_pct_exp < 40 else
+                    'This suggests that the relationship between sentiment and gold prices is inconsistent or context-dependent.'}
+                    """)
                 
                 with tab4:
-                    st.subheader("Impact on Price")
+                    # st.subheader("Sentiment Score Hypothesis Testing")
                     
-                    # Calculate price changes
-                    price_data = clean_data.copy()
-                    price_data['Price_Change'] = price_data['Price'].diff()
-                    price_data['Price_Change_Pct'] = price_data['Price'].pct_change() * 100
-                    price_data = price_data.dropna()
+                    # # Granger causality test
+                    # st.markdown("#### Granger Causality Test: Does Sentiment Help Predict Gold Prices?")
                     
-                    # Group by sentiment ranges and analyze price impact
-                    st.markdown("### Price Changes by Sentiment Range")
+                    # # Prepare data for Granger causality test
+                    # granger_data = clean_data[['Date', 'Price', 'Sentiment_Score', 'Exponential_Weighted_Score']].set_index('Date')
+                    # granger_data = granger_data.sort_index()
                     
-                    # Create sentiment bins
-                    price_data['Sentiment_Bin'] = pd.cut(price_data['Sentiment_Score'], 
-                                                        bins=[-1.01, -0.5, -0.1, 0.1, 0.5, 1.01],
-                                                        labels=['Very Negative', 'Negative', 'Neutral', 
-                                                            'Positive', 'Very Positive'])
+                    # # Calculate daily returns for stationarity
+                    # granger_data['Price_Change'] = granger_data['Price'].pct_change() * 100
+                    # granger_data = granger_data.dropna()
                     
-                    # Group by sentiment bins
-                    sentiment_impact = price_data.groupby('Sentiment_Bin').agg({
-                        'Price_Change': ['mean', 'std', 'count'],
-                        'Price_Change_Pct': ['mean', 'std']
-                    }).reset_index()
+                    # # Test different maximum lags
+                    # max_lag = min(8, len(granger_data) // 10)  # Don't use too many lags with limited data
                     
-                    # Format the table for display
-                    formatted_impact = pd.DataFrame({
-                        'Sentiment Range': sentiment_impact['Sentiment_Bin'],
-                        'Count': sentiment_impact[('Price_Change', 'count')],
-                        'Avg Price Change': sentiment_impact[('Price_Change', 'mean')].round(2),
-                        'Avg Pct Change': sentiment_impact[('Price_Change_Pct', 'mean')].round(2),
-                        'Std Dev': sentiment_impact[('Price_Change_Pct', 'std')].round(2)
-                    })
-                    
-                    st.dataframe(formatted_impact)
-                    
-                    # Visualize average price change by sentiment bin
-                    fig, ax = plt.subplots(figsize=(10, 6))
-                    
-                    # Use the formatted impact dataframe for plotting
-                    sns.barplot(x='Sentiment Range', y='Avg Pct Change', 
-                               data=formatted_impact, ax=ax, palette='RdYlGn')
-                    plt.title('Average Price Change % by Sentiment Range')
-                    plt.ylabel('Average Price Change %')
-                    plt.xlabel('Sentiment Range')
-                    
-                    # Add count labels on top of bars
-                    for i, v in enumerate(formatted_impact['Count']):
-                        ax.text(i, formatted_impact['Avg Pct Change'].iloc[i] + 0.1, 
-                               f"n={v}", ha='center', va='bottom')
-                    
-                    plt.tight_layout()
-                    st.pyplot(fig)
-                    
-                    # Regression analysis
-                    st.subheader("Regression Analysis: Sentiment → Price")
-                    
-                    # Prepare data for regression
-                    X = sm.add_constant(price_data['Sentiment_Score'])
-                    y = price_data['Price_Change_Pct']
-                    
-                    # Run regression
-                    model = sm.OLS(y, X).fit()
-                    
-                    # Display regression results
-                    st.markdown("#### Regression Results")
-                    st.text(model.summary().tables[1].as_text())
-                    
-                    # Plot regression line
-                    fig, ax = plt.subplots(figsize=(10, 6))
-                    sns.regplot(x='Sentiment_Score', y='Price_Change_Pct', data=price_data, ax=ax, 
-                               scatter_kws={'alpha':0.5}, line_kws={'color':'red'})
-                    plt.title('Regression: Sentiment Score vs Price Change %')
-                    plt.xlabel('Sentiment Score')
-                    plt.ylabel('Price Change %')
-                    plt.tight_layout()
-                    st.pyplot(fig)
-                
-                with tab5:
-                    st.subheader("Gold Price Sentiment Hypothesis Testing")
-                    
-                    st.markdown("""
-                    ### Hypothesis:
-                    
-                    **Sentiment indicators have a significant relationship with gold prices.**
-                    
-                    We'll test this hypothesis through multiple statistical approaches, examining:
-                    
-                    1. Immediate effects (same-day relationship)
-                    2. Lagged effects (does sentiment predict future price changes?)
-                    3. Granger causality (does sentiment help predict gold prices beyond what past gold prices predict?)
-                    """)
-                    
-                    # Create a new DataFrame for hypothesis testing
-                    hypo_data = clean_data.copy()
-                    
-                    # Calculate next day's price and price changes
-                    hypo_data['Next_Day_Price'] = hypo_data['Price'].shift(-1)
-                    hypo_data['Price_Change'] = hypo_data['Next_Day_Price'] - hypo_data['Price']
-                    hypo_data['Price_Change_Pct'] = (hypo_data['Next_Day_Price'] / hypo_data['Price'] - 1) * 100
-                    hypo_data['Price_Direction'] = np.where(hypo_data['Price_Change'] > 0, 1, 0)
-                    hypo_data = hypo_data.dropna()
-                    
-                    # Create sentiment categories
-                    hypo_data['Sentiment_Category'] = np.where(hypo_data['Sentiment_Score'] > 0.1, 'Positive',
-                                                      np.where(hypo_data['Sentiment_Score'] < -0.1, 'Negative', 'Neutral'))
-                    
-                    # 1. Testing the main hypothesis: Do positive sentiment days lead to price increases?
-                    st.markdown("#### 1. Do sentiment scores predict gold price movements?")
-                    
-                    # Count price directions by sentiment category
-                    cross_tab = pd.crosstab(
-                        hypo_data['Sentiment_Category'], 
-                        hypo_data['Price_Direction'].map({1: 'Increase', 0: 'Decrease'}),
-                        normalize='index'
-                    ) * 100
-                    
-                    # Add raw counts to the table
-                    raw_counts = pd.crosstab(hypo_data['Sentiment_Category'], 
-                                           hypo_data['Price_Direction'].map({1: 'Increase', 0: 'Decrease'}))
-                    
-                    # Display formatted table with percentages and counts
-                    formatted_table = pd.DataFrame({
-                        'Sentiment': cross_tab.index,
-                        'Price Increase %': cross_tab['Increase'].round(1),
-                        'Price Decrease %': cross_tab['Decrease'].round(1),
-                        'Increase Count': raw_counts['Increase'],
-                        'Decrease Count': raw_counts['Decrease'],
-                        'Total Days': raw_counts.sum(axis=1)
-                    })
-                    
-                    st.dataframe(formatted_table)
-                    
-                    # Run chi-square test to check for statistical significance
-                    chi2, p, dof, expected = stats.chi2_contingency(raw_counts)
-                    
-                    # Display chi-square test results
-                    st.markdown(f"**Chi-square test results:** χ² = {chi2:.2f}, p-value = {p:.4f}")
-                    
-                    if p < 0.05:
-                        st.success("**The relationship between sentiment and price direction is statistically significant**")
-                    else:
-                        st.warning("**The relationship between sentiment and price direction is not statistically significant**")
-                    
-                    # Visualize the relationship with a better chart
-                    fig, ax = plt.subplots(figsize=(10, 6))
-                    
-                    # Stacked percentage bar chart
-                    cross_tab.plot(kind='bar', stacked=True, ax=ax, color=['green', 'red'])
-                    
-                    for i, category in enumerate(cross_tab.index):
-                        ax.text(i, 50, f"n={raw_counts.loc[category].sum()}", 
-                               ha='center', va='center', color='white', fontweight='bold')
-                    
-                    plt.title('Percentage of Price Increases vs Decreases Following Different Sentiment Days')
-                    plt.ylabel('Percentage')
-                    plt.xlabel('Sentiment Category')
-                    plt.legend(title='Next Day Price')
-                    plt.ylim(0, 100)
-                    
-                    for container in ax.containers:
-                        ax.bar_label(container, fmt='%.1f%%', label_type='center')
-                    
-                    plt.tight_layout()
-                    st.pyplot(fig)
-                    
-                    # 2. Examine average price changes following different sentiment categories
-                    st.markdown("#### 2. Average Gold Price Changes Following Different Sentiment Categories")
-                    
-                    # Calculate average price changes by sentiment category
-                    avg_changes = hypo_data.groupby('Sentiment_Category')['Price_Change_Pct'].agg(['mean', 'std', 'count']).reset_index()
-                    avg_changes.columns = ['Sentiment Category', 'Avg % Change', 'Std Dev', 'Count']
-                    
-                    # Calculate confidence intervals
-                    confidence = 0.95
-                    avg_changes['Error Margin'] = stats.t.ppf((1 + confidence) / 2, avg_changes['Count'] - 1) * \
-                                                  avg_changes['Std Dev'] / np.sqrt(avg_changes['Count'])
-                    
-                    # Round for display
-                    avg_changes['Avg % Change'] = avg_changes['Avg % Change'].round(3)
-                    avg_changes['Std Dev'] = avg_changes['Std Dev'].round(3)
-                    avg_changes['Error Margin'] = avg_changes['Error Margin'].round(3)
-                    
-                    st.dataframe(avg_changes)
-                    
-                    # Run ANOVA test to check for statistical significance
-                    groups = [hypo_data[hypo_data['Sentiment_Category'] == cat]['Price_Change_Pct'] 
-                             for cat in ['Positive', 'Neutral', 'Negative']]
-                    
-                    # Filter out empty groups
-                    groups = [g for g in groups if len(g) > 0]
-                    
-                    if len(groups) > 1:
-                        f_stat, p_value = stats.f_oneway(*groups)
+                    # try:
+                    #     # Run Granger test (Raw Sentiment -> Price)
+                    #     gc_results_raw = grangercausalitytests(
+                    #         granger_data[['Sentiment_Score', 'Price_Change']], 
+                    #         max_lag, 
+                    #         verbose=False
+                    #     )
                         
-                        # Display ANOVA results
-                        st.markdown(f"**ANOVA test results:** F = {f_stat:.2f}, p-value = {p_value:.4f}")
+                    #     # Extract p-values for each lag
+                    #     p_values_raw = [gc_results_raw[lag][0]['ssr_ftest'][1] for lag in range(1, max_lag+1)]
                         
-                        if p_value < 0.05:
-                            st.success("**The differences in price changes across sentiment categories are statistically significant**")
-                        else:
-                            st.warning("**The differences in price changes across sentiment categories are not statistically significant**")
-                    else:
-                        st.warning("Not enough data to perform ANOVA test")
-                    
-                    # 3. Lagged effects - does sentiment predict future prices?
-                    st.markdown("#### 3. Lagged Effects Analysis: Does Sentiment Predict Future Price Changes?")
-                    
-                    # Create lagged sentiment features
-                    lag_data = clean_data.copy()
-                    for lag in range(1, 6):
-                        lag_data[f'Sentiment_Lag_{lag}'] = lag_data['Sentiment_Score'].shift(lag)
-                    
-                    # Calculate future price change 
-                    lag_data['Future_Price_Change'] = lag_data['Price'].pct_change(-5) * 100  # 5-day future price change
-                    
-                    # Drop rows with NaN values
-                    lag_data = lag_data.dropna()
-                    
-                    # Display correlation between lagged sentiment and future price changes
-                    lag_corrs = [lag_data[f'Sentiment_Lag_{lag}'].corr(lag_data['Future_Price_Change']) for lag in range(1, 6)]
-                    
-                    # Create dataframe for display
-                    lag_corr_df = pd.DataFrame({
-                        'Lag (days)': range(1, 6),
-                        'Correlation': lag_corrs
-                    })
-                    
-                    st.dataframe(lag_corr_df)
-                    
-                    # Plot correlation by lag
-                    fig, ax = plt.subplots(figsize=(10, 6))
-                    ax.bar(lag_corr_df['Lag (days)'], lag_corr_df['Correlation'], color='skyblue')
-                    ax.axhline(y=0, color='red', linestyle='--', alpha=0.3)
-                    plt.title('Correlation Between Lagged Sentiment and 5-day Future Price Change')
-                    plt.xlabel('Sentiment Lag (days)')
-                    plt.ylabel('Correlation Coefficient')
-                    plt.xticks(range(1, 6))
-                    plt.grid(axis='y', alpha=0.3)
-                    plt.tight_layout()
-                    st.pyplot(fig)
-                    
-                    # Find the maximum correlation
-                    max_lag = lag_corr_df.iloc[lag_corr_df['Correlation'].abs().idxmax()]
-                    
-                    st.markdown(f"**Strongest correlation with future price change:** Lag {max_lag['Lag (days)']} days (r = {max_lag['Correlation']:.3f})")
-                    
-                    # 4. Granger causality test
-                    st.markdown("#### 4. Granger Causality Test: Does Sentiment Help Predict Gold Prices?")
-                    
-                    # Prepare data for Granger causality test
-                    granger_data = clean_data[['Date', 'Price', 'Sentiment_Score']].set_index('Date')
-                    granger_data = granger_data.sort_index()
-                    
-                    # Calculate daily returns for stationarity
-                    granger_data['Price_Change'] = granger_data['Price'].pct_change() * 100
-                    granger_data = granger_data.dropna()
-                    
-                    # Test different maximum lags
-                    max_lag = min(8, len(granger_data) // 10)  # Don't use too many lags with limited data
-                    
-                    try:
-                        # Run Granger test (Sentiment -> Price)
-                        gc_results = grangercausalitytests(
-                            granger_data[['Sentiment_Score', 'Price_Change']], 
-                            max_lag, 
-                            verbose=False
-                        )
+                    #     # Create dataframe for display
+                    #     granger_results_raw = pd.DataFrame({
+                    #         'Lag': range(1, max_lag+1),
+                    #         'P-Value': p_values_raw,
+                    #         'Significant at 5%': [p < 0.05 for p in p_values_raw]
+                    #     })
                         
-                        # Extract p-values for each lag
-                        p_values = [gc_results[lag][0]['ssr_ftest'][1] for lag in range(1, max_lag+1)]
+                    #     st.markdown("##### Raw Sentiment Score → Gold Price")
+                    #     st.dataframe(granger_results_raw)
                         
-                        # Create dataframe for display
-                        granger_results = pd.DataFrame({
-                            'Lag': range(1, max_lag+1),
-                            'P-Value': p_values,
-                            'Significant at 5%': [p < 0.05 for p in p_values]
-                        })
+                    #     # Check if any lag is significant
+                    #     any_significant_raw = any(granger_results_raw['Significant at 5%'])
                         
-                        st.dataframe(granger_results)
+                    #     if any_significant_raw:
+                    #         st.success("**Granger causality test indicates that raw sentiment helps predict future gold price changes**")
+                    #         significant_lags_raw = granger_results_raw[granger_results_raw['Significant at 5%']]['Lag'].tolist()
+                    #         st.markdown(f"Significant lags: {', '.join(map(str, significant_lags_raw))} days")
+                    #     else:
+                    #         st.warning("**Granger causality test does not show significant predictive power of raw sentiment on gold prices**")
                         
-                        # Check if any lag is significant
-                        any_significant = any(granger_results['Significant at 5%'])
+                    #     # Run Granger test (Exponential Weighted Score -> Price)
+                    #     gc_results_exp = grangercausalitytests(
+                    #         granger_data[['Exponential_Weighted_Score', 'Price_Change']], 
+                    #         max_lag, 
+                    #         verbose=False
+                    #     )
                         
-                        if any_significant:
-                            st.success("**Granger causality test indicates that sentiment helps predict future gold price changes**")
-                            significant_lags = granger_results[granger_results['Significant at 5%']]['Lag'].tolist()
-                            st.markdown(f"Significant lags: {', '.join(map(str, significant_lags))} days")
-                        else:
-                            st.warning("**Granger causality test does not show significant predictive power of sentiment on gold prices**")
+                    #     # Extract p-values for each lag
+                    #     p_values_exp = [gc_results_exp[lag][0]['ssr_ftest'][1] for lag in range(1, max_lag+1)]
+                        
+                    #     # Create dataframe for display
+                    #     granger_results_exp = pd.DataFrame({
+                    #         'Lag': range(1, max_lag+1),
+                    #         'P-Value': p_values_exp,
+                    #         'Significant at 5%': [p < 0.05 for p in p_values_exp]
+                    #     })
+                        
+                    #     st.markdown("##### Exponential Weighted Score → Gold Price")
+                    #     st.dataframe(granger_results_exp)
+                        
+                    #     # Check if any lag is significant
+                    #     any_significant_exp = any(granger_results_exp['Significant at 5%'])
+                        
+                    #     if any_significant_exp:
+                    #         st.success("**Granger causality test indicates that exponential weighted sentiment helps predict future gold price changes**")
+                    #         significant_lags_exp = granger_results_exp[granger_results_exp['Significant at 5%']]['Lag'].tolist()
+                    #         st.markdown(f"Significant lags: {', '.join(map(str, significant_lags_exp))} days")
+                    #     else:
+                    #         st.warning("**Granger causality test does not show significant predictive power of exponential weighted sentiment on gold prices**")
                     
-                    except Exception as e:
-                        st.error(f"Granger causality test failed: {str(e)}")
-                        st.info("This may be due to insufficient data or stationarity issues in the time series.")
+                    # except Exception as e:
+                    #     st.error(f"Granger causality test failed: {str(e)}")
+                    #     st.info("This may be due to insufficient data or stationarity issues in the time series.")
                     
-                    # 5. Summary of findings
+                    # Summary of findings
                     st.subheader("Summary of Hypothesis Testing")
                     
-                    # Check all test results 
-                    chi_square_supports = p < 0.05 if 'p' in locals() else False
-                    anova_supports = p_value < 0.05 if 'p_value' in locals() else False
-                    granger_supports = any_significant if 'any_significant' in locals() else False
-                    corr_supports = abs(corr_exp_price) > 0.1 if 'corr_exp_price' in locals() else False
-                    lag_supports = max(abs(np.array(lag_corrs))) > 0.1 if 'lag_corrs' in locals() else False
+                    # Check all test results for Raw Sentiment
+                    # granger_supports_raw = any_significant_raw if 'any_significant_raw' in locals() else False
+                    corr_supports_raw = abs(correlation) > 0.1 and correlation > 0 if 'correlation' in locals() else False
+                    regression_supports_raw = slope > 0 and p_value < 0.05 if 'slope' in locals() and 'p_value' in locals() else False
+                    rolling_supports_raw = mean_corr > 0 and pos_pct > 50 if 'mean_corr' in locals() and 'pos_pct' in locals() else False
                     
-                    # Create summary table
-                    summary_df = pd.DataFrame({
+                    # Check all test results for Exponential Weighted Score
+                    # granger_supports_exp = any_significant_exp if 'any_significant_exp' in locals() else False
+                    corr_supports_exp = abs(exp_correlation) > 0.1 and exp_correlation > 0 if 'exp_correlation' in locals() else False
+                    regression_supports_exp = slope_exp > 0 and p_value_exp < 0.05 if 'slope_exp' in locals() and 'p_value_exp' in locals() else False
+                    rolling_supports_exp = mean_corr_exp > 0 and pos_pct_exp > 50 if 'mean_corr_exp' in locals() and 'pos_pct_exp' in locals() else False
+                    
+                    # Create summary table for Raw Sentiment
+                    summary_df_raw = pd.DataFrame({
                         'Test': [
                             'Correlation Analysis', 
-                            'Chi-Square Test', 
-                            'ANOVA Test', 
-                            'Lagged Correlation', 
-                            'Granger Causality'
+                            'Linear Regression', 
+                            'Rolling Correlation'
+                            # 'Granger Causality'
                         ],
-                        'Finding': [
-                            f"Correlation = {corr_exp_price:.3f}" if 'corr_exp_price' in locals() else "Not computed",
-                            f"p-value = {p:.4f}" if 'p' in locals() else "Not computed",
-                            f"p-value = {p_value:.4f}" if 'p_value' in locals() else "Not computed",
-                            f"Max lag corr = {max(abs(np.array(lag_corrs))):.3f}" if 'lag_corrs' in locals() else "Not computed",
-                            "Significant at some lags" if granger_supports else "Not significant"
+                        'Finding (Raw Sentiment)': [
+                            f"Correlation = {correlation:.3f}" if 'correlation' in locals() else "Not computed",
+                            f"Slope = {slope:.3f}, p-value = {p_value:.4f}" if 'slope' in locals() and 'p_value' in locals() else "Not computed",
+                            f"Mean = {mean_corr:.3f}, Positive: {pos_pct:.1f}%" if 'mean_corr' in locals() and 'pos_pct' in locals() else "Not computed"
+                            # "Significant at some lags" if granger_supports_raw else "Not significant"
                         ],
                         'Supports Hypothesis': [
-                            "✓ Yes" if corr_supports else "✗ No",
-                            "✓ Yes" if chi_square_supports else "✗ No",
-                            "✓ Yes" if anova_supports else "✗ No",
-                            "✓ Yes" if lag_supports else "✗ No",
-                            "✓ Yes" if granger_supports else "✗ No"
+                            "✓ Yes" if corr_supports_raw else "✗ No",
+                            "✓ Yes" if regression_supports_raw else "✗ No",
+                            "✓ Yes" if rolling_supports_raw else "✗ No"
+                            # "✓ Yes" if granger_supports_raw else "✗ No"
                         ]
                     })
                     
-                    st.dataframe(summary_df)
+                     # Create summary table for Exponential Weighted Score
+                    summary_df_exp = pd.DataFrame({
+                        'Test': [
+                            'Correlation Analysis', 
+                            'Linear Regression', 
+                            'Rolling Correlation'
+                            # 'Granger Causality'
+                        ],
+                        'Finding (Exponential Weighted)': [
+                            f"Correlation = {exp_correlation:.3f}" if 'exp_correlation' in locals() else "Not computed",
+                            f"Slope = {slope_exp:.3f}, p-value = {p_value_exp:.4f}" if 'slope_exp' in locals() and 'p_value_exp' in locals() else "Not computed",
+                            f"Mean = {mean_corr_exp:.3f}, Positive: {pos_pct_exp:.1f}%" if 'mean_corr_exp' in locals() and 'pos_pct_exp' in locals() else "Not computed"
+                            # "Significant at some lags" if granger_supports_exp else "Not significant"
+                        ],
+                        'Supports Hypothesis': [
+                            "✓ Yes" if corr_supports_exp else "✗ No",
+                            "✓ Yes" if regression_supports_exp else "✗ No",
+                            "✓ Yes" if rolling_supports_exp else "✗ No"
+                            # "✓ Yes" if granger_supports_exp else "✗ No"
+                        ]
+                    })
                     
-                    # Overall conclusion
-                    supports_count = sum([
-                        corr_supports, 
-                        chi_square_supports, 
-                        anova_supports, 
-                        lag_supports, 
-                        granger_supports
+                                        # Display the summary tables
+                    st.markdown("##### Raw Sentiment Score Summary")
+                    st.dataframe(summary_df_raw)
+                    
+                    st.markdown("##### Exponential Weighted Score Summary")
+                    st.dataframe(summary_df_exp)
+                    
+                    # Calculate overall support counts
+                    raw_supports_count = sum([
+                        corr_supports_raw, 
+                        regression_supports_raw, 
+                        rolling_supports_raw
+                        # granger_supports_raw
                     ])
                     
-                    if supports_count >= 3:
-                        st.success(f"**Overall Conclusion:** {supports_count} out of 5 tests support our hypothesis that sentiment indicators derived from financial news have a significant relationship with gold prices.")
-                    elif supports_count >= 1:
-                        st.warning(f"**Overall Conclusion:** Only {supports_count} out of 5 tests support our hypothesis. The evidence is mixed and more data may be needed.")
-                    else:
-                        st.error("**Overall Conclusion:** None of the tests provide strong support for our hypothesis. The relationship between sentiment indicators and gold prices may be weaker than expected.")
+                    exp_supports_count = sum([
+                        corr_supports_exp, 
+                        regression_supports_exp, 
+                        rolling_supports_exp 
+                        # granger_supports_exp
+                    ])
                     
-                    # Recommendations
+                    # Overall conclusion section
+                    st.subheader("Overall Conclusion")
+                    
+                    # Compare methods
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        st.metric("Raw Sentiment Tests Supporting Hypothesis", f"{raw_supports_count}/3")
+                    with col2:
+                        st.metric("Exponential Weighted Tests Supporting Hypothesis", f"{exp_supports_count}/3")
+                    
+                    # Final conclusion based on test counts
+                    if raw_supports_count > exp_supports_count:
+                        st.success(f"**The Raw Sentiment Score shows stronger support ({raw_supports_count}/3 tests) for our hypothesis than the Exponential Weighted Score ({exp_supports_count}/3 tests).**")
+                        better_method = "Raw Sentiment"
+                    elif exp_supports_count > raw_supports_count:
+                        st.success(f"**The Exponential Weighted Score shows stronger support ({exp_supports_count}/3 tests) for our hypothesis than the Raw Sentiment Score ({raw_supports_count}/3 tests).**")
+                        better_method = "Exponential Weighted"
+                    else:
+                        st.info(f"**Both sentiment methods show equal support ({raw_supports_count}/3 tests) for our hypothesis.**")
+                        better_method = "Both methods equally"
+                    
+                    # Visual comparison
+                    st.subheader("Visual Comparison")
+                    
+                    # Create a bar chart comparing support counts
+                    fig_comparison = plt.figure(figsize=(10, 6))
+                    
+                    tests = ['Correlation', 'Regression', 'Rolling Corr']
+                    raw_results = [corr_supports_raw, regression_supports_raw, rolling_supports_raw]
+                    exp_results = [corr_supports_exp, regression_supports_exp, rolling_supports_exp]
+                    
+                    x = np.arange(len(tests))
+                    width = 0.35
+                    
+                    plt.bar(x - width/2, [int(res) for res in raw_results], width, label='Raw Sentiment', color='blue', alpha=0.4)
+                    plt.bar(x + width/2, [int(res) for res in exp_results], width, label='Exponential Weighted', color='red', alpha=0.7)
+                    
+                    plt.ylabel('Supports Hypothesis')
+                    plt.title('Comparison of Hypothesis Test Results')
+                    plt.xticks(x, tests)
+                    plt.yticks([0, 1], ['No', 'Yes'])
+                    plt.legend()
+                    plt.grid(axis='y', alpha=0.3)
+                    
+                    st.pyplot(fig_comparison)
+                    
+                    # Recommendations section
                     st.subheader("Recommendations")
-                    st.markdown("""
+                    st.markdown(f"""
                     Based on our analysis, we recommend:
                     
-                    1. **Trading Strategy Refinement:** 
-                    - Consider sentiment indicators as a complementary signal rather than a primary one
-                    - Focus on the exponentially weighted sentiment score which showed stronger correlations
-                    - Use sentiment signals with appropriate lag periods for optimal predictive power
+                    1. **Primary Sentiment Metric:** Use the {better_method} Score as the primary sentiment indicator for gold price analysis.
                     
-                    2. **Further Research:**
-                    - Expand the dataset with longer time periods to increase statistical power
-                    - Investigate sentiment from additional sources (social media, forums, etc.)
-                    - Explore non-linear relationships between sentiment and price movements
-                    - Combine sentiment with technical indicators for improved predictive models
+                    2. **Trading Strategy Development:** Focus on developing strategies that incorporate sentiment metrics with{
+                        ' a ' + str(window_size) + '-day window' if 'window_size' in locals() else ''
+                    } for optimal signal generation.
                     
-                    3. **Risk Management:**
-                    - Recognize that sentiment's impact on gold prices may vary in different market regimes
-                    - Implement proper position sizing when using sentiment-based trading signals
-                    - Continuously monitor the sentiment-price relationship for shifts in effectiveness
+                    3. **Combined Approach:** Consider using both raw and exponential weighted sentiment in a combined model to capture both immediate sentiment shifts and longer-term sentiment trends.
+                    
+                    4. **Further Research:** Explore additional transformations of the sentiment data, such as volatility-adjusted sentiment or sentiment momentum indicators.
+                    
+                    
                     """)
-        
+                    
+                    # Add export options
+                    st.subheader("Export Analysis Results")
+                    
+                    # Create a dictionary with key results
+                    analysis_results = {
+                        "Raw Sentiment": {
+                            "Correlation": correlation if 'correlation' in locals() else None,
+                            "Regression_Slope": slope if 'slope' in locals() else None,
+                            "Regression_P_Value": p_value if 'p_value' in locals() else None,
+                            "Mean_Rolling_Correlation": mean_corr if 'mean_corr' in locals() else None,
+                            "Percent_Positive_Correlation": pos_pct if 'pos_pct' in locals() else None,
+                            # "Significant_Granger_Lags": significant_lags_raw if 'significant_lags_raw' in locals() and any_significant_raw else [],
+                            "Tests_Supporting_Hypothesis": raw_supports_count
+                        },
+                        "Exponential_Weighted": {
+                            "Correlation": exp_correlation if 'exp_correlation' in locals() else None,
+                            "Regression_Slope": slope_exp if 'slope_exp' in locals() else None,
+                            "Regression_P_Value": p_value_exp if 'p_value_exp' in locals() else None,
+                            "Mean_Rolling_Correlation": mean_corr_exp if 'mean_corr_exp' in locals() else None,
+                            "Percent_Positive_Correlation": pos_pct_exp if 'pos_pct_exp' in locals() else None,
+                            # "Significant_Granger_Lags": significant_lags_exp if 'significant_lags_exp' in locals() and any_significant_exp else [],
+                            "Tests_Supporting_Hypothesis": exp_supports_count
+                        }
+                    }
+                    
+                    # Convert to DataFrame for CSV export
+                    export_df = pd.DataFrame({
+                        "Metric": ["Correlation", "Regression Slope", "Regression P-Value", 
+                                  "Mean Rolling Correlation", "% Positive Correlation", 
+                                  "Tests Supporting Hypothesis"],
+                        "Raw_Sentiment": [
+                            f"{correlation:.4f}" if 'correlation' in locals() else "N/A",
+                            f"{slope:.4f}" if 'slope' in locals() else "N/A",
+                            f"{p_value:.4f}" if 'p_value' in locals() else "N/A",
+                            f"{mean_corr:.4f}" if 'mean_corr' in locals() else "N/A",
+                            f"{pos_pct:.1f}%" if 'pos_pct' in locals() else "N/A",
+                            f"{raw_supports_count}/3"
+                        ],
+                        "Exponential_Weighted": [
+                            f"{exp_correlation:.4f}" if 'exp_correlation' in locals() else "N/A",
+                            f"{slope_exp:.4f}" if 'slope_exp' in locals() else "N/A",
+                            f"{p_value_exp:.4f}" if 'p_value_exp' in locals() else "N/A",
+                            f"{mean_corr_exp:.4f}" if 'mean_corr_exp' in locals() else "N/A",
+                            f"{pos_pct_exp:.1f}%" if 'pos_pct_exp' in locals() else "N/A",
+                            f"{exp_supports_count}/3"
+                        ]
+                    })
+                    
+                    # Create a CSV for download
+                    csv = export_df.to_csv(index=False).encode('utf-8')
+                    
+                    # Create the download button
+                    st.download_button(
+                        label="Download Analysis as CSV",
+                        data=csv,
+                        file_name="sentiment_analysis_results.csv",
+                        mime="text/csv"
+                    )
+                    
         except Exception as e:
             st.error(f"An error occurred: {str(e)}")
+            st.error("Please ensure your data is properly formatted and try again.")
     else:
         st.error("Could not connect to BigQuery. Please check your credentials.")
 
-                        
-
-
-if __name__ == "__main__":
-    app()
