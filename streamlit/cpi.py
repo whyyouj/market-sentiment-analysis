@@ -8,14 +8,10 @@ from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, r2_score
 import utils
 import statsmodels.api as sm
-from statsmodels.tsa.stattools import grangercausalitytests
-from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 
 def app():
     """CPI analysis page"""
     st.title("CPI and Gold Price Analysis")
-    
-
     
     # Get authenticated BigQuery client
     client = utils.get_bigquery_client()
@@ -68,8 +64,9 @@ def app():
             3. **Historical Correlation**: There is historical evidence suggesting a relationship between inflation metrics and gold prices, though the strength and consistency of this relationship have varied over time.
             """)
         
-            # Run the feature analysis function first
+        # Run the feature analysis function first
         utils.run_feature_analysis(data,"CPI")
+        
         # NEW SECTION: Clear Hypothesis Visualization
         st.header("Testing the Linear Relationship Hypothesis")
         
@@ -147,29 +144,6 @@ def app():
         
         st.pyplot(fig2)
         
-        # Add normalized comparison for clearer visual analysis
-        st.subheader("Normalized Comparison")
-        
-        fig3, ax = plt.subplots(figsize=(12, 6))
-        
-        # Normalize both series for better comparison
-        cpi_norm = (data['CPI'] - data['CPI'].min()) / (data['CPI'].max() - data['CPI'].min())
-        price_norm = (data['Price'] - data['Price'].min()) / (data['Price'].max() - data['Price'].min())
-        
-        # Plot normalized values
-        ax.plot(data['Date'], price_norm, color='goldenrod', linewidth=2, label='Gold Price (normalized)')
-        ax.plot(data['Date'], cpi_norm, color='firebrick', linewidth=2, linestyle='--', label='CPI (normalized)')
-        
-        # Add grid and labels
-        ax.grid(True, alpha=0.3)
-        ax.set_xlabel('Date')
-        ax.set_ylabel('Normalized Values')
-        ax.legend()
-        
-        plt.title('Normalized Gold Price vs CPI', fontsize=14)
-        fig3.tight_layout()
-        st.pyplot(fig3)
-        
         # More detailed regression with statsmodels for p-values
         X_sm = sm.add_constant(X)
         model_sm = sm.OLS(y, X_sm).fit()
@@ -181,199 +155,75 @@ def app():
         with st.expander("View Detailed Regression Statistics"):
             st.text(model_sm.summary().as_text())
         
-        # Conclusion about the hypothesis
-        st.markdown(f"""
-        ### Conclusion on Linear Relationship Hypothesis
-        
-        Based on our analysis of the relationship between CPI and gold prices:
-        
-        1. **Correlation Analysis**:
-           - Pearson correlation coefficient: **{correlation:.3f}**
-           - This indicates a **{relationship_strength} {"positive" if correlation > 0 else "negative"}** correlation
-        
-        2. **Linear Regression Analysis**:
-           - R-squared value: **{r_squared:.3f}**
-           - This means CPI explains approximately **{r_squared*100:.1f}%** of the variance in gold prices
-           - Regression equation: **{equation}**
-           - Statistical significance: p-value = **{p_value:.4f}** ({"significant" if p_value < 0.05 else "not significant"} at 0.05 level)
-        
-        3. **Interpretation**:
-           - The data {"supports" if r_squared > 0.3 and p_value < 0.05 else "partially supports" if (r_squared > 0.1 and r_squared <= 0.3) and p_value < 0.05 else "does not support"} our hypothesis of a linear relationship between CPI and gold prices
-           - For each unit increase in CPI, gold price {"increases" if slope > 0 else "decreases"} by approximately **${abs(slope):.2f}**
-        
-        This analysis {"confirms" if r_squared > 0.3 and p_value < 0.05 else "provides some evidence for" if (r_squared > 0.1 and r_squared <= 0.3) and p_value < 0.05 else "does not confirm"} the economic theory that gold prices tend to move in relation to inflation metrics like CPI.
-        """)
-        
-        # Additional analysis tabs
-        tab1, tab2, tab3 = st.tabs(["Time Series Analysis", "CPI Change Analysis", "Advanced Analysis"])
+        # Create tabs for additional analyses
+        tab1, tab2 = st.tabs(["Rolling Correlation", "Hypothesis Testing Summary"])
         
         with tab1:
-            st.subheader("Time Series Analysis")
+            st.subheader("Rolling Correlation Analysis")
             
-            # Calculate percentage changes
-            data['CPI_pct_change'] = data['CPI'].pct_change().multiply(100)
-            data['Price_pct_change'] = data['Price'].pct_change().multiply(100)
+            # Add rolling window selector
+            window_size = st.slider("Select rolling window size (days)", 30, 365, 90)
             
-            # Plot percentage changes
-            fig, ax = plt.subplots(figsize=(12, 6))
-            ax.plot(data['Date'], data['Price_pct_change'], label='Gold Price % Change', color='goldenrod')
-            ax.plot(data['Date'], data['CPI_pct_change'], label='CPI % Change', color='firebrick')
+            # Calculate rolling correlation
+            data['rolling_corr'] = data['CPI'].rolling(window=window_size).corr(data['Price'])
+            
+            # Identify valid indices where we have correlation values
+            valid_indices = data['rolling_corr'].notna()
+            
+            # Create the rolling correlation plot with properly aligned data
+            fig4, ax = plt.subplots(figsize=(12, 6))
+            
+            # Use only non-NaN values for plotting
+            valid_dates = data.loc[valid_indices, 'Date']
+            valid_corr = data.loc[valid_indices, 'rolling_corr']
+            
+            # Plot the line
+            ax.plot(valid_dates, valid_corr, color='purple', linewidth=2)
+            
+            # Add horizontal line at zero
+            ax.axhline(y=0, color='black', linestyle='--', alpha=0.5)
+            
+            # Fill areas based on correlation sign
+            ax.fill_between(valid_dates, valid_corr, 0, 
+                           where=(valid_corr > 0),
+                           color='green', alpha=0.3, label='Positive Correlation\n(Supports Gold as Inflation Hedge)')
+            
+            ax.fill_between(valid_dates, valid_corr, 0, 
+                           where=(valid_corr <= 0),
+                           color='red', alpha=0.3, label='Negative Correlation\n(Contradicts Gold as Inflation Hedge)')
+            
+            # Add visualization enhancements
             ax.set_xlabel('Date')
-            ax.set_ylabel('Percentage Change (%)')
+            ax.set_ylabel('Correlation Coefficient')
+            ax.grid(True, alpha=0.3)
             ax.legend()
-            ax.grid(True, alpha=0.3)
-            plt.title('Gold Price vs CPI: Percentage Changes Over Time')
             
-            st.pyplot(fig)
+            # Add title with window size information
+            plt.title(f'{window_size}-day Rolling Correlation between Gold Price and CPI')
             
-            # Calculate rolling correlation
-            window_sizes = [30, 60, 90, 180, 365]
-            selected_window = st.selectbox(
-                "Select rolling window size (days):",
-                options=window_sizes,
-                index=2
-            )
+            # Display correlation statistics
+            mean_corr = valid_corr.mean()
+            pos_pct = (valid_corr > 0).mean() * 100
+            corr_stats = f"Mean correlation: {mean_corr:.3f} | Positive correlation: {pos_pct:.1f}% of time"
             
-            # Calculate rolling correlation
-            data['Rolling_Correlation'] = data['Price'].rolling(window=selected_window).corr(data['CPI'])
+            # Add annotation for correlation stats
+            plt.figtext(0.5, 0.01, corr_stats, ha='center', 
+                        bbox=dict(facecolor='whitesmoke', alpha=0.8, boxstyle='round,pad=0.5'))
             
-            # Plot rolling correlation
-            fig, ax = plt.subplots(figsize=(12, 6))
-            ax.plot(data['Date'], data['Rolling_Correlation'])
-            ax.set_xlabel('Date')
-            ax.set_ylabel(f'{selected_window}-day Rolling Correlation')
-            ax.axhline(y=0, color='r', linestyle='-', alpha=0.3)
-            ax.grid(True, alpha=0.3)
-            plt.title(f'{selected_window}-day Rolling Correlation between Gold Price and CPI')
+            fig4.tight_layout(rect=[0, 0.03, 1, 0.95])  # Adjust layout to make room for the annotation
+            st.pyplot(fig4)
             
-            st.pyplot(fig)
+            # Additional interpretation based on rolling correlation
+            st.markdown(f"""
+            **Rolling Correlation Insights:**
+            - The mean correlation between CPI and gold prices over this period is **{mean_corr:.3f}**.
+            - Gold prices show a positive correlation with CPI **{pos_pct:.1f}%** of the time.
+            - {'This suggests gold generally acts as an inflation hedge.' if pos_pct > 60 else 
+              'This suggests gold does not consistently act as an inflation hedge in all periods.' if pos_pct < 40 else
+              'This suggests gold sometimes acts as an inflation hedge, but the relationship is not consistent.'}
+            """)
         
         with tab2:
-            st.subheader("CPI Change Analysis")
-            
-            # Create CPI change categories
-            st.markdown("""
-            Let's analyze how gold prices react to different levels of CPI changes:
-            """)
-            
-            # Filter out rows with NaN in pct_change
-            filtered_data = data.dropna(subset=['CPI_pct_change', 'Price_pct_change'])
-            
-            # Create CPI change categories
-            q1, q3 = filtered_data['CPI_pct_change'].quantile([0.25, 0.75])
-            # Ensure unique bin edges
-            if q1 == q3:
-                # Handle the case where q1 equals q3 (add a small offset)
-                bins = [-float('inf'), q1, q1 + 0.00001, float('inf')]
-            else:
-                bins = [-float('inf'), q1, q3, float('inf')]
-                
-            filtered_data['CPI_Change_Category'] = pd.cut(
-                filtered_data['CPI_pct_change'],
-                bins=bins,
-                labels=['Low', 'Medium', 'High']
-            )
-
-            
-            # Calculate average gold price change by CPI category
-            category_analysis = filtered_data.groupby('CPI_Change_Category')['Price_pct_change'].agg(['mean', 'std', 'count'])
-            category_analysis.columns = ['Average Gold Price Change (%)', 'Standard Deviation', 'Count']
-            category_analysis = category_analysis.reset_index()
-            
-            st.table(category_analysis)
-            
-            # Create boxplot of gold price changes by CPI category
-            fig, ax = plt.subplots(figsize=(10, 6))
-            sns.boxplot(x='CPI_Change_Category', y='Price_pct_change', data=filtered_data, ax=ax)
-            ax.set_xlabel('CPI Change Category')
-            ax.set_ylabel('Gold Price Change (%)')
-            ax.set_title('Gold Price Changes by CPI Change Category')
-            
-            st.pyplot(fig)
-            
-            # ANOVA test to see if the differences are statistically significant
-            if len(filtered_data['CPI_Change_Category'].unique()) > 1:
-                try:
-                    groups = [filtered_data[filtered_data['CPI_Change_Category'] == cat]['Price_pct_change'] 
-                             for cat in filtered_data['CPI_Change_Category'].unique() if not filtered_data[filtered_data['CPI_Change_Category'] == cat].empty]
-                    
-                    anova_result = stats.f_oneway(*groups)
-                    
-                    st.markdown(f"""
-                    **ANOVA Test Results:**
-                    
-                    F-statistic: {anova_result.statistic:.4f}
-                    p-value: {anova_result.pvalue:.4f}
-                    
-                    The difference in gold price changes between CPI change categories is 
-                    {"statistically significant" if anova_result.pvalue < 0.05 else "not statistically significant"}.
-                    """)
-                except Exception as e:
-                    st.error(f"Could not perform ANOVA test: {str(e)}")
-        
-        with tab3:
-            st.subheader("Advanced Analysis")
-            
-            # Granger Causality Test
-            st.markdown("### Granger Causality Test")
-            st.markdown("""
-            The Granger Causality Test examines whether one time series is useful in forecasting another. 
-            It helps determine if changes in CPI "cause" changes in gold prices or vice versa.
-            """)
-            
-            max_lag = st.slider("Select maximum lag for Granger Causality Test (days)", 1, 30, 10)
-            
-            # Prepare data for Granger causality test (dropna)
-            granger_data = data.dropna().copy()
-            
-            # Create lagged dataset
-            granger_series = pd.DataFrame({'CPI': granger_data['CPI'], 'Gold_Price': granger_data['Price']})
-            
-            # Run the tests
-            with st.spinner("Running Granger Causality Tests."):
-                try:
-                    # Test if CPI Granger-causes Gold Price
-                    cpi_causes_gold = grangercausalitytests(granger_series[['Gold_Price', 'CPI']], maxlag=max_lag, verbose=False)
-                    
-                    # Test if Gold Price Granger-causes CPI
-                    gold_causes_cpi = grangercausalitytests(granger_series[['CPI', 'Gold_Price']], maxlag=max_lag, verbose=False)
-                    
-                    # Extract p-values
-                    cpi_to_gold_pvals = [cpi_causes_gold[i+1][0]['ssr_ftest'][1] for i in range(max_lag)]
-                    gold_to_cpi_pvals = [gold_causes_cpi[i+1][0]['ssr_ftest'][1] for i in range(max_lag)]
-                    
-                    # Display results
-                    granger_results = pd.DataFrame({
-                        'Lag': list(range(1, max_lag+1)),
-                        'CPI causes Gold Price (p-value)': cpi_to_gold_pvals,
-                        'Gold Price causes CPI (p-value)': gold_to_cpi_pvals,
-                    })
-                    
-                    # Add significance columns
-                    granger_results['CPI→Gold Significant'] = granger_results['CPI causes Gold Price (p-value)'] < 0.05
-                    granger_results['Gold→CPI Significant'] = granger_results['Gold Price causes CPI (p-value)'] < 0.05
-                    
-                    st.dataframe(granger_results)
-                    
-                    # Interpreting Granger causality results
-                    cpi_causes_gold_sig = any(p < 0.05 for p in cpi_to_gold_pvals)
-                    gold_causes_cpi_sig = any(p < 0.05 for p in gold_to_cpi_pvals)
-                    
-                    causality_conclusion = ""
-                    if cpi_causes_gold_sig and gold_causes_cpi_sig:
-                        causality_conclusion = "Bidirectional causality: CPI and gold prices Granger-cause each other."
-                    elif cpi_causes_gold_sig:
-                        causality_conclusion = "Unidirectional causality: CPI Granger-causes gold prices."
-                    elif gold_causes_cpi_sig:
-                        causality_conclusion = "Unidirectional causality: Gold prices Granger-cause CPI."
-                    else:
-                        causality_conclusion = "No Granger causality detected between CPI and gold prices."
-                    
-                    st.markdown(f"**Conclusion:** {causality_conclusion}")
-                    
-                except Exception as e:
-                    st.error(f"Error in Granger causality test: {e}")
-            
             # Final Summary
             st.subheader("Hypothesis Testing Summary")
             
@@ -381,30 +231,55 @@ def app():
             st.markdown("""
             ### Summary of Findings
             
-            Based on our comprehensive analysis, we can draw the following conclusions about the hypothesis that there is a 
-            linear relationship between CPI and gold prices:
+            Based on our comprehensive analysis, we can draw the following conclusions about the hypothesis that there is a linear relationship between CPI and gold prices:
             """)
             
+            # Check if correlation, regression support the hypothesis
+            correlation_supports = correlation > 0.3
+            regression_supports = p_value < 0.05 and slope > 0
+            rolling_supports = mean_corr > 0.3
+            
+            # Create summary table
             results_table = pd.DataFrame({
-                'Analysis Method': ['Correlation Analysis', 'Linear Regression', 'Granger Causality', 'CPI Change Categories'],
+                'Analysis Method': ['Correlation Analysis', 'Linear Regression', 'Rolling Correlation'],
                 'Finding': [
-                    f"Correlation coefficient: {correlation:.3f}",
-                    f"R-squared: {r_squared:.3f}, Slope: {slope:.2f}",
-                    causality_conclusion if 'causality_conclusion' in locals() else "Not computed",
-                    "See CPI Change Analysis tab for details"
+                    f"Correlation coefficient: {correlation:.3f} ({relationship_strength})",
+                    f"Slope: {slope:.2f}, R-squared: {r_squared:.3f}, p-value: {p_value:.4f}",
+                    f"Mean rolling correlation: {mean_corr:.3f}, Positive: {pos_pct:.1f}% of time"
                 ],
-                'Supports Hypothesis': [
-                    "✓ Yes" if abs(correlation) > 0.3 else "✗ No",
-                    "✓ Yes" if r_squared > 0.3 and p_value < 0.05 else "✗ No",
-                    "✓ Yes" if 'cpi_causes_gold_sig' in locals() and cpi_causes_gold_sig else "✗ No",
-                    "✓ Yes" if 'anova_result' in locals() and anova_result.pvalue < 0.05 else "✗ No"
+                'Supports Linear Relationship': [
+                    "✓ Yes" if correlation_supports else "✗ No",
+                    "✓ Yes" if regression_supports else "✗ No",
+                    "✓ Yes" if rolling_supports else "✗ No"
                 ]
             })
             
             st.table(results_table)
+            
+            # Final conclusion
+            st.subheader("Conclusion")
+            
+            # Count how many tests support the hypothesis
+            support_count = results_table['Supports Linear Relationship'].str.contains('Yes').sum()
+            total_tests = len(results_table)
+            
+            # Provide overall conclusion
+            if support_count / total_tests > 0.6:
+                st.success(f"The data largely supports the hypothesis of a linear relationship between CPI and gold prices. {support_count} out of {total_tests} tests provide evidence for this relationship.")
+            elif support_count / total_tests > 0.4:
+                st.info(f"The data shows mixed evidence regarding the hypothesis of a linear relationship between CPI and gold prices. {support_count} out of {total_tests} tests provide evidence for this relationship.")
+            else:
+                st.warning(f"The data largely does not support the hypothesis of a linear relationship between CPI and gold prices. Only {support_count} out of {total_tests} tests provide evidence for this relationship.")
+            
+            # Direction of relationship if it exists
+            if correlation > 0.1:
+                st.success("The relationship appears to be positive, suggesting that higher CPI levels are associated with higher gold prices, consistent with gold's role as an inflation hedge.")
+            elif correlation < -0.1:
+                st.warning("The relationship appears to be negative, contrary to the expected direction. This suggests that higher CPI levels are associated with lower gold prices, which is inconsistent with gold's traditional role as an inflation hedge.")
                 
     except Exception as e:
         st.error(f"An error occurred: {str(e)}")
         raise e
+
 if __name__ == "__main__":
     app()

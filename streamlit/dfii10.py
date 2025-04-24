@@ -71,7 +71,8 @@ def app():
             3. **USD Strength**: Higher real rates often lead to a stronger US dollar, which typically has an inverse relationship with gold prices.
             """)
         utils.run_feature_analysis(data, "DFII10")
-        # NEW SECTION: Clear Hypothesis Visualization
+        
+        # Clear Hypothesis Visualization
         st.header("Testing the Inverse Relationship Hypothesis")
         
         # Calculate correlation for annotation
@@ -107,8 +108,8 @@ def app():
         
         # Add title and annotation showing correlation
         plt.title('Gold Price vs 10-Year Real Interest Rate (DFII10)', fontsize=14)
-        plt.figtext(0.5, 0.01, correlation_text, ha='center', fontsize=12, 
-                   bbox=dict(boxstyle="round,pad=0.5", facecolor='white', alpha=0.8))
+        plt.figtext(0.15, 0.85, correlation_text, 
+                    bbox=dict(facecolor='white', alpha=0.8, boxstyle='round,pad=0.5'))
         
         # Add legend
         lines1, labels1 = ax1.get_legend_handles_labels()
@@ -118,53 +119,183 @@ def app():
         fig.tight_layout(pad=3)
         st.pyplot(fig)
         
-        # Add an inverse chart to better visualize the relationship
-        st.subheader("Inverted Comparison for Clearer Visualization")
-        st.markdown("""
-        To better visualize whether the two metrics move in opposite directions,
-        the chart below inverts the DFII10 values (multiplies by -1).
-        If our hypothesis is correct, the two lines should generally move together.
-        """)
+        # Add Linear Regression Analysis
+        st.subheader("Linear Regression Analysis")
         
-        # Create the inverted comparison chart
-        fig2, ax = plt.subplots(figsize=(12, 6))
+        # Create scatter plot
+        fig2, ax = plt.subplots(figsize=(10, 6))
+        ax.scatter(data['DFII10'], data['Price'], alpha=0.6, c='goldenrod')
         
-        # Normalize both series for better visual comparison
-        price_norm = (data['Price'] - data['Price'].min()) / (data['Price'].max() - data['Price'].min())
-        dfii_norm = (data['DFII10'] - data['DFII10'].min()) / (data['DFII10'].max() - data['DFII10'].min())
+        # Add regression line
+        X = data['DFII10'].values.reshape(-1, 1)
+        y = data['Price'].values
         
-        # Plot normalized price
-        ax.plot(data['Date'], price_norm, color='goldenrod', linewidth=2, label='Gold Price (normalized)')
+        # Fit the model
+        model = LinearRegression()
+        model.fit(X, y)
         
-        # Plot inverted normalized DFII10
-        ax.plot(data['Date'], -dfii_norm, color='navy', linewidth=2, linestyle='--', 
-                label='Inverted DFII10 (normalized)')
+        # Get regression metrics
+        r_squared = model.score(X, y)
+        slope = model.coef_[0]
+        intercept = model.intercept_
         
-        # Add grid and labels
+        # Generate predictions for the line
+        x_range = np.linspace(data['DFII10'].min(), data['DFII10'].max(), 100)
+        y_pred = model.predict(x_range.reshape(-1, 1))
+        
+        # Plot the regression line
+        ax.plot(x_range, y_pred, color='red', linewidth=2)
+        
+        # Add equation and R² to the plot
+        equation = f"Price = {intercept:.2f} + {slope:.2f} × DFII10"
+        r2_text = f"R² = {r_squared:.3f}"
+        ax.annotate(equation + "\n" + r2_text,
+                   xy=(0.05, 0.95), xycoords='axes fraction',
+                   bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="gray", alpha=0.8),
+                   va='top')
+        
+        # Set labels and title
+        ax.set_xlabel('10-Year Real Interest Rate (DFII10)')
+        ax.set_ylabel('Gold Price (USD)')
+        ax.set_title('Gold Price vs. DFII10: Testing Relationship', fontsize=14)
         ax.grid(True, alpha=0.3)
-        ax.set_xlabel('Date')
-        ax.set_ylabel('Normalized Values')
-        ax.legend()
         
-        plt.title('Gold Price vs Inverted 10-Year Real Interest Rate', fontsize=14)
-        fig2.tight_layout()
         st.pyplot(fig2)
         
-        # Conclusion about the hypothesis
-        st.markdown(f"""
-        ### Conclusion
+        # Emphasize the concept of relationship
+        if slope < 0:
+            st.success(f"The regression slope is negative ({slope:.2f}), supporting the inverse relationship hypothesis.")
+        else:
+            st.warning(f"The regression slope is positive ({slope:.2f}), which does not support the inverse relationship hypothesis.")
         
-        Based on the visual comparison and correlation analysis:
+        # More detailed regression with statsmodels for p-values
+        X_sm = sm.add_constant(X)
+        model_sm = sm.OLS(y, X_sm).fit()
         
-        - The correlation coefficient between DFII10 and gold prices is **{correlation:.3f}**
-        - This indicates a **{strength} {relationship_type}** relationship
-        - The hypothesis of an inverse relationship is {"supported" if correlation < 0 else "not supported"} by the data
+        # Extract p-value for DFII10 coefficient
+        p_value = model_sm.pvalues[1]
         
-        This simple analysis {"confirms" if correlation < 0 else "contradicts"} the economic theory that suggests 
-        rising real interest rates tend to put downward pressure on gold prices.
-        """)
+        # Display regression summary in expandable section
+        with st.expander("View Detailed Regression Statistics"):
+            st.text(model_sm.summary().as_text())
         
+        # Create tabs for additional analyses
+        tab1, tab2 = st.tabs(["Rolling Correlation", "Hypothesis Testing Summary"])
+        
+        with tab1:
+            # Rolling window correlation analysis
+            st.subheader("Rolling Correlation Analysis")
+
+            # Add rolling window selector
+            window_size = st.slider("Select rolling window size (days)", 30, 365, 90)
+
+            # Calculate rolling correlation
+            data['rolling_corr'] = data['DFII10'].rolling(window=window_size).corr(data['Price'])
+
+            # Create the rolling correlation plot with properly aligned data
+            fig4, ax = plt.subplots(figsize=(12, 6))
+
+            # Use window_size-1 as the starting point for both arrays to ensure they have the same dimension
+            ax.plot(data['Date'].iloc[window_size-1:], data['rolling_corr'].iloc[window_size-1:], 
+                color='purple', linewidth=2)
+
+            # Add horizontal line at zero
+            ax.axhline(y=0, color='black', linestyle='--', alpha=0.5)
+
+            # Fill areas based on correlation sign
+            ax.fill_between(data['Date'].iloc[window_size-1:], 
+                        data['rolling_corr'].iloc[window_size-1:], 
+                        0, 
+                        where=(data['rolling_corr'].iloc[window_size-1:] > 0),
+                        color='green', alpha=0.3, label='Positive Correlation\n(Does Not Support Hypothesis)')
+
+            ax.fill_between(data['Date'].iloc[window_size-1:], 
+                        data['rolling_corr'].iloc[window_size-1:], 
+                        0, 
+                        where=(data['rolling_corr'].iloc[window_size-1:] <= 0),
+                        color='red', alpha=0.3, label='Negative Correlation\n(Supports Hypothesis)')
+
+            # Add visualization enhancements
+            ax.set_xlabel('Date')
+            ax.set_ylabel('Correlation Coefficient')
+            ax.grid(True, alpha=0.3)
+            ax.legend()
+
+            # Add title with window size information
+            plt.title(f'{window_size}-day Rolling Correlation between Gold Price and DFII10')
+
+            # Display correlation statistics
+            mean_corr = data['rolling_corr'].iloc[window_size-1:].mean()
+            neg_pct = (data['rolling_corr'].iloc[window_size-1:] < 0).mean() * 100
+            corr_stats = f"Mean correlation: {mean_corr:.3f} | Negative correlation: {neg_pct:.1f}% of time"
+
+            # Add annotation for correlation stats
+            plt.figtext(0.5, 0.01, corr_stats, ha='center', 
+                        bbox=dict(facecolor='whitesmoke', alpha=0.8, boxstyle='round,pad=0.5'))
+
+            fig4.tight_layout(rect=[0, 0.03, 1, 0.95])  # Adjust layout to make room for the annotation
+            st.pyplot(fig4)
+
+            # Additional interpretation based on rolling correlation
+            st.markdown(f"""
+            **Rolling Correlation Insights:**
+            - The mean correlation between DFII10 and gold prices over this period is **{mean_corr:.3f}**.
+            - Gold prices show a negative correlation with DFII10 **{neg_pct:.1f}%** of the time.
+            - {'This suggests real interest rates generally have an inverse relationship with gold prices.' if neg_pct > 60 else 
+            'This suggests real interest rates do not consistently have an inverse relationship with gold prices.' if neg_pct < 40 else
+            'This suggests real interest rates sometimes have an inverse relationship with gold prices, but the relationship is not consistent.'}
+            """)
+        
+        with tab2:
+            # Final Summary
+            st.subheader("Hypothesis Testing Summary")
             
+            # Summarize all findings
+            st.markdown("""
+            ### Summary of Findings
+            
+            Based on our comprehensive analysis, we can draw the following conclusions about the hypothesis that there is an 
+            inverse relationship between DFII10 and gold prices:
+            """)
+            
+            # Check if slope is negative (supports inverse relationship)
+            slope_supports = slope < 0
+            
+            # Check if correlation is negative (supports inverse relationship)
+            correlation_supports = correlation < 0
+            
+            # Create summary table
+            results_table = pd.DataFrame({
+                'Analysis Method': ['Correlation Analysis', 'Rolling Correlation', 'Linear Regression'],
+                'Finding': [
+                    f"Correlation coefficient: {correlation:.3f}",
+                    f"Mean correlation: {mean_corr:.3f}, Negative: {neg_pct:.1f}% of time",
+                    f"Slope: {slope:.2f}, R-squared: {r_squared:.3f}"
+                ],
+                'Supports Inverse Hypothesis': [
+                    "✓ Yes" if correlation_supports else "✗ No",
+                    "✓ Yes" if mean_corr < 0 else "✗ No",
+                    "✓ Yes" if slope_supports else "✗ No"
+                ]
+            })
+            
+            st.table(results_table)
+            
+            # Final conclusion
+            st.subheader("Conclusion")
+            
+            # Count how many tests support the hypothesis
+            support_count = results_table['Supports Inverse Hypothesis'].str.contains('Yes').sum()
+            total_tests = len(results_table)
+            
+            # Provide overall conclusion
+            if support_count / total_tests > 0.6:
+                st.success(f"The data largely supports the hypothesis of an inverse relationship between DFII10 and gold prices. {support_count} out of {total_tests} tests provide evidence for this relationship.")
+            elif support_count / total_tests > 0.4:
+                st.info(f"The data shows mixed evidence regarding the hypothesis of an inverse relationship between DFII10 and gold prices. {support_count} out of {total_tests} tests provide evidence for this relationship.")
+            else:
+                st.warning(f"The data largely does not support the hypothesis of an inverse relationship between DFII10 and gold prices. Only {support_count} out of {total_tests} tests provide evidence for this relationship.")
+                
     except Exception as e:
         st.error(f"An error occurred: {str(e)}")
         raise e

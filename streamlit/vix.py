@@ -178,8 +178,8 @@ def app():
         - The relationship is {relationship_strength} based on the correlation coefficient of {correlation:.3f}.
         """)
         
-        # Create tabs for additional analysis
-        tab1, tab2, tab3 = st.tabs(["Rolling Correlation", "VIX Regimes", "Normalized Comparison"])
+        # Create a single tab for rolling correlation
+        tab1, tab2 = st.tabs(["Rolling Correlation", "Hypothesis Testing Summary"])
         
         with tab1:
             st.subheader("Rolling Correlation Analysis")
@@ -247,140 +247,43 @@ def app():
             """)
             
         with tab2:
-            st.subheader("VIX Regime Analysis")
+            # Final Summary
+            st.subheader("Hypothesis Testing Summary")
             
-            # Define VIX regimes
-            low_vix = clean_data['VIX'].quantile(0.33)
-            high_vix = clean_data['VIX'].quantile(0.67)
+            # Summarize all findings
+            st.markdown("""
+            ### Summary of Findings
             
-            # Create VIX regime column
-            clean_data['VIX_regime'] = pd.cut(
-                clean_data['VIX'], 
-                bins=[0, low_vix, high_vix, float('inf')],
-                labels=['Low', 'Medium', 'High']
-            )
-            
-            # Create a boxplot of gold prices by VIX regime
-            fig5, ax = plt.subplots(figsize=(10, 6))
-            sns.boxplot(x='VIX_regime', y='Price', data=clean_data, ax=ax, palette=['green', 'goldenrod', 'red'])
-            
-            # Calculate means for each regime
-            regime_means = clean_data.groupby('VIX_regime')['Price'].mean()
-            
-            # Add mean values as text
-            for i, regime in enumerate(regime_means.index):
-                ax.text(i, regime_means[regime] + 20, f"Mean: ${regime_means[regime]:.2f}", 
-                        ha='center', va='bottom', fontweight='bold')
-                
-            ax.set_xlabel('VIX Regime')
-            ax.set_ylabel('Gold Price (USD)')
-            ax.set_title('Gold Prices across VIX Regimes', fontsize=14)
-            
-            st.pyplot(fig5)
-            
-            # ANOVA test to compare gold prices across VIX regimes
-            groups = [clean_data.loc[clean_data['VIX_regime'] == regime, 'Price'] for regime in ['Low', 'Medium', 'High']]
-            anova_result = stats.f_oneway(*groups)
-            
-            # Provide insights based on ANOVA results
-            if anova_result.pvalue < 0.05:
-                st.success(f"ANOVA p-value: {anova_result.pvalue:.4f} - There is a statistically significant difference in gold prices across VIX regimes.")
-                
-                # Post-hoc analysis: which regimes differ?
-                st.markdown("### Post-hoc analysis: Tukey HSD test")
-                from statsmodels.stats.multicomp import pairwise_tukeyhsd
-                tukey = pairwise_tukeyhsd(endog=clean_data['Price'], groups=clean_data['VIX_regime'], alpha=0.05)
-                
-                # Convert Tukey results to DataFrame for display
-                tukey_data = pd.DataFrame(
-                    data=tukey._results_table.data[1:], 
-                    columns=tukey._results_table.data[0]
-                )
-                st.dataframe(tukey_data)
-                
-            else:
-                st.info(f"ANOVA p-value: {anova_result.pvalue:.4f} - There is NOT a statistically significant difference in gold prices across VIX regimes.")
-                
-            # Check if means increase monotonically with VIX regime
-            monotonic = regime_means['Low'] < regime_means['Medium'] < regime_means['High']
-            
-            if monotonic:
-                st.success("Gold prices increase monotonically as VIX increases, supporting the safe-haven hypothesis.")
-            else:
-                st.warning("Gold prices do not increase monotonically as VIX increases, which challenges the simple linear relationship hypothesis.")
-                
-        with tab3:
-            st.subheader("Normalized Comparison")
-            
-            # Normalize both series for better comparison
-            vix_norm = (clean_data['VIX'] - clean_data['VIX'].min()) / (clean_data['VIX'].max() - clean_data['VIX'].min())
-            price_norm = (clean_data['Price'] - clean_data['Price'].min()) / (clean_data['Price'].max() - clean_data['Price'].min())
-            
-            # Create plot
-            fig6, ax = plt.subplots(figsize=(12, 6))
-            
-            # Plot normalized values
-            ax.plot(clean_data['Date'], price_norm, color='goldenrod', linewidth=2, label='Gold Price (normalized)')
-            ax.plot(clean_data['Date'], vix_norm, color='darkred', linewidth=2, linestyle='--', label='VIX (normalized)')
-            
-            # Add visualization enhancements
-            ax.set_xlabel('Date')
-            ax.set_ylabel('Normalized Value')
-            ax.set_title('Normalized Gold Price and VIX Comparison', fontsize=14)
-            ax.grid(True, alpha=0.3)
-            ax.legend()
-            
-            st.pyplot(fig6)
-            
-            # Calculate correlation of normalized series
-            norm_corr = vix_norm.corr(price_norm)
-            st.markdown(f"""
-            The correlation between normalized series is {norm_corr:.3f}, {'supporting' if norm_corr > 0.3 else 'not strongly supporting'} 
-            the hypothesis of a positive relationship between VIX and gold prices.
-            
-            Normalizing the series allows us to compare the pattern of movements rather than the absolute values.
+            Based on our comprehensive analysis, we can draw the following conclusions about the hypothesis that there is a 
+            linear relationship between VIX and gold prices:
             """)
             
-        # Final Summary
-        st.subheader("Hypothesis Testing Summary")
-        
-        # Summarize all findings
-        st.markdown("""
-        ### Summary of Findings
-        
-        Based on our comprehensive analysis, we can draw the following conclusions about the hypothesis that there is a 
-        linear relationship between VIX and gold prices:
-        """)
-        
-        # Check if correlation, regression, and ANOVA support the hypothesis
-        correlation_supports = abs(correlation) > 0.3
-        regression_supports = p_value < 0.05
-        anova_supports = 'anova_result' in locals() and anova_result.pvalue < 0.05
-        
-        # Create summary table
-        results_table = pd.DataFrame({
-            'Analysis Method': ['Correlation Analysis', 'Linear Regression', 'VIX Regime Analysis', 'Rolling Correlation'],
-            'Finding': [
-                f"Correlation coefficient: {correlation:.3f} ({relationship_strength})",
-                f"Slope: {slope:.2f}, R-squared: {r_squared:.3f}, p-value: {p_value:.4f}",
-                f"ANOVA p-value: {anova_result.pvalue:.4f}" if 'anova_result' in locals() else "Not computed",
-                f"Mean rolling correlation: {mean_corr:.3f}" if 'mean_corr' in locals() else "Not computed"
-            ],
-            'Supports Linear Relationship': [
-                "✓ Yes" if correlation_supports else "✗ No",
-                "✓ Yes" if regression_supports else "✗ No",
-                "✓ Yes" if anova_supports else "✗ No",
-                "✓ Yes" if 'mean_corr' in locals() and mean_corr > 0.3 else "✗ No"
-            ]
-        })
-        
-        st.table(results_table)
-        
-        # Final conclusion
-        st.subheader("Conclusion")
-        
-        # Count how many tests support the hypothesis
-        if 'results_table' in locals():
+            # Check if correlation, regression support the hypothesis
+            correlation_supports = correlation > 0.3
+            regression_supports = p_value < 0.05 and slope > 0
+            rolling_supports = mean_corr > 0.3
+            
+            # Create summary table
+            results_table = pd.DataFrame({
+                'Analysis Method': ['Correlation Analysis', 'Linear Regression', 'Rolling Correlation'],
+                'Finding': [
+                    f"Correlation coefficient: {correlation:.3f} ({relationship_strength})",
+                    f"Slope: {slope:.2f}, R-squared: {r_squared:.3f}, p-value: {p_value:.4f}",
+                    f"Mean rolling correlation: {mean_corr:.3f}, Positive: {pos_pct:.1f}% of time"
+                ],
+                'Supports Linear Relationship': [
+                    "✓ Yes" if correlation_supports else "✗ No",
+                    "✓ Yes" if regression_supports else "✗ No",
+                    "✓ Yes" if rolling_supports else "✗ No"
+                ]
+            })
+            
+            st.table(results_table)
+            
+            # Final conclusion
+            st.subheader("Conclusion")
+            
+            # Count how many tests support the hypothesis
             support_count = results_table['Supports Linear Relationship'].str.contains('Yes').sum()
             total_tests = len(results_table)
             
