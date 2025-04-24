@@ -1,10 +1,9 @@
 import tensorflow as tf
 from tensorflow import keras
-from sklearn.preprocessing import StandardScaler
-from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
 import numpy as np
 import os
+from dags.modelling.utils import prepare_data, create_sequences
 from keras.models import Sequential
 from keras.layers import LSTM, Dense, Dropout, Input
 from keras import regularizers
@@ -13,25 +12,8 @@ from keras.optimizers import Adam
 from keras.callbacks import EarlyStopping, ReduceLROnPlateau
 
 # ==================== LSTM Modelling Functions ====================
-def prepare_data(data):
-    data = data.copy().dropna()
 
-    # Scale the data
-    scaler = MinMaxScaler()
-    train_data = data.values
-    scaled_train_data = scaler.fit_transform(train_data)
-    # scaled_test_data = np.vstack([scaled_train_data[-seq_length:], scaled_test_data])
-    
-    return scaled_train_data, scaler
-
-def create_sequences(data, seq_length, target_col=0):
-    X, y = [], []
-    for i in range(len(data) - seq_length):
-        X.append(data[i:i + seq_length])
-        y.append(data[i + seq_length, target_col].reshape(1))
-    
-    return np.array(X), np.array(y)
-
+# Model building
 def build_lstm_model(input_shape, best_hyperparameters):    
     # Extract hyperparameters
     num_lstm_layers = best_hyperparameters['num_lstm_layers']
@@ -77,11 +59,11 @@ def build_lstm_model(input_shape, best_hyperparameters):
     
     return model
 
-def train_lstm(data, best_hyperparameters, features, seq_length=30):
-    data = data[features]
+# Model training
+def train_lstm(df, best_hyperparameters, features, model_name, seq_length=60):
     
     # Prepare training data
-    train_data, scaler = prepare_data(data)
+    train_data, scaler_dict, features = prepare_data(df, features)
     
     # Create sequences for train set
     X_train, y_train = create_sequences(train_data, seq_length)
@@ -111,46 +93,21 @@ def train_lstm(data, best_hyperparameters, features, seq_length=30):
     # Train the model
     model.fit(
         X_train, y_train,
-        epochs=40,
+        epochs=30, # changed to 30 to be consistent with transformer
         verbose=1,
         validation_split=0.2,
         callbacks=[early_stopping, reduce_lr]
     )
 
     # Create models directory if it does not exist
-    models_path = os.path.join(os.getcwd(), 'trained_models')
+    models_path = os.path.join(os.getcwd(), 'dags', 'trained_models')
     if not os.path.exists(models_path):
         os.makedirs(models_path)
 
-    # Save the trained model in models directory
-    if len(features) == 1 and 'Price' in features:
-        # Model trained with price only
-        model.save('trained_models/lstm_price')
-    else:
-        # Model trained with full feature set
-        model.save('trained_models/lstm_full')
+    # Save the model trained with full feature set
+    model.save(f'dags/trained_models/{model_name}.keras')
+    abs_model_path = os.path.abspath(os.path.join(models_path, f"{model_name}.keras"))
+    print(f'{model_name} saved to {abs_model_path}')
 
     # Output scaler for prediction function
-    return scaler
-
-def lstm_predict(model, data, seq_length, features, scaler, target_col=0):
-    # Prepare the input data
-    input_data = data[features].copy()
-    scaled_input = scaler.transform(input_data)
-    
-    # Create a sequence for the latest seq_length days of data
-    last_sequence = scaled_input[-seq_length:].reshape(1, seq_length, len(features))
-    
-    # Predict the next value
-    y_pred = model.predict(last_sequence, verbose=0)[0][0]
-
-    # Create a template for inverse transformation with the correct shape
-    y_pred_template = np.zeros((1, len(features)))
-    
-    # Place the prediction in the right column
-    y_pred_template[0, target_col] = y_pred
-    
-    # Inverse transform to get actual value
-    y_pred_denorm = scaler.inverse_transform(y_pred_template)[0, target_col]
-    
-    return y_pred_denorm
+    return scaler_dict

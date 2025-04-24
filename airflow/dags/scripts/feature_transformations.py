@@ -3,9 +3,6 @@ import numpy as np
 from transformers import AutoModelForSequenceClassification, AutoTokenizer
 import torch
 from datetime import datetime, timedelta
-from airflow.providers.google.cloud.hooks.bigquery import BigQueryHook
-from google.cloud import bigquery
-from airflow.models import Variable
 
 # News Sentiment Score from Transformer
 def calculate_sentiment_score(news):

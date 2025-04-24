@@ -1,12 +1,12 @@
 import tensorflow as tf
 from tensorflow import keras
-from sklearn.preprocessing import StandardScaler
-from sklearn.preprocessing import MinMaxScaler
 import pandas as pd
 import numpy as np
 import os
+from dags.modelling.utils import prepare_data, create_sequences
 
 # ==================== Transformer Model Architecture ====================
+
 class PositionalEncoding(tf.keras.layers.Layer):
     def __init__(self, d_model, max_seq_length=1000):
         super().__init__()
@@ -132,35 +132,9 @@ class GoldPriceTransformer(tf.keras.Model):
         return self.output_projection(final_output)
 
 # ==================== Transformer Modelling Functions ====================
-# Data Preparation
-def prepare_data(df, features = ["Price"]):
-    # Select the relevant columns
-    data = df[features].copy().dropna()
-
-    # Normalize the data
-    scaler_dict = {}
-    for column in data.columns:
-        scaler = MinMaxScaler()
-        data[column] = scaler.fit_transform(data[column].values.reshape(-1, 1))
-        scaler_dict[column] = scaler
-    
-    return data, scaler_dict, features
-
-# Create sequences
-def create_sequences(data, seq_length, target_column='Price'):
-    xs, ys = [], []
-    for i in range(len(data) - seq_length):
-        x = data.iloc[i:(i + seq_length)].values
-        y = data.iloc[i + seq_length][target_column]
-        xs.append(x)
-        ys.append(y)
-    return np.array(xs), np.array(ys)
 
 # Model training
-def train_transformer(df, features, seq_length=60, 
-                      d_model=64, num_heads=8, num_layers=4, 
-                      dropout_rate=0.1, batch_size=32, epochs=30, 
-                      attention_decay_factor=0.0003):
+def train_transformer(df, best_hyperparameters, features, model_name, seq_length=60):
     """
     Transformer training process for gold price prediction
     """
@@ -181,11 +155,11 @@ def train_transformer(df, features, seq_length=60,
     model = GoldPriceTransformer(
         input_dim=input_dim,
         output_dim=output_dim,
-        d_model=d_model,
-        num_heads=num_heads,
-        num_layers=num_layers,
-        dropout_rate=dropout_rate,
-        attention_decay_factor=attention_decay_factor
+        d_model=best_hyperparameters['d_model'],
+        num_heads=best_hyperparameters['num_heads'],
+        num_layers=best_hyperparameters['num_layers'],
+        dropout_rate=best_hyperparameters['dropout_rate'],
+        attention_decay_factor=best_hyperparameters['attention_decay_factor']
     )
     
     # Compile the model
@@ -209,45 +183,21 @@ def train_transformer(df, features, seq_length=60,
     model.fit(
         X_train, y_train,
         validation_split=0.2,
-        batch_size=batch_size,
-        epochs=epochs,
+        batch_size=best_hyperparameters['batch_size'],
+        epochs=best_hyperparameters['epochs'],
         callbacks=callbacks,
         verbose=1
     )
 
     # Create models directory if it does not exist
-    models_path = os.path.join(os.getcwd(), 'trained_models')
+    models_path = os.path.join(os.getcwd(), 'dags', 'trained_models')
     if not os.path.exists(models_path):
         os.makedirs(models_path)
 
-    # Save the trained model in models directory
-    if len(features) == 1 and 'Price' in features:
-        # Model trained with price only
-        model.save('trained_models/transformer_price')
-    else:
-        # Model trained with full feature set
-        model.save('trained_models/transformer_full')
+    # Save the model trained with full feature set
+    model.save(f'dags/trained_models/{model_name}.keras')
+    abs_model_path = os.path.abspath(os.path.join(models_path, f"{model_name}.keras"))
+    print(f'{model_name} saved to {abs_model_path}')
 
     # Output scaler_dict for prediction function
     return scaler_dict
-
-def transformer_predict(model, scaler_dict, data, features):
-    # Apply the same scalers to test data
-    data_scaled = data[features].copy()
-    for column in data_scaled.columns:
-        data_scaled[column] = scaler_dict[column].transform(
-            data_scaled[column].values.reshape(-1, 1)
-        )
-
-    # Create a sequence for the latest seq_length days of data
-    sequence = list(data.values)
-    sequence = np.array(sequence)
-
-    # Make +1 day prediction
-    y_pred = model.predict(sequence)
-    
-    # Denormalize prediction
-    price_scaler = scaler_dict['Price']
-    y_pred_denorm = price_scaler.inverse_transform(y_pred).flatten()
-    
-    return y_pred_denorm

@@ -14,3 +14,10 @@ python-dateutil
 confluent-kafka
 torch
 transformers
+streamlit
+tensorflow
+yfinance
+pandas_datareader
+scikit-learn
+apache-airflow
+keras
