@@ -3,7 +3,7 @@ from tensorflow import keras
 import pandas as pd
 import numpy as np
 import os
-from dags.modelling.utils import prepare_data, create_sequences
+from .utils import prepare_data, create_sequences
 from keras.models import Sequential
 from keras.layers import LSTM, Dense, Dropout, Input
 from keras import regularizers

@@ -148,8 +148,8 @@ else:
         st.success(f"Last training completed at: {training_status['end_time']}")
     
 # Only show retraining button if not currently training
-if st.button("Retrain models with latest data"):
-    with st.spinner("Initiating model retraining..."):
+if st.button("Retrain Models with Latest Data"):
+    with st.spinner("Retraining models..."):
         success, message = retrain_models()
         if success:
             st.success(message)

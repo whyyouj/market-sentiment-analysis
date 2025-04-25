@@ -33,7 +33,8 @@ def create_sequences(data, seq_length, target_column='Price'):
 
 # Load saved scaler
 def load_scaler():
-    scaler_path = os.path.join(os.getcwd(), 'trained_models', 'scalers', 'scaler.pkl')
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    scaler_path = os.path.join(base_dir, 'trained_models', 'scalers', 'scaler.pkl')
     if not os.path.exists(scaler_path):
         print(f"Error: File '{scaler_path}' does not exist.")
         return None
@@ -54,8 +55,11 @@ def predict(model, scaler_dict, data, features):
         )
 
     # Create a sequence for the latest seq_length days of data
-    sequence = list(data_scaled.values)
-    sequence = np.array(sequence)
+    sequence = np.array(data_scaled.values)
+
+    # Add batch dimension: shape becomes (1, seq_length, num_features)
+    sequence = sequence.reshape((1, sequence.shape[0], sequence.shape[1]))
+    print(f"Input shape to model: {sequence.shape}")
 
     # Make +1 day prediction
     y_pred = model.predict(sequence)
@@ -63,6 +67,9 @@ def predict(model, scaler_dict, data, features):
     # Denormalize prediction
     price_scaler = scaler_dict['Price']
     y_pred_denorm = price_scaler.inverse_transform(y_pred).flatten()
+
+    # Convert prediction to float
+    y_pred_denorm = float(y_pred_denorm.flatten()[0])
     
     return y_pred_denorm
 
@@ -75,10 +82,27 @@ def prepare_data_for_analysis(scaler_dict, data, features, seq_length=60):
             data_scaled[column].values.reshape(-1, 1)
         )
 
-    # Create sequences for the data
-    X_test, y_test = create_sequences(data_scaled, seq_length, target_column='Actual')
+    # # Add the unscaled 'Actual' column back for supervised target
+    # data_scaled['Actual'] = data['Actual'].values
 
-    return X_test, y_test
+    # # Create sequences for the data
+    # X_test, y_test = create_sequences(data_scaled, seq_length, target_column='Actual')
+
+    # return X_test, y_test
+
+    # Only pass features to X, and 'Actual' from original to y
+    X_data = data_scaled
+    y_data = data['Actual'].values
+
+    # Create sequences
+    xs, ys = [], []
+    for i in range(len(X_data) - seq_length):
+        x = X_data.iloc[i:(i + seq_length)].values
+        y = y_data[i + seq_length]
+        xs.append(x)
+        ys.append(y)
+
+    return np.array(xs), np.array(ys)
 
 # Analyse feature importances
 def analyse_feature_importance(model, X_test, y_test, feature_names, 

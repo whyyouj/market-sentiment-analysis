@@ -115,8 +115,8 @@ def extract_from_mysql(dataset_config, execution_date):
             null_record = {col: None for col in columns}
             result_dict = null_record
         else:
-            print(f"[MySQL] Successfully extracted {dataset_name} data for {execution_date}")
             result_dict = results.iloc[0].to_dict()
+            print(f"[MySQL] Successfully extracted {dataset_name} data for {execution_date}: {result_dict}")
         
         return result_dict
     
@@ -130,6 +130,7 @@ def extract_from_api(dataset_config, execution_date):
     import pandas_datareader as pdr
 
     dataset_name = dataset_config['name']
+    end_date = (datetime.strptime(execution_date, '%Y-%m-%d') + timedelta(days=1)).strftime('%Y-%m-%d')
     
     try:
         result_dict = {}
@@ -139,11 +140,11 @@ def extract_from_api(dataset_config, execution_date):
             if not df.empty:
                 result_dict = {'DFII10': float(df.iloc[0]['DFII10'])}
         elif dataset_name == "vix":
-            df = yf.download('^VIX', start=execution_date, end=execution_date)
+            df = yf.download('^VIX', start=execution_date, end=end_date)
             if not df.empty:
                 result_dict = {'VIX': float(df.iloc[0]['Close'])}
         elif dataset_name == "usd_rates":
-            df = yf.download('DX-Y.NYB', start=execution_date, end=execution_date)
+            df = yf.download('DX-Y.NYB', start=execution_date, end=end_date)
             if not df.empty:
                 result_dict = {'DXY': float(df.iloc[0]['Close'])}
 
@@ -153,7 +154,7 @@ def extract_from_api(dataset_config, execution_date):
             null_record = {col: None for col in dataset_config['columns_to_extract']}
             result_dict = null_record
         else:
-            print(f"[API] Successfully extracted {dataset_name} data for {execution_date}")
+            print(f"[API] Successfully extracted {dataset_name} data for {execution_date}: {result_dict}")
         
         return result_dict
     
@@ -184,9 +185,12 @@ def extract_data(dataset_config, execution_date, **kwargs):
             key=dataset_name,
             value=data_json
         )
-        producer.flush()
-        
-        print(f"[Kafka] Successfully produced {dataset_name} data to Kafka for {execution_date}")
+        remaining_msg = producer.flush(timeout=5)
+        if remaining_msg > 0:
+            print(f"[Kafka] Remaining {dataset_name} data NOT produced to Kafka for {execution_date}")
+        else:
+            print(f"[Kafka] Successfully produced {dataset_name} data to Kafka for {execution_date}")
+            
         return True
     
     except Exception as e:
@@ -208,18 +212,19 @@ def transform_data(dataset_config, **kwargs):
         
         if msg is None:
             print(f"[Kafka] No message received for {dataset_name}")
-            return None
-        
-        if msg.error():
-            raise KafkaException(msg.error())
-        
-        # parse the message
-        data_json = msg.value().decode('utf-8')
-        data = json.loads(data_json)
+            data = {col: None for col in dataset_config['columns_to_extract']}
+        else:
+            if msg.error():
+                raise KafkaException(msg.error())
+            
+            # parse the message
+            data_json = msg.value().decode('utf-8')
+            data = json.loads(data_json)
         
         # apply specific transformation based on the data source
         if transformation_function == 'price_transform':
-            data['Price'] = data['Price'].replace(',', '').astype(float)
+            if data['Price'] is not None:
+                data['Price'] = float(data['Price'].replace(',', ''))
 
         elif transformation_function == 'calculate_sentiment_score':
             # use hugging face transformer to compute sentiment score of news
@@ -267,29 +272,36 @@ def combine_datasets(**kwargs):
     
     # store the combined data in XCom
     ti.xcom_push(key='combined_data', value=json.dumps(combined_data))
-    print(f"[Python] Successfully combined all datasets for {execution_date}")
+    print(f"[Python] Successfully combined all datasets for {execution_date}: {combined_data}")
     
     return True
 
-def get_historical_data(date_str, bq_hook, bq_config, max_window_size):
+def get_historical_data(date_str, bq_hook, bq_config, max_window_size=None):
     """Get historical data from BigQuery for feature engineering"""
-    # calculate the start date for historical data
-    start_date = (datetime.strptime(date_str, '%Y-%m-%d') - timedelta(days=max_window_size)).strftime('%Y-%m-%d')
-    
     # query historical data
     project_id = bq_config['project_id']
     dataset_id = bq_config['dataset_id']
     gold_market_data_table = bq_config['gold_market_data_table']
+    
+    if max_window_size is not None:
+        # calculate the start date for historical data
+        start_date = (datetime.strptime(date_str, '%Y-%m-%d') - timedelta(days=max_window_size + 1)).strftime('%Y-%m-%d')
 
-    query = f"""
-    SELECT *
-    FROM {project_id}.{dataset_id}.{gold_market_data_table}
-    WHERE Date >= '{start_date}' AND Date < '{date_str}'
-    ORDER BY Date ASC
-    """
+        query = f"""
+        SELECT *
+        FROM {project_id}.{dataset_id}.{gold_market_data_table}
+        WHERE Date >= '{start_date}' AND Date < '{date_str}'
+        ORDER BY Date ASC
+        """
+    else:
+        query = f"""
+        SELECT *
+        FROM {project_id}.{dataset_id}.{gold_market_data_table}
+        ORDER BY Date ASC
+        """
     
     # execute the query
-    result = bq_hook.get_pandas_df(query, use_legacy_sql=False)
+    result = bq_hook.get_pandas_df(query, dialect='standard')
     
     return result if not result.empty else pd.DataFrame()
 
@@ -307,8 +319,8 @@ def apply_feature_engineering(**kwargs):
     current_df = pd.DataFrame([current_data])
 
     # get historical data for feature engineering
-    max_window_size = max(DAG_CONFIG['window_sizes'].values())
-    hist_df = get_historical_data(current_data['Date'], bq_hook, bq_config, max_window_size)
+    # max_window_size = max(DAG_CONFIG['window_sizes'].values())
+    hist_df = get_historical_data(current_data['Date'], bq_hook, bq_config, max_window_size=None)
     
     # convert date string to datetime in current data
     if 'Date' in current_df.columns:
@@ -339,9 +351,13 @@ def apply_feature_engineering(**kwargs):
 
     # obtain the current day's data with all features
     full_current_data = combined_df.iloc[-1:].to_dict('records')[0]
+
+    # change date back to string
+    full_current_data['Date'] = full_current_data['Date'].strftime('%Y-%m-%d')
     
     # exponential weighting for news sentiment score
-    full_current_data['Exponential_Weighted_Score'] = exp_weighting_sentiment_score(bq_config, bq_hook, current_data['Sentiment_Score'], current_data['Date'])
+    # full_current_data['Exponential_Weighted_Score'] = exp_weighting_sentiment_score(bq_config, bq_hook, current_data['Sentiment_Score'], current_data['Date'], hist_df)
+    full_current_data['Exponential_Weighted_Score'] = exp_weighting_sentiment_score(current_data['Sentiment_Score'], current_data['Date'], hist_df)
 
     # store the full data in XCom
     ti.xcom_push(key='full_current_data', value=json.dumps(full_current_data))
@@ -361,6 +377,11 @@ def load_to_bigquery(**kwargs):
     # get current day's data after feature engineering
     full_current_data = ti.xcom_pull(task_ids='apply_feature_engineering', key='full_current_data')
     full_current_data = json.loads(full_current_data)
+
+    # replace any NaN with None
+    for k, v in full_current_data.items():
+        if isinstance(v, float) and pd.isna(v):
+            full_current_data[k] = None
     
     # connect to BigQuery
     bq_hook = BigQueryHook(gcp_conn_id='bigquery_default')
@@ -398,7 +419,7 @@ def check_model_training_status(**kwargs):
     retry_interval = 120  # 2 minutes
     
     for attempt in range(max_retries):
-        status_df = bq_hook.get_pandas_df(query, use_legacy_sql=False)
+        status_df = bq_hook.get_pandas_df(query, dialect='standard')
         
         if status_df.empty:
             raise ValueError("Could not retrieve model training status")
@@ -419,7 +440,7 @@ def check_model_training_status(**kwargs):
     return True
 
 def get_pred_sequence(execution_date, seq_length):
-    start_date = (datetime.strptime(execution_date, '%Y-%m-%d') - timedelta(days=seq_length)).strftime('%Y-%m-%d')
+    # start_date = (datetime.strptime(execution_date, '%Y-%m-%d') - timedelta(days=seq_length)).strftime('%Y-%m-%d')
     
     # query historical data
     bq_config = DAG_CONFIG['bigquery']
@@ -430,21 +451,26 @@ def get_pred_sequence(execution_date, seq_length):
     query = f"""
     SELECT *
     FROM {project_id}.{dataset_id}.{gold_market_data_table}
-    WHERE Date > '{start_date}' AND Date <= '{execution_date}'
     ORDER BY Date ASC
     """
     
     # execute the query
     bq_hook = BigQueryHook(gcp_conn_id='bigquery_default')
-    result = bq_hook.get_pandas_df(query, use_legacy_sql=False)
+    result = bq_hook.get_pandas_df(query, dialect='standard')
 
-    return result if not result.empty else pd.DataFrame()
+    if not result.empty:
+        sequence = result.iloc[-seq_length:]
+    else:
+        sequence = pd.DataFrame()
+
+    return sequence
 
 def model_predict(model_config, **kwargs):
     import tensorflow as tf
+    from modelling.transformer import GoldPriceTransformer, TransformerEncoderLayer, PositionalEncoding
 
     ti = kwargs['ti']
-    execution_date = kwargs['execution_date']
+    execution_date = kwargs['execution_date'].strftime('%Y-%m-%d')
     
     # Extract model details
     model_name = model_config['name']
@@ -460,12 +486,21 @@ def model_predict(model_config, **kwargs):
         raise ValueError("[make_predictions] No prediction sequence received")
     
     # Load the model
-    model_path = os.path.join(os.getcwd(), 'trained_models', f"{model_name}.keras")
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    model_path = os.path.join(base_dir, 'trained_models', f"{model_name}.keras")
     
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"[make_predictions] Model {model_name} not found at {model_path}")
     
-    model = tf.keras.models.load_model(model_path)
+    # model = tf.keras.models.load_model(model_path)
+    model = tf.keras.models.load_model(
+        model_path,
+        custom_objects={
+            'GoldPriceTransformer': GoldPriceTransformer,
+            'TransformerEncoderLayer': TransformerEncoderLayer,
+            'PositionalEncoding': PositionalEncoding
+        }
+    )
     
     # Load the scaler_dict
     scaler_dict = load_scaler()
@@ -534,6 +569,7 @@ def store_predictions(**kwargs):
 
 def model_analyse(model_config, **kwargs):
     import tensorflow as tf
+    from modelling.transformer import GoldPriceTransformer, TransformerEncoderLayer, PositionalEncoding
 
     ti = kwargs['ti']
 
@@ -551,7 +587,7 @@ def model_analyse(model_config, **kwargs):
     ORDER BY Date ASC
     """
 
-    result = bq_hook.get_pandas_df(query, use_legacy_sql=False)
+    result = bq_hook.get_pandas_df(query, dialect='standard')
 
     # Create new column for the actual price and drop rows with missing values
     result['Actual'] = result['Price'].shift(-1)
@@ -567,12 +603,21 @@ def model_analyse(model_config, **kwargs):
 
     # Load the model
     model_name = model_config['name']
-    model_path = os.path.join(os.getcwd(), 'trained_models', f"{model_name}.keras")
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    model_path = os.path.join(base_dir, 'trained_models', f"{model_name}.keras")
     
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"[model_analyse] Model {model_name} not found at {model_path}")
     
-    model = tf.keras.models.load_model(model_path)
+    # model = tf.keras.models.load_model(model_path)
+    model = tf.keras.models.load_model(
+        model_path,
+        custom_objects={
+            'GoldPriceTransformer': GoldPriceTransformer,
+            'TransformerEncoderLayer': TransformerEncoderLayer,
+            'PositionalEncoding': PositionalEncoding
+        }
+    )
 
     # Analyse feature importances with model
     mean_importances = analyse_feature_importance(model, X_test, y_test, features)
@@ -622,7 +667,7 @@ default_args = {
     'email_on_failure': True,
     'email_on_retry': False,
     'retries': 1,
-    'retry_delay': timedelta(minutes=5)
+    'retry_delay': timedelta(minutes=2)
 }
 
 # create the DAG
@@ -655,7 +700,7 @@ with DAG(
         # extract task
         extract_task = PythonOperator(
             task_id=f"extract_{dataset_name}",
-            python_callable=extract_from_mysql,
+            python_callable=extract_data,
             op_kwargs={'dataset_config': dataset_config, 'execution_date': '{{ ds }}'},
             provide_context=True
         )
@@ -755,7 +800,7 @@ with DAG(
         store_analysis_tasks.append(store_analysis_task)
 
         # set analyse + store analysis dependencies for each model
-        store_pred_task >> model_analysis_task >> store_analysis_task
+        check_model_status_task >> model_analysis_task >> store_analysis_task
     
     # end task
     end_task = DummyOperator(
@@ -766,4 +811,4 @@ with DAG(
     # set the final dependencies
     start_task >> check_date_task
     transform_tasks >> combine_data_task >> feature_eng_task >> load_bq_task >> check_model_status_task >> model_predict_tasks >> combine_pred_task >> store_pred_task
-    store_analysis_tasks >> end_task
+    [store_pred_task] + store_analysis_tasks >> end_task

@@ -3,10 +3,12 @@ from tensorflow import keras
 import pandas as pd
 import numpy as np
 import os
-from dags.modelling.utils import prepare_data, create_sequences
+from .utils import prepare_data, create_sequences
+from keras.saving import register_keras_serializable
 
 # ==================== Transformer Model Architecture ====================
 
+@register_keras_serializable(package="Custom")
 class PositionalEncoding(tf.keras.layers.Layer):
     def __init__(self, d_model, max_seq_length=1000):
         super().__init__()
@@ -24,19 +26,32 @@ class PositionalEncoding(tf.keras.layers.Layer):
         pos_encoding[:, 1::2] = np.cos(pos * div_term[:, 1::2])  # Odd indices
 
         self.pos_encoding = tf.cast(pos_encoding[np.newaxis, :, :], tf.float32)  # Add batch dimension: [1, max_seq_len, d_model]
+
         self.d_model = d_model
+        self.max_seq_length = max_seq_length
 
     def call(self, inputs):
         seq_length = tf.shape(inputs)[1]
         return inputs + self.pos_encoding[:, :seq_length, :]
+    
+    def get_config(self):
+        # config = super().get_config()
+        # config.update({
+        #     "d_model": self.d_model,
+        #     "max_seq_length": self.max_seq_length
+        # })
+        config = {
+            "d_model": self.d_model,
+            "max_seq_length": self.max_seq_length
+        }
+        return config
 
+@register_keras_serializable(package="Custom")
 class TransformerEncoderLayer(tf.keras.layers.Layer):
     def __init__(self, d_model, num_heads, dropout_rate=0.1, attention_decay_factor=0.01, ff_dim=None):
         super().__init__()
         if ff_dim is None:
             ff_dim = 4 * d_model
-        
-        self.attention_decay_factor = attention_decay_factor
 
         self.mha = tf.keras.layers.MultiHeadAttention(
             num_heads=num_heads, key_dim=d_model//num_heads)
@@ -54,6 +69,12 @@ class TransformerEncoderLayer(tf.keras.layers.Layer):
         
         # Store attention weights
         self.attention_weights = None
+
+        self.d_model = d_model
+        self.num_heads = num_heads
+        self.dropout_rate = dropout_rate
+        self.attention_decay_factor = attention_decay_factor
+        self.ff_dim = ff_dim
         
     def call(self, inputs, training=None, mask=None):
         # Multi-head attention with residual connection and layer normalization
@@ -96,7 +117,26 @@ class TransformerEncoderLayer(tf.keras.layers.Layer):
         ffn_output = self.ffn(out1)
         ffn_output = self.dropout2(ffn_output, training=training)
         return self.layernorm2(out1 + ffn_output)
+    
+    def get_config(self):
+        # config = super().get_config()
+        # config.update({
+        #     "d_model": self.d_model,
+        #     "num_heads": self.num_heads,
+        #     "dropout_rate": self.dropout_rate,
+        #     "attention_decay_factor": self.attention_decay_factor,
+        #     "ff_dim": self.ff_dim
+        # })
+        config = {
+            "d_model": self.d_model,
+            "num_heads": self.num_heads,
+            "dropout_rate": self.dropout_rate,
+            "attention_decay_factor": self.attention_decay_factor,
+            "ff_dim": self.ff_dim
+        }
+        return config
 
+@register_keras_serializable(package="Custom")
 class GoldPriceTransformer(tf.keras.Model):
     def __init__(self, input_dim, output_dim, d_model=128, num_heads=8, 
                  num_layers=3, dropout_rate=0.1, attention_decay_factor=0.01):
@@ -118,6 +158,14 @@ class GoldPriceTransformer(tf.keras.Model):
         self.dropout = tf.keras.layers.Dropout(dropout_rate)
         self.output_projection = tf.keras.layers.Dense(output_dim)
         
+        self.input_dim = input_dim
+        self.output_dim = output_dim
+        self.d_model = d_model
+        self.num_heads = num_heads
+        self.num_layers = num_layers
+        self.dropout_rate = dropout_rate
+        self.attention_decay_factor = attention_decay_factor
+        
     def call(self, inputs, training=None, mask=None):
         # inputs shape: [batch_size, seq_len, input_dim]
         x = self.input_projection(inputs)
@@ -130,6 +178,28 @@ class GoldPriceTransformer(tf.keras.Model):
         # Extract the last time step for forecasting
         final_output = x[:, -1, :]
         return self.output_projection(final_output)
+    
+    def get_config(self):
+        # config = super().get_config()
+        # config.update({
+        #     "input_dim": self.input_dim,
+        #     "output_dim": self.output_dim,
+        #     "d_model": self.d_model,
+        #     "num_heads": self.num_heads,
+        #     "num_layers": self.num_layers,
+        #     "dropout_rate": self.dropout_rate,
+        #     "attention_decay_factor": self.attention_decay_factor
+        # })
+        config = {
+            "input_dim": self.input_dim,
+            "output_dim": self.output_dim,
+            "d_model": self.d_model,
+            "num_heads": self.num_heads,
+            "num_layers": self.num_layers,
+            "dropout_rate": self.dropout_rate,
+            "attention_decay_factor": self.attention_decay_factor
+        }
+        return config
 
 # ==================== Transformer Modelling Functions ====================
 
