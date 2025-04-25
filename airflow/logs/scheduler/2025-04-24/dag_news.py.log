@@ -1,0 +1,109 @@
+[2025-04-24T17:09:06.396+0000] {processor.py:186} INFO - Started process (PID=85) to work on /opt/airflow/dags/dag_news.py
+[2025-04-24T17:09:06.398+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/dag_news.py for tasks to queue
+[2025-04-24T17:09:06.404+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:09:06.403+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:09:07.435+0000] {processor.py:925} INFO - DAG(s) 'gold_news_dag' retrieved from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:09:07.820+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:09:07.818+0000] {override.py:1912} INFO - Created Permission View: can delete on DAG:gold_news_dag
+[2025-04-24T17:09:07.862+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:09:07.861+0000] {override.py:1912} INFO - Created Permission View: can read on DAG:gold_news_dag
+[2025-04-24T17:09:07.882+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:09:07.881+0000] {override.py:1912} INFO - Created Permission View: can edit on DAG:gold_news_dag
+[2025-04-24T17:09:07.903+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:09:07.902+0000] {override.py:1912} INFO - Created Permission View: can delete on DAG Run:gold_news_dag
+[2025-04-24T17:09:07.926+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:09:07.924+0000] {override.py:1912} INFO - Created Permission View: can read on DAG Run:gold_news_dag
+[2025-04-24T17:09:15.678+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:09:15.678+0000] {process_utils.py:266} INFO - Waiting up to 5 seconds for processes to exit...
+[2025-04-24T17:11:23.044+0000] {processor.py:186} INFO - Started process (PID=86) to work on /opt/airflow/dags/dag_news.py
+[2025-04-24T17:11:23.047+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/dag_news.py for tasks to queue
+[2025-04-24T17:11:23.052+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:11:23.051+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:11:24.083+0000] {processor.py:925} INFO - DAG(s) 'gold_news_dag' retrieved from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:11:24.180+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:11:24.179+0000] {dag.py:3239} INFO - Sync 1 DAGs
+[2025-04-24T17:11:24.239+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:11:24.238+0000] {dag.py:3262} INFO - Creating ORM DAG for gold_news_dag
+[2025-04-24T17:11:24.294+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:11:24.293+0000] {dag.py:4180} INFO - Setting next_dagrun for gold_news_dag to 2025-04-23 00:00:00+00:00, run_after=2025-04-24 00:00:00+00:00
+[2025-04-24T17:11:24.427+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/dag_news.py took 1.398 seconds
+[2025-04-24T17:11:55.282+0000] {processor.py:186} INFO - Started process (PID=121) to work on /opt/airflow/dags/dag_news.py
+[2025-04-24T17:11:55.284+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/dag_news.py for tasks to queue
+[2025-04-24T17:11:55.288+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:11:55.287+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:11:55.863+0000] {processor.py:925} INFO - DAG(s) 'gold_news_dag' retrieved from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:11:55.906+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:11:55.905+0000] {dag.py:3239} INFO - Sync 1 DAGs
+[2025-04-24T17:11:55.954+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:11:55.953+0000] {dag.py:4180} INFO - Setting next_dagrun for gold_news_dag to 2025-04-23 00:00:00+00:00, run_after=2025-04-24 00:00:00+00:00
+[2025-04-24T17:11:55.999+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/dag_news.py took 0.728 seconds
+[2025-04-24T17:12:26.434+0000] {processor.py:186} INFO - Started process (PID=148) to work on /opt/airflow/dags/dag_news.py
+[2025-04-24T17:12:26.436+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/dag_news.py for tasks to queue
+[2025-04-24T17:12:26.441+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:12:26.440+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:12:27.249+0000] {processor.py:925} INFO - DAG(s) 'gold_news_dag' retrieved from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:12:27.309+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:12:27.308+0000] {dag.py:3239} INFO - Sync 1 DAGs
+[2025-04-24T17:12:27.386+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:12:27.385+0000] {dag.py:4180} INFO - Setting next_dagrun for gold_news_dag to 2025-04-23 00:00:00+00:00, run_after=2025-04-24 00:00:00+00:00
+[2025-04-24T17:12:27.440+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/dag_news.py took 1.020 seconds
+[2025-04-24T17:12:58.026+0000] {processor.py:186} INFO - Started process (PID=161) to work on /opt/airflow/dags/dag_news.py
+[2025-04-24T17:12:58.029+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/dag_news.py for tasks to queue
+[2025-04-24T17:12:58.034+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:12:58.033+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:12:58.631+0000] {processor.py:925} INFO - DAG(s) 'gold_news_dag' retrieved from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:12:58.669+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:12:58.668+0000] {dag.py:3239} INFO - Sync 1 DAGs
+[2025-04-24T17:12:58.719+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:12:58.718+0000] {dag.py:4180} INFO - Setting next_dagrun for gold_news_dag to 2025-04-23 00:00:00+00:00, run_after=2025-04-24 00:00:00+00:00
+[2025-04-24T17:12:58.754+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/dag_news.py took 0.739 seconds
+[2025-04-24T17:13:29.087+0000] {processor.py:186} INFO - Started process (PID=189) to work on /opt/airflow/dags/dag_news.py
+[2025-04-24T17:13:29.090+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/dag_news.py for tasks to queue
+[2025-04-24T17:13:29.095+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:13:29.094+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:13:29.722+0000] {processor.py:925} INFO - DAG(s) 'gold_news_dag' retrieved from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:13:29.766+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:13:29.765+0000] {dag.py:3239} INFO - Sync 1 DAGs
+[2025-04-24T17:13:29.819+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:13:29.818+0000] {dag.py:4180} INFO - Setting next_dagrun for gold_news_dag to 2025-04-23 00:00:00+00:00, run_after=2025-04-24 00:00:00+00:00
+[2025-04-24T17:13:29.865+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/dag_news.py took 0.790 seconds
+[2025-04-24T17:13:59.990+0000] {processor.py:186} INFO - Started process (PID=217) to work on /opt/airflow/dags/dag_news.py
+[2025-04-24T17:13:59.992+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/dag_news.py for tasks to queue
+[2025-04-24T17:13:59.998+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:13:59.997+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:14:00.569+0000] {processor.py:925} INFO - DAG(s) 'gold_news_dag' retrieved from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:14:00.608+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:14:00.607+0000] {dag.py:3239} INFO - Sync 1 DAGs
+[2025-04-24T17:14:00.647+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:14:00.647+0000] {dag.py:4180} INFO - Setting next_dagrun for gold_news_dag to 2025-04-23 00:00:00+00:00, run_after=2025-04-24 00:00:00+00:00
+[2025-04-24T17:14:00.680+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/dag_news.py took 0.703 seconds
+[2025-04-24T17:14:30.882+0000] {processor.py:186} INFO - Started process (PID=229) to work on /opt/airflow/dags/dag_news.py
+[2025-04-24T17:14:30.884+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/dag_news.py for tasks to queue
+[2025-04-24T17:14:30.888+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:14:30.887+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:14:31.594+0000] {processor.py:925} INFO - DAG(s) 'gold_news_dag' retrieved from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:14:31.641+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:14:31.640+0000] {dag.py:3239} INFO - Sync 1 DAGs
+[2025-04-24T17:14:31.687+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:14:31.686+0000] {dag.py:4180} INFO - Setting next_dagrun for gold_news_dag to 2025-04-23 00:00:00+00:00, run_after=2025-04-24 00:00:00+00:00
+[2025-04-24T17:14:31.727+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/dag_news.py took 0.857 seconds
+[2025-04-24T17:15:01.946+0000] {processor.py:186} INFO - Started process (PID=256) to work on /opt/airflow/dags/dag_news.py
+[2025-04-24T17:15:01.948+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/dag_news.py for tasks to queue
+[2025-04-24T17:15:01.953+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:15:01.952+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:15:02.501+0000] {processor.py:925} INFO - DAG(s) 'gold_news_dag' retrieved from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:15:02.541+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:15:02.540+0000] {dag.py:3239} INFO - Sync 1 DAGs
+[2025-04-24T17:15:02.588+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:15:02.587+0000] {dag.py:4180} INFO - Setting next_dagrun for gold_news_dag to 2025-04-23 00:00:00+00:00, run_after=2025-04-24 00:00:00+00:00
+[2025-04-24T17:15:02.620+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/dag_news.py took 0.685 seconds
+[2025-04-24T17:15:32.889+0000] {processor.py:186} INFO - Started process (PID=284) to work on /opt/airflow/dags/dag_news.py
+[2025-04-24T17:15:32.892+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/dag_news.py for tasks to queue
+[2025-04-24T17:15:32.897+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:15:32.896+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:15:33.458+0000] {processor.py:925} INFO - DAG(s) 'gold_news_dag' retrieved from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:15:33.501+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:15:33.500+0000] {dag.py:3239} INFO - Sync 1 DAGs
+[2025-04-24T17:15:33.546+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:15:33.545+0000] {dag.py:4180} INFO - Setting next_dagrun for gold_news_dag to 2025-04-23 00:00:00+00:00, run_after=2025-04-24 00:00:00+00:00
+[2025-04-24T17:15:33.583+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/dag_news.py took 0.706 seconds
+[2025-04-24T17:16:04.972+0000] {processor.py:186} INFO - Started process (PID=296) to work on /opt/airflow/dags/dag_news.py
+[2025-04-24T17:16:04.974+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/dag_news.py for tasks to queue
+[2025-04-24T17:16:04.981+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:16:04.980+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:16:05.669+0000] {processor.py:925} INFO - DAG(s) 'gold_news_dag' retrieved from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:16:05.730+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:16:05.729+0000] {dag.py:3239} INFO - Sync 1 DAGs
+[2025-04-24T17:16:05.788+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:16:05.787+0000] {dag.py:4180} INFO - Setting next_dagrun for gold_news_dag to 2025-04-23 00:00:00+00:00, run_after=2025-04-24 00:00:00+00:00
+[2025-04-24T17:16:05.839+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/dag_news.py took 0.885 seconds
+[2025-04-24T17:16:36.488+0000] {processor.py:186} INFO - Started process (PID=323) to work on /opt/airflow/dags/dag_news.py
+[2025-04-24T17:16:36.491+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/dag_news.py for tasks to queue
+[2025-04-24T17:16:36.496+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:16:36.495+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:16:37.079+0000] {processor.py:925} INFO - DAG(s) 'gold_news_dag' retrieved from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:16:37.131+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:16:37.130+0000] {dag.py:3239} INFO - Sync 1 DAGs
+[2025-04-24T17:16:37.176+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:16:37.176+0000] {dag.py:4180} INFO - Setting next_dagrun for gold_news_dag to 2025-04-23 00:00:00+00:00, run_after=2025-04-24 00:00:00+00:00
+[2025-04-24T17:16:37.210+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/dag_news.py took 0.734 seconds
+[2025-04-24T17:17:07.474+0000] {processor.py:186} INFO - Started process (PID=351) to work on /opt/airflow/dags/dag_news.py
+[2025-04-24T17:17:07.478+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/dag_news.py for tasks to queue
+[2025-04-24T17:17:07.487+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:17:07.486+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:17:08.115+0000] {processor.py:925} INFO - DAG(s) 'gold_news_dag' retrieved from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:17:08.158+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:17:08.157+0000] {dag.py:3239} INFO - Sync 1 DAGs
+[2025-04-24T17:17:08.206+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:17:08.206+0000] {dag.py:4180} INFO - Setting next_dagrun for gold_news_dag to 2025-04-23 00:00:00+00:00, run_after=2025-04-24 00:00:00+00:00
+[2025-04-24T17:17:08.242+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/dag_news.py took 0.790 seconds
+[2025-04-24T17:17:38.876+0000] {processor.py:186} INFO - Started process (PID=378) to work on /opt/airflow/dags/dag_news.py
+[2025-04-24T17:17:38.879+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/dag_news.py for tasks to queue
+[2025-04-24T17:17:38.889+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:17:38.888+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:17:39.549+0000] {processor.py:925} INFO - DAG(s) 'gold_news_dag' retrieved from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:17:39.596+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:17:39.595+0000] {dag.py:3239} INFO - Sync 1 DAGs
+[2025-04-24T17:17:39.650+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:17:39.650+0000] {dag.py:4180} INFO - Setting next_dagrun for gold_news_dag to 2025-04-23 00:00:00+00:00, run_after=2025-04-24 00:00:00+00:00
+[2025-04-24T17:17:39.694+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/dag_news.py took 0.831 seconds
+[2025-04-24T17:18:10.096+0000] {processor.py:186} INFO - Started process (PID=390) to work on /opt/airflow/dags/dag_news.py
+[2025-04-24T17:18:10.098+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/dag_news.py for tasks to queue
+[2025-04-24T17:18:10.102+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:18:10.101+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:18:10.592+0000] {processor.py:925} INFO - DAG(s) 'gold_news_dag' retrieved from /opt/airflow/dags/dag_news.py
+[2025-04-24T17:18:10.630+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:18:10.629+0000] {dag.py:3239} INFO - Sync 1 DAGs
+[2025-04-24T17:18:10.672+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:18:10.671+0000] {dag.py:4180} INFO - Setting next_dagrun for gold_news_dag to 2025-04-23 00:00:00+00:00, run_after=2025-04-24 00:00:00+00:00
+[2025-04-24T17:18:10.702+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/dag_news.py took 0.616 seconds

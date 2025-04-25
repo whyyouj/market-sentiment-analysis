@@ -1,0 +1,80 @@
+[2025-04-24T17:08:56.605+0000] {processor.py:186} INFO - Started process (PID=78) to work on /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:08:56.609+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/trained_models/transformer_full.keras for tasks to queue
+[2025-04-24T17:08:56.618+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:08:56.617+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:08:56.642+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:08:56.676+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/trained_models/transformer_full.keras took 0.098 seconds
+[2025-04-24T17:11:15.812+0000] {processor.py:186} INFO - Started process (PID=79) to work on /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:11:15.815+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/trained_models/transformer_full.keras for tasks to queue
+[2025-04-24T17:11:15.821+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:11:15.820+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:11:15.837+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:11:15.865+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/trained_models/transformer_full.keras took 0.068 seconds
+[2025-04-24T17:11:46.763+0000] {processor.py:186} INFO - Started process (PID=111) to work on /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:11:46.767+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/trained_models/transformer_full.keras for tasks to queue
+[2025-04-24T17:11:46.779+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:11:46.778+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:11:46.807+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:11:46.842+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/trained_models/transformer_full.keras took 0.092 seconds
+[2025-04-24T17:12:17.699+0000] {processor.py:186} INFO - Started process (PID=123) to work on /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:12:17.701+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/trained_models/transformer_full.keras for tasks to queue
+[2025-04-24T17:12:17.708+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:12:17.707+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:12:17.735+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:12:17.771+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/trained_models/transformer_full.keras took 0.088 seconds
+[2025-04-24T17:12:48.100+0000] {processor.py:186} INFO - Started process (PID=150) to work on /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:12:48.101+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/trained_models/transformer_full.keras for tasks to queue
+[2025-04-24T17:12:48.108+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:12:48.107+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:12:48.137+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:12:48.169+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/trained_models/transformer_full.keras took 0.083 seconds
+[2025-04-24T17:13:18.478+0000] {processor.py:186} INFO - Started process (PID=179) to work on /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:13:18.479+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/trained_models/transformer_full.keras for tasks to queue
+[2025-04-24T17:13:18.484+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:13:18.483+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:13:18.504+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:13:18.530+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/trained_models/transformer_full.keras took 0.065 seconds
+[2025-04-24T17:13:48.745+0000] {processor.py:186} INFO - Started process (PID=191) to work on /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:13:48.747+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/trained_models/transformer_full.keras for tasks to queue
+[2025-04-24T17:13:48.755+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:13:48.754+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:13:48.777+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:13:48.821+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/trained_models/transformer_full.keras took 0.097 seconds
+[2025-04-24T17:14:19.081+0000] {processor.py:186} INFO - Started process (PID=218) to work on /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:14:19.083+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/trained_models/transformer_full.keras for tasks to queue
+[2025-04-24T17:14:19.089+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:14:19.088+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:14:19.114+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:14:19.143+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/trained_models/transformer_full.keras took 0.079 seconds
+[2025-04-24T17:14:49.425+0000] {processor.py:186} INFO - Started process (PID=246) to work on /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:14:49.427+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/trained_models/transformer_full.keras for tasks to queue
+[2025-04-24T17:14:49.435+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:14:49.434+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:14:49.463+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:14:49.497+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/trained_models/transformer_full.keras took 0.091 seconds
+[2025-04-24T17:15:19.695+0000] {processor.py:186} INFO - Started process (PID=258) to work on /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:15:19.697+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/trained_models/transformer_full.keras for tasks to queue
+[2025-04-24T17:15:19.703+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:15:19.702+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:15:19.729+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:15:19.758+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/trained_models/transformer_full.keras took 0.079 seconds
+[2025-04-24T17:15:49.924+0000] {processor.py:186} INFO - Started process (PID=285) to work on /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:15:49.926+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/trained_models/transformer_full.keras for tasks to queue
+[2025-04-24T17:15:49.930+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:15:49.929+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:15:49.953+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:15:49.979+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/trained_models/transformer_full.keras took 0.066 seconds
+[2025-04-24T17:16:20.862+0000] {processor.py:186} INFO - Started process (PID=313) to work on /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:16:20.864+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/trained_models/transformer_full.keras for tasks to queue
+[2025-04-24T17:16:20.869+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:16:20.867+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:16:20.894+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:16:20.919+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/trained_models/transformer_full.keras took 0.069 seconds
+[2025-04-24T17:16:51.755+0000] {processor.py:186} INFO - Started process (PID=325) to work on /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:16:51.757+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/trained_models/transformer_full.keras for tasks to queue
+[2025-04-24T17:16:51.765+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:16:51.764+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:16:51.794+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:16:51.834+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/trained_models/transformer_full.keras took 0.096 seconds
+[2025-04-24T17:17:22.007+0000] {processor.py:186} INFO - Started process (PID=352) to work on /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:17:22.008+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/trained_models/transformer_full.keras for tasks to queue
+[2025-04-24T17:17:22.013+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:17:22.012+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:17:22.035+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:17:22.059+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/trained_models/transformer_full.keras took 0.064 seconds
+[2025-04-24T17:17:52.311+0000] {processor.py:186} INFO - Started process (PID=380) to work on /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:17:52.313+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/trained_models/transformer_full.keras for tasks to queue
+[2025-04-24T17:17:52.318+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:17:52.318+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:17:52.341+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:17:52.367+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/trained_models/transformer_full.keras took 0.070 seconds
+[2025-04-24T17:18:23.385+0000] {processor.py:186} INFO - Started process (PID=407) to work on /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:18:23.387+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/trained_models/transformer_full.keras for tasks to queue
+[2025-04-24T17:18:23.393+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:18:23.393+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:18:23.413+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/trained_models/transformer_full.keras
+[2025-04-24T17:18:23.440+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/trained_models/transformer_full.keras took 0.070 seconds

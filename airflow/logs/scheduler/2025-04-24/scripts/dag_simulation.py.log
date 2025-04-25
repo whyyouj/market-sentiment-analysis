@@ -1,0 +1,80 @@
+[2025-04-24T17:08:56.819+0000] {processor.py:186} INFO - Started process (PID=80) to work on /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:08:56.821+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/scripts/dag_simulation.py for tasks to queue
+[2025-04-24T17:08:56.828+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:08:56.826+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:09:02.503+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:09:02.548+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/scripts/dag_simulation.py took 5.753 seconds
+[2025-04-24T17:11:15.997+0000] {processor.py:186} INFO - Started process (PID=81) to work on /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:11:15.999+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/scripts/dag_simulation.py for tasks to queue
+[2025-04-24T17:11:16.003+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:11:16.002+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:11:20.748+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:11:20.779+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/scripts/dag_simulation.py took 4.794 seconds
+[2025-04-24T17:11:52.112+0000] {processor.py:186} INFO - Started process (PID=113) to work on /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:11:52.115+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/scripts/dag_simulation.py for tasks to queue
+[2025-04-24T17:11:52.124+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:11:52.123+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:11:52.160+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:11:52.188+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/scripts/dag_simulation.py took 0.089 seconds
+[2025-04-24T17:12:23.147+0000] {processor.py:186} INFO - Started process (PID=140) to work on /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:12:23.152+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/scripts/dag_simulation.py for tasks to queue
+[2025-04-24T17:12:23.159+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:12:23.158+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:12:23.194+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:12:23.222+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/scripts/dag_simulation.py took 0.091 seconds
+[2025-04-24T17:12:53.715+0000] {processor.py:186} INFO - Started process (PID=152) to work on /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:12:53.717+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/scripts/dag_simulation.py for tasks to queue
+[2025-04-24T17:12:53.724+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:12:53.723+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:12:53.765+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:12:53.794+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/scripts/dag_simulation.py took 0.093 seconds
+[2025-04-24T17:13:23.949+0000] {processor.py:186} INFO - Started process (PID=181) to work on /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:13:23.951+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/scripts/dag_simulation.py for tasks to queue
+[2025-04-24T17:13:23.956+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:13:23.955+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:13:23.988+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:13:24.014+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/scripts/dag_simulation.py took 0.075 seconds
+[2025-04-24T17:13:54.208+0000] {processor.py:186} INFO - Started process (PID=208) to work on /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:13:54.213+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/scripts/dag_simulation.py for tasks to queue
+[2025-04-24T17:13:54.222+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:13:54.220+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:13:54.267+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:13:54.302+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/scripts/dag_simulation.py took 0.113 seconds
+[2025-04-24T17:14:24.544+0000] {processor.py:186} INFO - Started process (PID=220) to work on /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:14:24.546+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/scripts/dag_simulation.py for tasks to queue
+[2025-04-24T17:14:24.552+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:14:24.551+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:14:24.594+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:14:24.625+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/scripts/dag_simulation.py took 0.100 seconds
+[2025-04-24T17:14:54.892+0000] {processor.py:186} INFO - Started process (PID=248) to work on /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:14:54.894+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/scripts/dag_simulation.py for tasks to queue
+[2025-04-24T17:14:54.898+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:14:54.897+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:14:54.933+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:14:54.957+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/scripts/dag_simulation.py took 0.078 seconds
+[2025-04-24T17:15:25.097+0000] {processor.py:186} INFO - Started process (PID=275) to work on /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:15:25.100+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/scripts/dag_simulation.py for tasks to queue
+[2025-04-24T17:15:25.108+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:15:25.107+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:15:25.157+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:15:25.189+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/scripts/dag_simulation.py took 0.112 seconds
+[2025-04-24T17:15:55.331+0000] {processor.py:186} INFO - Started process (PID=293) to work on /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:15:55.333+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/scripts/dag_simulation.py for tasks to queue
+[2025-04-24T17:15:55.338+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:15:55.337+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:15:55.374+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:15:55.398+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/scripts/dag_simulation.py took 0.083 seconds
+[2025-04-24T17:16:26.230+0000] {processor.py:186} INFO - Started process (PID=321) to work on /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:16:26.233+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/scripts/dag_simulation.py for tasks to queue
+[2025-04-24T17:16:26.243+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:16:26.241+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:16:26.282+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:16:26.309+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/scripts/dag_simulation.py took 0.104 seconds
+[2025-04-24T17:16:57.067+0000] {processor.py:186} INFO - Started process (PID=348) to work on /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:16:57.069+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/scripts/dag_simulation.py for tasks to queue
+[2025-04-24T17:16:57.076+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:16:57.075+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:16:57.114+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:16:57.143+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/scripts/dag_simulation.py took 0.093 seconds
+[2025-04-24T17:17:27.399+0000] {processor.py:186} INFO - Started process (PID=360) to work on /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:17:27.401+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/scripts/dag_simulation.py for tasks to queue
+[2025-04-24T17:17:27.405+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:17:27.405+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:17:27.434+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:17:27.461+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/scripts/dag_simulation.py took 0.075 seconds
+[2025-04-24T17:17:57.712+0000] {processor.py:186} INFO - Started process (PID=388) to work on /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:17:57.715+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/scripts/dag_simulation.py for tasks to queue
+[2025-04-24T17:17:57.719+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:17:57.719+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:17:57.746+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:17:57.771+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/scripts/dag_simulation.py took 0.072 seconds
+[2025-04-24T17:18:28.031+0000] {processor.py:186} INFO - Started process (PID=417) to work on /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:18:28.033+0000] {processor.py:914} INFO - Processing file /opt/airflow/dags/scripts/dag_simulation.py for tasks to queue
+[2025-04-24T17:18:28.038+0000] {logging_mixin.py:190} INFO - [2025-04-24T17:18:28.037+0000] {dagbag.py:588} INFO - Filling up the DagBag from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:18:28.068+0000] {processor.py:927} WARNING - No viable dags retrieved from /opt/airflow/dags/scripts/dag_simulation.py
+[2025-04-24T17:18:28.095+0000] {processor.py:208} INFO - Processing /opt/airflow/dags/scripts/dag_simulation.py took 0.076 seconds

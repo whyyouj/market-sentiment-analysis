@@ -1,0 +1,230 @@
+[2025-04-24T17:08:55.413+0000] {manager.py:483} INFO - Processing files using up to 2 processes at a time 
+[2025-04-24T17:08:55.414+0000] {manager.py:484} INFO - Process each file at most once every 30 seconds
+[2025-04-24T17:08:55.416+0000] {manager.py:485} INFO - Checking for new files in /opt/airflow/dags every 300 seconds
+[2025-04-24T17:08:55.417+0000] {manager.py:821} INFO - Searching for files in /opt/airflow/dags
+[2025-04-24T17:08:56.048+0000] {manager.py:824} INFO - There are 6 files in /opt/airflow/dags
+[2025-04-24T17:08:56.780+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                                  PID  Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/trained_models/transformer_full.keras                           0           0  0.19s           2025-04-24T17:08:56                       3
+/opt/airflow/dags/dag_news.py                                                     0           0                                                            0
+/opt/airflow/dags/dag_prices.py                                                   0           0                                                            0
+/opt/airflow/dags/gold_dag.py                                                     0           0                                                            0
+/opt/airflow/dags/scripts/dag_simulation.py                 80  0.01s             0           0                                                            0
+/opt/airflow/dags/trained_models/lstm_full.keras            79  0.07s             0           0                                                            0
+================================================================================
+[2025-04-24T17:09:07.934+0000] {manager.py:465} INFO - Exiting gracefully upon receiving signal 15
+[2025-04-24T17:09:07.934+0000] {manager.py:465} INFO - Exiting gracefully upon receiving signal 15
+[2025-04-24T17:09:08.004+0000] {manager.py:465} INFO - Exiting gracefully upon receiving signal 15
+[2025-04-24T17:09:08.824+0000] {manager.py:465} INFO - Exiting gracefully upon receiving signal 15
+[2025-04-24T17:09:08.878+0000] {manager.py:465} INFO - Exiting gracefully upon receiving signal 15
+[2025-04-24T17:09:13.826+0000] {manager.py:465} INFO - Exiting gracefully upon receiving signal 15
+[2025-04-24T17:09:13.843+0000] {manager.py:465} INFO - Exiting gracefully upon receiving signal 15
+[2025-04-24T17:11:15.159+0000] {manager.py:483} INFO - Processing files using up to 2 processes at a time 
+[2025-04-24T17:11:15.161+0000] {manager.py:484} INFO - Process each file at most once every 30 seconds
+[2025-04-24T17:11:15.161+0000] {manager.py:485} INFO - Checking for new files in /opt/airflow/dags every 300 seconds
+[2025-04-24T17:11:15.162+0000] {manager.py:821} INFO - Searching for files in /opt/airflow/dags
+[2025-04-24T17:11:15.457+0000] {manager.py:824} INFO - There are 6 files in /opt/airflow/dags
+[2025-04-24T17:11:15.973+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                                  PID  Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/trained_models/transformer_full.keras                           0           0  0.15s           2025-04-24T17:11:15                       3
+/opt/airflow/dags/dag_news.py                                                     0           0                                                            0
+/opt/airflow/dags/dag_prices.py                                                   0           0                                                            0
+/opt/airflow/dags/gold_dag.py                                                     0           0                                                            0
+/opt/airflow/dags/scripts/dag_simulation.py                 81  0.01s             0           0                                                            0
+/opt/airflow/dags/trained_models/lstm_full.keras            80  0.07s             0           0                                                            0
+================================================================================
+[2025-04-24T17:11:46.895+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                                  PID  Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/gold_dag.py                                                     0           1  23.09s          2025-04-24T17:11:44                       4
+/opt/airflow/dags/scripts/dag_simulation.py                                       0           0  5.59s           2025-04-24T17:11:21                       3
+/opt/airflow/dags/dag_news.py                                                     1           0  1.50s           2025-04-24T17:11:24                      11
+/opt/airflow/dags/dag_prices.py                                                   1           0  1.25s           2025-04-24T17:11:22                      12
+/opt/airflow/dags/trained_models/transformer_full.keras                           0           0  0.18s           2025-04-24T17:11:46                       3
+/opt/airflow/dags/trained_models/lstm_full.keras           112  0.02s             0           0  0.11s           2025-04-24T17:11:16                       3
+================================================================================
+[2025-04-24T17:12:17.666+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                                  PID  Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/gold_dag.py                              122  2.89s             0           1  23.09s          2025-04-24T17:11:44                       4
+/opt/airflow/dags/dag_prices.py                                                   1           0  0.99s           2025-04-24T17:11:54                      12
+/opt/airflow/dags/dag_news.py                                                     1           0  0.80s           2025-04-24T17:11:56                      12
+/opt/airflow/dags/trained_models/transformer_full.keras    123  0.01s             0           0  0.18s           2025-04-24T17:11:46                       3
+/opt/airflow/dags/scripts/dag_simulation.py                                       0           0  0.16s           2025-04-24T17:11:52                       3
+/opt/airflow/dags/trained_models/lstm_full.keras                                  0           0  0.14s           2025-04-24T17:11:47                       3
+================================================================================
+[2025-04-24T17:12:48.053+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                                  PID  Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/gold_dag.py                                                     0           1  15.87s          2025-04-24T17:12:30                       6
+/opt/airflow/dags/dag_prices.py                                                   1           0  1.57s           2025-04-24T17:12:25                      12
+/opt/airflow/dags/dag_news.py                                                     1           0  1.08s           2025-04-24T17:12:27                      12
+/opt/airflow/dags/trained_models/lstm_full.keras                                  0           0  0.15s           2025-04-24T17:12:18                       3
+/opt/airflow/dags/scripts/dag_simulation.py                                       0           0  0.15s           2025-04-24T17:12:23                       3
+/opt/airflow/dags/trained_models/transformer_full.keras    150  0.02s             0           0  0.14s           2025-04-24T17:12:17                       3
+================================================================================
+[2025-04-24T17:13:18.437+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                                  PID  Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/gold_dag.py                                                     0           1  14.38s          2025-04-24T17:13:15                       6
+/opt/airflow/dags/dag_prices.py                                                   1           0  1.13s           2025-04-24T17:12:57                      12
+/opt/airflow/dags/dag_news.py                                                     1           0  0.81s           2025-04-24T17:12:58                      12
+/opt/airflow/dags/trained_models/lstm_full.keras                                  0           0  0.25s           2025-04-24T17:12:48                       3
+/opt/airflow/dags/trained_models/transformer_full.keras    179  0.02s             0           0  0.16s           2025-04-24T17:12:48                       3
+/opt/airflow/dags/scripts/dag_simulation.py                                       0           0  0.16s           2025-04-24T17:12:53                       3
+================================================================================
+[2025-04-24T17:13:48.708+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                                  PID  Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/gold_dag.py                              190  3.21s             0           1  14.38s          2025-04-24T17:13:15                       6
+/opt/airflow/dags/dag_prices.py                                                   1           0  0.93s           2025-04-24T17:13:28                      12
+/opt/airflow/dags/dag_news.py                                                     1           0  0.86s           2025-04-24T17:13:29                      12
+/opt/airflow/dags/trained_models/lstm_full.keras                                  0           0  0.15s           2025-04-24T17:13:19                       3
+/opt/airflow/dags/scripts/dag_simulation.py                                       0           0  0.13s           2025-04-24T17:13:24                       3
+/opt/airflow/dags/trained_models/transformer_full.keras    191  0.02s             0           0  0.13s           2025-04-24T17:13:18                       3
+================================================================================
+[2025-04-24T17:14:19.039+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                                  PID  Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/gold_dag.py                                                     0           1  14.41s          2025-04-24T17:13:59                       6
+/opt/airflow/dags/dag_prices.py                                                   1           0  1.11s           2025-04-24T17:13:59                      12
+/opt/airflow/dags/dag_news.py                                                     1           0  0.78s           2025-04-24T17:14:00                      12
+/opt/airflow/dags/scripts/dag_simulation.py                                       0           0  0.17s           2025-04-24T17:13:54                       3
+/opt/airflow/dags/trained_models/transformer_full.keras    218  0.01s             0           0  0.15s           2025-04-24T17:13:48                       3
+/opt/airflow/dags/trained_models/lstm_full.keras                                  0           0  0.13s           2025-04-24T17:13:50                       3
+================================================================================
+[2025-04-24T17:14:49.378+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                                  PID  Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/gold_dag.py                                                     0           1  13.89s          2025-04-24T17:14:44                       6
+/opt/airflow/dags/dag_prices.py                                                   1           0  0.97s           2025-04-24T17:14:30                      12
+/opt/airflow/dags/dag_news.py                                                     1           0  0.93s           2025-04-24T17:14:31                      12
+/opt/airflow/dags/scripts/dag_simulation.py                                       0           0  0.18s           2025-04-24T17:14:24                       3
+/opt/airflow/dags/trained_models/transformer_full.keras    246  0.01s             0           0  0.15s           2025-04-24T17:14:19                       3
+/opt/airflow/dags/trained_models/lstm_full.keras                                  0           0  0.12s           2025-04-24T17:14:20                       3
+================================================================================
+[2025-04-24T17:15:19.660+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                                  PID  Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/gold_dag.py                              257  4.67s             0           1  13.89s          2025-04-24T17:14:44                       6
+/opt/airflow/dags/dag_prices.py                                                   1           0  0.84s           2025-04-24T17:15:01                      12
+/opt/airflow/dags/dag_news.py                                                     1           0  0.76s           2025-04-24T17:15:02                      12
+/opt/airflow/dags/trained_models/lstm_full.keras                                  0           0  0.17s           2025-04-24T17:14:50                       3
+/opt/airflow/dags/trained_models/transformer_full.keras    258  0.02s             0           0  0.16s           2025-04-24T17:14:49                       3
+/opt/airflow/dags/scripts/dag_simulation.py                                       0           0  0.15s           2025-04-24T17:14:54                       3
+================================================================================
+[2025-04-24T17:15:49.886+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                                  PID  Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/gold_dag.py                                                     0           1  14.96s          2025-04-24T17:15:29                       6
+/opt/airflow/dags/dag_news.py                                                     1           0  0.78s           2025-04-24T17:15:33                      12
+/opt/airflow/dags/dag_prices.py                                                   1           0  0.77s           2025-04-24T17:15:32                      12
+/opt/airflow/dags/scripts/dag_simulation.py                                       0           0  0.17s           2025-04-24T17:15:25                       3
+/opt/airflow/dags/trained_models/transformer_full.keras    285  0.01s             0           0  0.14s           2025-04-24T17:15:19                       3
+/opt/airflow/dags/trained_models/lstm_full.keras                                  0           0  0.13s           2025-04-24T17:15:22                       3
+================================================================================
+[2025-04-24T17:16:16.100+0000] {manager.py:821} INFO - Searching for files in /opt/airflow/dags
+[2025-04-24T17:16:16.465+0000] {manager.py:824} INFO - There are 6 files in /opt/airflow/dags
+[2025-04-24T17:16:20.818+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                                  PID  Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/gold_dag.py                                                     0           1  14.57s          2025-04-24T17:16:15                       6
+/opt/airflow/dags/dag_prices.py                                                   1           0  1.23s           2025-04-24T17:16:04                      12
+/opt/airflow/dags/dag_news.py                                                     1           0  0.98s           2025-04-24T17:16:05                      12
+/opt/airflow/dags/trained_models/transformer_full.keras    313  0.01s             0           0  0.15s           2025-04-24T17:15:50                       3
+/opt/airflow/dags/scripts/dag_simulation.py                                       0           0  0.15s           2025-04-24T17:15:55                       3
+/opt/airflow/dags/trained_models/lstm_full.keras                                  0           0  0.12s           2025-04-24T17:15:52                       3
+================================================================================
+[2025-04-24T17:16:50.929+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                                  PID  Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/gold_dag.py                              324  5.47s             0           1  14.57s          2025-04-24T17:16:15                       6
+/opt/airflow/dags/dag_prices.py                                                   1           0  0.86s           2025-04-24T17:16:36                      12
+/opt/airflow/dags/dag_news.py                                                     1           0  0.81s           2025-04-24T17:16:37                      12
+/opt/airflow/dags/trained_models/lstm_full.keras                                  0           0  0.17s           2025-04-24T17:16:23                       3
+/opt/airflow/dags/scripts/dag_simulation.py                                       0           0  0.16s           2025-04-24T17:16:26                       3
+/opt/airflow/dags/trained_models/transformer_full.keras                           0           0  0.14s           2025-04-24T17:16:20                       3
+================================================================================
+[2025-04-24T17:17:21.584+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                                PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/gold_dag.py                                                     0           1  13.97s          2025-04-24T17:16:59                       6
+/opt/airflow/dags/dag_prices.py                                                   1           0  0.92s           2025-04-24T17:17:07                      12
+/opt/airflow/dags/dag_news.py                                                     1           0  0.86s           2025-04-24T17:17:08                      12
+/opt/airflow/dags/trained_models/transformer_full.keras                           0           0  0.15s           2025-04-24T17:16:51                       3
+/opt/airflow/dags/scripts/dag_simulation.py                                       0           0  0.15s           2025-04-24T17:16:57                       3
+/opt/airflow/dags/trained_models/lstm_full.keras                                  0           0  0.13s           2025-04-24T17:16:54                       3
+================================================================================
+[2025-04-24T17:17:51.626+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                                PID    Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/gold_dag.py                                                     0           1  13.86s          2025-04-24T17:17:43                       6
+/opt/airflow/dags/dag_prices.py                                                   1           0  1.01s           2025-04-24T17:17:38                      12
+/opt/airflow/dags/dag_news.py                                                     1           0  0.91s           2025-04-24T17:17:39                      12
+/opt/airflow/dags/scripts/dag_simulation.py                                       0           0  0.14s           2025-04-24T17:17:27                       3
+/opt/airflow/dags/trained_models/lstm_full.keras                                  0           0  0.13s           2025-04-24T17:17:24                       3
+/opt/airflow/dags/trained_models/transformer_full.keras                           0           0  0.12s           2025-04-24T17:17:22                       3
+================================================================================
+[2025-04-24T17:18:22.231+0000] {manager.py:997} INFO - 
+================================================================================
+DAG File Processing Stats
+
+File Path                                                  PID  Runtime      # DAGs    # Errors  Last Runtime    Last Run               Last # of DB Queries
+-------------------------------------------------------  -----  ---------  --------  ----------  --------------  -------------------  ----------------------
+/opt/airflow/dags/gold_dag.py                              391  8.19s             0           1  13.86s          2025-04-24T17:17:43                       6
+/opt/airflow/dags/dag_prices.py                                                   1           0  0.76s           2025-04-24T17:18:09                      12
+/opt/airflow/dags/dag_news.py                                                     1           0  0.68s           2025-04-24T17:18:10                      12
+/opt/airflow/dags/trained_models/lstm_full.keras                                  0           0  0.16s           2025-04-24T17:17:54                       3
+/opt/airflow/dags/trained_models/transformer_full.keras                           0           0  0.13s           2025-04-24T17:17:52                       3
+/opt/airflow/dags/scripts/dag_simulation.py                                       0           0  0.13s           2025-04-24T17:17:57                       3
+================================================================================
+[2025-04-24T17:18:41.072+0000] {manager.py:465} INFO - Exiting gracefully upon receiving signal 15
+[2025-04-24T17:18:41.073+0000] {manager.py:465} INFO - Exiting gracefully upon receiving signal 15
+[2025-04-24T17:18:42.333+0000] {manager.py:465} INFO - Exiting gracefully upon receiving signal 15
