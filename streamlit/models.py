@@ -56,36 +56,26 @@ def app():
     # Convert dates to formatted strings for display
     dates_list = viz_data['Date'].dt.strftime('%Y-%m-%d').tolist()
     
-    # Create a date selector directly in the main panel with more prominence
-    st.subheader("Select a Date to View")
+    # Add a daily slider for date selection
+    st.sidebar.subheader("Date Selection")
+    default_idx = len(viz_data) - 1  # Default to the most recent date
     
-    # Get min and max dates for better display
-    min_date = viz_data['Date'].min().strftime('%Y-%m-%d')
-    max_date = viz_data['Date'].max().strftime('%Y-%m-%d')
+    # Create a date slider
+    selected_idx = st.sidebar.slider(
+        "Select Date",
+        min_value=0,
+        max_value=len(viz_data) - 1,
+        value=default_idx,
+        format=None
+    )
     
-    # Create columns for date selector
-    date_col1, date_col2 = st.columns([3, 1])
-    
-    with date_col1:
-        # Create a date slider - make sure it's more visible in the main content
-        default_idx = len(viz_data) - 1  # Default to the most recent date
-        selected_idx = st.slider(
-            f"Date Range: {min_date} to {max_date}",
-            min_value=0,
-            max_value=len(viz_data) - 1,
-            value=default_idx,
-        )
-    
-    with date_col2:
-        selected_date = viz_data['Date'].iloc[selected_idx]
-        st.info(f"Selected: {selected_date.strftime('%Y-%m-%d')}")
+    selected_date = viz_data['Date'].iloc[selected_idx]
+    st.sidebar.info(f"Selected Date: {selected_date.strftime('%Y-%m-%d')}")
     
     # Filter data up to the selected date
     filtered_data = viz_data.iloc[:selected_idx + 1]
     
-    st.subheader("Comparing Actual Prices with Transformer and LSTM Predictions")
-    
-    # Create visualization
+    # Create a single static visualization (no animation)
     fig = go.Figure()
     
     # Add all the data up to selected date
@@ -233,7 +223,7 @@ def app():
     transformer_mse = np.mean(transformer_errors**2)
     lstm_mse = np.mean(lstm_errors**2)
     
-    # Calculate RMSE correctly
+    # Calculation of RMSE
     transformer_rmse = np.sqrt(transformer_mse)
     lstm_rmse = np.sqrt(lstm_mse)
     
@@ -264,10 +254,16 @@ def app():
             st.metric("LSTM Prediction", f"${future_pred['lstm_full'].iloc[0]:.2f}")
             
         st.caption("Note: This is a future prediction where actual price data is not yet available")
+        
+    # Add guide for using the slider
+    st.sidebar.markdown("""
+    ### How to Use the Slider
     
-    # Add help text at the bottom
-    st.markdown("---")
-    st.caption("Use the slider above to navigate through different dates and see how model predictions change over time.")
+    - Move the slider left or right to select a specific date
+    - The graph will update to show data up to the selected date
+    - Model metrics will be calculated based on data up to your selected date
+    - Future predictions (if available) will only show when you select the most recent date
+    """)
 
     # ========================= #
     # Feature Importance Charts #
