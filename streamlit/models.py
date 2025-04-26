@@ -303,12 +303,16 @@ def app():
     axes[0].set_xlabel("Features")
     axes[0].set_ylabel("Feature Importance")
     axes[0].tick_params(axis='x', rotation=45)
+    axes[0].set_xticks(range(len(lstm_df['Feature'])))
+    axes[0].set_xticklabels(lstm_df['Feature'], rotation=45, ha='right')
 
     # Barplot for Transformer (sorted)
     axes[1].bar(transformer_df['Feature'], transformer_df['Importance'], color='green')
     axes[1].set_title("Transformer Feature Importance")
     axes[1].set_xlabel("Features")
     axes[1].tick_params(axis='x', rotation=45)
+    axes[1].set_xticks(range(len(transformer_df['Feature'])))
+    axes[1].set_xticklabels(transformer_df['Feature'], rotation=45, ha='right')
 
     # Adjust layout
     plt.tight_layout()
