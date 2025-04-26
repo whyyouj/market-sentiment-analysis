@@ -38,12 +38,13 @@ def plot_correlation_matrix(data, forward_filled_cols=None):
 
 def plot_feature_overview(data, column_name):
     """Plot a mini overview chart for a feature"""
-    plt.figure(figsize=(8, 3))
-    plt.plot(data['Date'], data[column_name], linewidth=1)
-    plt.title(f'{column_name} Overview')
-    plt.xticks(rotation=45)
-    plt.tight_layout()
-    st.pyplot(plt)
+    # plt.figure(figsize=(8, 3))
+    # plt.plot(data['Date'], data[column_name], linewidth=1)
+    # plt.title(f'{column_name} Overview')
+    # plt.xticks(rotation=45)
+    # plt.tight_layout()
+    # st.pyplot(plt)
+    utils.plot_time_series(data, column_name)
 
 def app():
     """Exploratory Data Analysis overview page"""

@@ -41,42 +41,42 @@ def app():
         """)
         
         # Add RSI specific visualization
-        if "RSI" in data.columns:
-            st.subheader("RSI Zones")
-            fig, ax = plt.subplots(figsize=(10, 6))
+        # if "RSI" in data.columns:
+        #     st.subheader("RSI Zones")
+        #     fig, ax = plt.subplots(figsize=(10, 6))
             
-            ax.plot(data['Date'], data['RSI'], color='blue', linewidth=1.5)
-            ax.axhline(y=70, color='red', linestyle='--', alpha=0.7, label='Overbought (70)')
-            ax.axhline(y=30, color='green', linestyle='--', alpha=0.7, label='Oversold (30)')
-            ax.axhline(y=50, color='gray', linestyle=':', alpha=0.5, label='Centerline (50)')
+        #     ax.plot(data['Date'], data['RSI'], color='blue', linewidth=1.5)
+        #     ax.axhline(y=70, color='red', linestyle='--', alpha=0.7, label='Overbought (70)')
+        #     ax.axhline(y=30, color='green', linestyle='--', alpha=0.7, label='Oversold (30)')
+        #     ax.axhline(y=50, color='gray', linestyle=':', alpha=0.5, label='Centerline (50)')
             
-            # Fill overbought area (above 70)
-            ax.fill_between(data['Date'], 70, 100, color='red', alpha=0.1)
+        #     # Fill overbought area (above 70)
+        #     ax.fill_between(data['Date'], 70, 100, color='red', alpha=0.1)
             
-            # Fill oversold area (below 30)
-            ax.fill_between(data['Date'], 0, 30, color='green', alpha=0.1)
+        #     # Fill oversold area (below 30)
+        #     ax.fill_between(data['Date'], 0, 30, color='green', alpha=0.1)
             
-            ax.set_title('RSI with Overbought and Oversold Zones')
-            ax.set_ylabel('RSI Value')
-            ax.set_xlabel('Date')
-            ax.legend()
-            ax.set_ylim(0, 100)
-            plt.tight_layout()
+        #     ax.set_title('RSI with Overbought and Oversold Zones')
+        #     ax.set_ylabel('RSI Value')
+        #     ax.set_xlabel('Date')
+        #     ax.legend()
+        #     ax.set_ylim(0, 100)
+        #     plt.tight_layout()
             
-            st.pyplot(fig)
+        #     st.pyplot(fig)
             
-            # Calculate percentage of time in each zone
-            overbought_pct = (data['RSI'] > 70).mean() * 100
-            oversold_pct = (data['RSI'] < 30).mean() * 100
-            neutral_pct = 100 - overbought_pct - oversold_pct
+        #     # Calculate percentage of time in each zone
+        #     overbought_pct = (data['RSI'] > 70).mean() * 100
+        #     oversold_pct = (data['RSI'] < 30).mean() * 100
+        #     neutral_pct = 100 - overbought_pct - oversold_pct
             
-            col1, col2, col3 = st.columns(3)
-            with col1:
-                st.metric("Overbought (>70)", f"{overbought_pct:.2f}%")
-            with col2:
-                st.metric("Neutral (30-70)", f"{neutral_pct:.2f}%")
-            with col3:
-                st.metric("Oversold (<30)", f"{oversold_pct:.2f}%")
+        #     col1, col2, col3 = st.columns(3)
+        #     with col1:
+        #         st.metric("Overbought (>70)", f"{overbought_pct:.2f}%")
+        #     with col2:
+        #         st.metric("Neutral (30-70)", f"{neutral_pct:.2f}%")
+        #     with col3:
+        #         st.metric("Oversold (<30)", f"{oversold_pct:.2f}%")
         
         # Run the standard analysis for RSI
         utils.run_feature_analysis(data, "RSI")
