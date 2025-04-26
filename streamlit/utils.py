@@ -193,13 +193,13 @@ def run_feature_analysis(data, column_name, known_forward_filled=False):
     # Detect potential forward filling
     is_ff, consecutive_pct = detect_potential_forward_filling(data, column_name)
     
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        st.metric("Missing Values", f"{missing_count} ({missing_percent:.2f}%)")
-    with col2:
-        st.metric("Unique Values", data[column_name].nunique())
-    with col3:
-        st.metric("Identical Consecutive Values", f"{consecutive_pct:.1f}%")
+    # col1, col2, col3 = st.columns(3)
+    # with col1:
+    #     st.metric("Missing Values", f"{missing_count} ({missing_percent:.2f}%)")
+    # with col2:
+    #     st.metric("Unique Values", data[column_name].nunique())
+    # with col3:
+    #     st.metric("Identical Consecutive Values", f"{consecutive_pct:.1f}%")
     
     # Summary statistics
     st.subheader("Summary Statistics:")

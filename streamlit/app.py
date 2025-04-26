@@ -59,13 +59,6 @@ pages = {
     'RSI': rsi,
     'Band_Spread': band_spread,
     'Sentiment': sentiment
-    # 'Forecast': forecast,
-    # 'Corn Sales': corn_sales,
-    # 'Weather': weather,
-    # 'Ethanol': ethanol,
-    # 'Relevant Indices': indices,
-    # 'XGBoost Analysis': xgboost_analysis,
-    # 'LSTM Analysis': lstm_analysis,
 }
 
 # Create the sidebar
