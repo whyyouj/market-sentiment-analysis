@@ -111,8 +111,8 @@ def load_data():
 
     ## Technicals Features
     # Exponential Moving Average with alpha = 0.9
-    merged_data["EMA30"] = merged_data[["Price"]].ewm(alpha=0.9, min_periods=30, adjust=False).mean()
-    merged_data["EMA252"] = merged_data[["Price"]].ewm(alpha=0.9, min_periods=252, adjust=False).mean()
+    merged_data["EMA30"] = merged_data[["Price"]].ewm(span = 30, min_periods=30, adjust=False).mean()
+    merged_data["EMA252"] = merged_data[["Price"]].ewm(span = 252, min_periods=252, adjust=False).mean()
 
     # RSI
     merged_data["RSI"] = calculate_rsi(merged_data["Price"])
