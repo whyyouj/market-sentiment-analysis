@@ -13,7 +13,7 @@ def app():
     """DXY analysis page"""
     st.title("DXY and Gold Price Analysis")
     
-    # Get authenticated BigQuery client
+    # Getting the  authenticated BigQuery client
     client = utils.get_bigquery_client()
     
     if client is None:
@@ -21,7 +21,6 @@ def app():
         return
     
     try:
-        # Load data
         with st.spinner("Loading data from BigQuery..."):
             query = """
             SELECT Date, Price, DXY
@@ -31,12 +30,12 @@ def app():
             """
             data = client.query(query).to_dataframe()
             
-        # Check if data loaded successfully
+        # Data load check
         if data is None or data.empty:
             st.error("No data was retrieved from BigQuery. Please check your query and connection.")
             return
             
-        # Ensure date is in datetime format
+        # Date format check
         if 'Date' in data.columns and data['Date'].dtype != 'datetime64[ns]':
             data['Date'] = pd.to_datetime(data['Date'])
         
@@ -69,74 +68,71 @@ def app():
             4. **Historical Pattern**: Historically, there has often been an observable inverse correlation between dollar strength and gold prices.
             """)
             
-        # Clear Hypothesis Visualization
+
         st.header("Testing the Inverse Relationship Hypothesis")
-        
-        # Calculate Pearson correlation coefficient
         correlation = data['DXY'].corr(data['Price'])
         correlation_text = f"Correlation: {correlation:.3f}"
         relationship_strength = "strong" if abs(correlation) > 0.7 else "moderate" if abs(correlation) > 0.3 else "weak"
         
-        # Create a dual y-axis time series plot
+        # Plotting a dual time-series line chart
         fig1, ax1 = plt.subplots(figsize=(12, 6))
         
-        # Plot gold price
+        # 1.  gold price
         color = 'goldenrod'
         ax1.set_xlabel('Date')
+        
         ax1.set_ylabel('Gold Price (USD)', color=color)
         ax1.plot(data['Date'], data['Price'], color=color, linewidth=2)
         ax1.tick_params(axis='y', labelcolor=color)
         
-        # Create second y-axis for DXY
+        # 2.  DXY axis
         ax2 = ax1.twinx()
         color = 'navy'
         ax2.set_ylabel('DXY', color=color)
+        
         ax2.plot(data['Date'], data['DXY'], color=color, linewidth=2)
         ax2.tick_params(axis='y', labelcolor=color)
         
-        # Add a title and annotation
+        # Chart title and annotation
         plt.title('Gold Price and DXY Over Time', fontsize=14)
-        plt.figtext(0.15, 0.85, correlation_text, 
-                    bbox=dict(facecolor='white', alpha=0.8, boxstyle='round,pad=0.5'))
         
+        plt.figtext(0.15, 0.85, correlation_text, bbox=dict(facecolor='white', alpha=0.8, boxstyle='round,pad=0.5'))
+
         fig1.tight_layout()
         st.pyplot(fig1)
         
-        # Linear regression scatter plot to explicitly test the hypothesis
+        # Linear regression scatter plot to  test hypothesis
         fig2, ax = plt.subplots(figsize=(10, 6))
-        
-        # Create scatter plot
         ax.scatter(data['DXY'], data['Price'], alpha=0.6, c='goldenrod')
-        
-        # Add regression line
         X = data['DXY'].values.reshape(-1, 1)
+        
         y = data['Price'].values
         
-        # Fit the model
+        # Basic LR model
         model = LinearRegression()
+        
         model.fit(X, y)
         
-        # Get regression metrics
+        # Regression metrics 
         r_squared = model.score(X, y)
         slope = model.coef_[0]
         intercept = model.intercept_
         
-        # Generate predictions for the line
+        
+        
+        
+        # Generating predictions for the line
         x_range = np.linspace(data['DXY'].min(), data['DXY'].max(), 100)
         y_pred = model.predict(x_range.reshape(-1, 1))
-        
-        # Plot the regression line
         ax.plot(x_range, y_pred, color='red', linewidth=2)
         
-        # Add equation and R² to the plot
+        # Adding more information to the plot
         equation = f"Price = {intercept:.2f} + {slope:.2f} × DXY"
         r2_text = f"R² = {r_squared:.3f}"
-        ax.annotate(equation + "\n" + r2_text,
-                   xy=(0.05, 0.95), xycoords='axes fraction',
-                   bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="gray", alpha=0.8),
-                   va='top')
+        ax.annotate(equation + "\n" + r2_text, xy=(0.05, 0.95), xycoords='axes fraction',bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="gray", alpha=0.8),va='top')
         
-        # Set labels and title
+        
+        # Indicating the label and title
         ax.set_xlabel('U.S. Dollar Index (DXY)')
         ax.set_ylabel('Gold Price (USD)')
         ax.set_title('Gold Price vs. DXY: Testing Relationship', fontsize=14)
@@ -144,81 +140,77 @@ def app():
         
         st.pyplot(fig2)
         
-        # Emphasize the concept of an inverse relationship
+        # Text to indicate whether Invverse relationship valid
         if slope < 0:
             st.success(f"The regression slope is negative ({slope:.2f}), supporting the inverse relationship hypothesis.")
         else:
             st.warning(f"The regression slope is positive ({slope:.2f}), which does not support the inverse relationship hypothesis.")
         
-        # More detailed regression with statsmodels for p-values
+        # p-values
         X_sm = sm.add_constant(X)
         model_sm = sm.OLS(y, X_sm).fit()
-        
-        # Extract p-value for DXY coefficient
         p_value = model_sm.pvalues[1]
-        
-        # Display regression summary in expandable section
         with st.expander("View Detailed Regression Statistics"):
             st.text(model_sm.summary().as_text())
         
-        # Create tabs for additional analyses
+        # Creation of tabs
         tab1, tab2 = st.tabs(["Rolling Correlation", "Advanced Analysis"])
         
         with tab1:
             # Rolling window correlation analysis
             st.subheader("Rolling Correlation Analysis")
-
-            # Add rolling window selector
+            # Common windown sizes
+            
             window_size = st.slider("Select rolling window size (days)", 30, 365, 90)
-
-            # Calculate rolling correlation
             data['rolling_corr'] = data['DXY'].rolling(window=window_size).corr(data['Price'])
 
-            # Create the rolling correlation plot with properly aligned data
+            # Create the rolling correlation plot 
             fig4, ax = plt.subplots(figsize=(12, 6))
 
-            # Use window_size-1 as the starting point for both arrays to ensure they have the same dimension
+
+
+            # Ensures they have the same dimension
             ax.plot(data['Date'].iloc[window_size-1:], data['rolling_corr'].iloc[window_size-1:], 
                 color='purple', linewidth=2)
-
+            
             # Add horizontal line at zero
             ax.axhline(y=0, color='black', linestyle='--', alpha=0.5)
 
-            # Fill areas based on correlation sign - positive correlation supports the safe-haven hypothesis
+            # Fill areas based on correlation sign for easier visibility
             ax.fill_between(data['Date'].iloc[window_size-1:], 
                         data['rolling_corr'].iloc[window_size-1:], 
-                        0, 
-                        where=(data['rolling_corr'].iloc[window_size-1:] > 0),
-                        color='green', alpha=0.3, label='Positive Correlation\n(Supports Safe-Haven Hypothesis)')
+                        0, where=(data['rolling_corr'].iloc[window_size-1:] > 0),color='green', alpha=0.3, label='Positive Correlation\n(Supports Safe-Haven Hypothesis)')
 
             ax.fill_between(data['Date'].iloc[window_size-1:], 
                         data['rolling_corr'].iloc[window_size-1:], 
-                        0, 
-                        where=(data['rolling_corr'].iloc[window_size-1:] <= 0),
-                        color='red', alpha=0.3, label='Negative Correlation\n(Contradicts Safe-Haven Hypothesis)')
+                        0, where=(data['rolling_corr'].iloc[window_size-1:] <= 0),color='red', alpha=0.3, label='Negative Correlation\n(Contradicts Safe-Haven Hypothesis)')
 
-            # Add visualization enhancements
+
             ax.set_xlabel('Date')
             ax.set_ylabel('Correlation Coefficient')
             ax.grid(True, alpha=0.3)
             ax.legend()
 
-            # Add title with window size information
+            # Title will contain window_Size
             plt.title(f'{window_size}-day Rolling Correlation between Gold Price and DXY')
+
+
 
             # Display correlation statistics
             mean_corr = data['rolling_corr'].iloc[window_size-1:].mean()
             pos_pct = (data['rolling_corr'].iloc[window_size-1:] > 0).mean() * 100
+            
             corr_stats = f"Mean correlation: {mean_corr:.3f} | Positive correlation: {pos_pct:.1f}% of time"
 
             # Add annotation for correlation stats
-            plt.figtext(0.5, 0.01, corr_stats, ha='center', 
-                        bbox=dict(facecolor='whitesmoke', alpha=0.8, boxstyle='round,pad=0.5'))
+            
+            plt.figtext(0.5, 0.01, corr_stats, ha='center', bbox=dict(facecolor='whitesmoke', alpha=0.8, boxstyle='round,pad=0.5'))
 
-            fig4.tight_layout(rect=[0, 0.03, 1, 0.95])  # Adjust layout to make room for the annotation
+            fig4.tight_layout(rect=[0, 0.03, 1, 0.95]) 
             st.pyplot(fig4)
 
-            # Additional interpretation based on rolling correlation
+            # Additional insights
+            
             st.markdown(f"""
             **Rolling Correlation Insights:**
             - The mean correlation between DXY and gold prices over this period is **{mean_corr:.3f}**.
@@ -229,10 +221,7 @@ def app():
             """)
         
         with tab2:
-            # Final Summary
             st.subheader("Hypothesis Testing Summary")
-            
-            # Summarize all findings
             st.markdown("""
             ### Summary of Findings
             
@@ -240,20 +229,21 @@ def app():
             inverse relationship between DXY and gold prices:
             """)
             
-            # Check if slope is negative (supports inverse relationship)
-            slope_supports = slope < 0
+            # Check if slope is negative 
             
-            # Check if correlation is negative (supports inverse relationship)
+            slope_supports = slope < 0
+            # Check if correlation is negative
+            
             correlation_supports = correlation < 0
             
-            # Create summary table
+            # Lets you see the results easily 
             results_table = pd.DataFrame({
                 'Analysis Method': ['Correlation Analysis', 'Rolling Correlation', 'Linear Regression'],
                 'Finding': [
                     f"Correlation coefficient: {correlation:.3f}",
                     f"Mean correlation: {mean_corr:.3f}, Positive: {pos_pct:.1f}% of time",
                     f"Slope: {slope:.2f}, R-squared: {r_squared:.3f}"
-                ],
+                ], 
                 'Supports Inverse Hypothesis': [
                     "✓ Yes" if correlation_supports else "✗ No",
                     "✓ Yes" if mean_corr < 0 else "✗ No",
@@ -262,19 +252,17 @@ def app():
             })
             
             st.table(results_table)
-            
-            # Final conclusion
             st.subheader("Conclusion")
             
-            # Count how many tests support the hypothesis
+            # Support count
             if 'results_table' in locals():
                 support_count = results_table['Supports Inverse Hypothesis'].str.contains('Yes').sum()
                 total_tests = len(results_table)
                 
-                # Provide overall conclusion
                 if support_count / total_tests > 0.6:
                     st.success(f"The data largely supports the hypothesis of an inverse relationship between DXY and gold prices. {support_count} out of {total_tests} tests provide evidence for this relationship.")
                 elif support_count / total_tests > 0.4:
+                    
                     st.info(f"The data shows mixed evidence regarding the hypothesis of an inverse relationship between DXY and gold prices. {support_count} out of {total_tests} tests provide evidence for this relationship.")
                 else:
                     st.warning(f"The data largely does not support the hypothesis of an inverse relationship between DXY and gold prices. Only {support_count} out of {total_tests} tests provide evidence for this relationship.")
