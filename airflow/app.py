@@ -1,16 +1,16 @@
 import streamlit as st
 import models
 import bigquery
-import eda
-import dxy
-import dfii10
-import vix
-import cpi
-import ema30
-import ema252
-import rsi
-import band_spread
-import sentiment
+import streamlit.eda as eda
+import streamlit.dxy as dxy
+import streamlit.dfii10 as dfii10
+import streamlit.vix as vix
+import streamlit.cpi as cpi
+import streamlit.ema30 as ema30
+import streamlit.ema252 as ema252
+import streamlit.rsi as rsi
+import streamlit.band_spread as band_spread
+import streamlit.sentiment as sentiment
 import os
 import importlib
 
