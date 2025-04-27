@@ -179,15 +179,6 @@ def retrain_models():
     st.session_state['training_status'] = 'in_progress'
     
     with st.spinner("Retraining models with latest data..."):
-        # TODO: Add your actual model training code here
-        # This would typically include:
-        # 1. Fetching the latest data
-        # 2. Preprocessing data
-        # 3. Training models
-        # 4. Saving model outputs
-        # 5. Updating BigQuery tables with new predictions
-        
-        # For now, we'll just update the training status
         pass
         
     # After retraining completes
