@@ -5,11 +5,8 @@ import plotly.graph_objects as go
 import matplotlib.pyplot as plt
 from datetime import datetime
 import utils
-import streamlit as st
-import pandas as pd
 from google.oauth2 import service_account
 from google.cloud import bigquery
-from datetime import datetime
 import os
 import json
 from dags.modelling.lstm import train_lstm
@@ -209,8 +206,8 @@ def app():
     with col2:
         st.write("")
         if st.button("Compute Feature Importances", key="compute_fi"):
-            # TODO: Add actual feature importance computation here
-            compute_feature_importances(data_feature_importance)
+            last_train_date = st.session_state['last_train_date']
+            analyse_models(last_train_date, models_config)
 
 def fetch_training_status():
     """Get current model training status"""
@@ -366,7 +363,7 @@ def model_analyse_feature_importance(last_train_date, model_config):
     print(f"[model_analyse] Mean feature importance scores for {model_name} on {mean_importances['Date']} computed: {mean_importances}")
 
     # Store feature importances in BigQuery table
-    # insert_row_to_bigquery(feature_importances_table, mean_importances)
+    insert_row_to_bigquery(feature_importances_table, mean_importances)
     print(f"[model_analyse] Successfully stored mean feature importance scores for {model_name} on {mean_importances['Date']}")
 
 def insert_row_to_bigquery(table_name, row):
