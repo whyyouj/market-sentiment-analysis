@@ -25,5 +25,8 @@ dist/
 .env
 *.env
 
-# airflow logs
-airflow/logs/*
+# .DS_Store
+.DS_Store
+
+# Airflow logs
+airflow/logs/

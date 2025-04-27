@@ -1,0 +1,130 @@
+{
+  "datasets": [
+    {
+      "name": "prices",
+      "mysql_table": "gold_prices",
+      "date_format_function": "mdy_format",
+      "columns_to_extract": ["Price"],
+      "kafka_topic": "gold-prices-topic",
+      "transformation_function": "price_transform",
+      "extraction_method": "mysql"
+    },
+    {
+      "name": "usd_rates",
+      "api_ticker": "DX-Y.NYB",
+      "date_format_function": "standard_date_format",
+      "columns_to_extract": ["Close"],
+      "kafka_topic": "usd-rates-topic",
+      "transformation_function": "None",
+      "extraction_method": "api"
+    },
+    {
+      "name": "real_yields",
+      "api_ticker": "DFII10",
+      "date_format_function": "standard_date_format",
+      "columns_to_extract": ["DFII10"],
+      "kafka_topic": "real-yields-topic",
+      "transformation_function": "None",
+      "extraction_method": "api"
+    },
+    {
+      "name": "vix",
+      "api_ticker": "^VIX",
+      "date_format_function": "standard_date_format",
+      "columns_to_extract": ["Close"],
+      "kafka_topic": "vix-topic",
+      "transformation_function": "None",
+      "extraction_method": "api"
+    },
+    {
+      "name": "cpi",
+      "mysql_table": "cpi_report",
+      "date_format_function": "year_month_format",
+      "columns_to_extract": ["Value"],
+      "kafka_topic": "cpi-topic",
+      "transformation_function": "rename_key",
+      "extraction_method": "mysql"
+    },
+    {
+      "name": "gold_news",
+      "mysql_table": "gold_news",
+      "date_format_function": "dmy_format",
+      "columns_to_extract": ["News"],
+      "kafka_topic": "gold-news-topic",
+      "transformation_function": "calculate_sentiment_score",
+      "extraction_method": "mysql"
+    }
+  ],
+  "window_sizes": {
+    "rsi": 14,
+    "bollinger": 20,
+    "ema30": 30,
+    "ema252": 252
+  },
+  "bigquery": {
+    "project_id": "skillful-mason-454117-m5",
+    "dataset_id": "IS3107_Project",
+    "gold_market_data_table": "gold_market_data",
+    "model_predictions_table": "model_predictions",
+    "model_training_status_table": "model_training_status",
+    "feature_importances_table": "feature_importances"
+  },
+  "models": [
+    {
+      "name": "lstm_full",
+      "type": "lstm",
+      "features": [
+        "Price",
+        "DXY",
+        "DFII10",
+        "VIX",
+        "CPI",
+        "Sentiment_Score",
+        "Exponential_Weighted_Score",
+        "EMA30",
+        "EMA252",
+        "RSI",
+        "Band_Spread"
+      ],
+      "seq_length": 60,
+      "target_col": 0,
+      "optimal_hp": {
+        "num_lstm_layers": 3,
+        "lstm_units_0": 256,
+        "lstm_units_1": 32,
+        "lstm_units_2": 32,
+        "dense_units": 64,
+        "l2_reg": 0.0002358967174098809,
+        "dropout_rate": 0.5,
+        "learning_rate": 0.007009223137181971
+      }
+    },
+    {
+      "name": "transformer_full",
+      "type": "transformer",
+      "features": [
+        "Price",
+        "DXY",
+        "DFII10",
+        "VIX",
+        "CPI",
+        "Sentiment_Score",
+        "Exponential_Weighted_Score",
+        "EMA30",
+        "EMA252",
+        "RSI",
+        "Band_Spread"
+      ],
+      "seq_length": 60,
+      "optimal_hp": {
+        "d_model": 64,
+        "num_heads": 8,
+        "num_layers": 4,
+        "dropout_rate": 0.1,
+        "batch_size": 32,
+        "epochs": 30,
+        "attention_decay_factor": 0.0003
+      }
+    }
+  ]
+}
