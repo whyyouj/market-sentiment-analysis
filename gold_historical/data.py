@@ -124,3 +124,10 @@ def load_data():
     merged_data = merged_data.drop(["Upper_Band", "Lower_Band"], axis = 1)
 
     return merged_data.dropna()
+
+"""
+Disclaimer: To ensure efficient project work, we have trained the model on already cleaned CSVs which will be loaded to BigQuery. 
+This ensures that we can train and tune the models while getting BigQuery set up at the same time.
+By no means is the model training with data different from the ones pre-uploaded to BigQuery.
+Model retraining onwards would use data directly from BigQuery.
+"""
