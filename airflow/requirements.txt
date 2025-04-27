@@ -3,11 +3,9 @@ google-cloud-bigquery
 pandas
 numpy
 matplotlib
-apache-airflow-providers-mongo
 apache-airflow-providers-mysql
 apache-airflow-providers-google
 cryptography
-pymongo
 pymysql
 sqlalchemy
 python-dateutil

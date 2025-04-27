@@ -12,7 +12,7 @@ from confluent_kafka import Producer, Consumer, KafkaException
 import pandas as pd
 import time
 from scripts.feature_transformations import calculate_sentiment_score, ema_price, calculate_rsi, add_bollinger_bands, exp_weighting_sentiment_score
-from modelling.utils import load_scaler, predict, prepare_data_for_analysis, analyse_feature_importance
+from modelling.utils import load_scaler, predict
 import pytz
 
 # fetch configuration file stored as an airflow variable
@@ -130,23 +130,25 @@ def extract_from_api(dataset_config, execution_date):
     import pandas_datareader as pdr
 
     dataset_name = dataset_config['name']
+    api_ticker = dataset_config['api_ticker']
+    cols_to_extract = dataset_config['columns_to_extract']
     end_date = (datetime.strptime(execution_date, '%Y-%m-%d') + timedelta(days=1)).strftime('%Y-%m-%d')
     
     try:
         result_dict = {}
             
         if dataset_name == "real_yields":
-            df = pdr.DataReader('DFII10', 'fred', start=execution_date, end=execution_date)
+            df = pdr.DataReader(api_ticker, 'fred', start=execution_date, end=execution_date)
             if not df.empty:
-                result_dict = {'DFII10': float(df.iloc[0]['DFII10'])}
+                result_dict = {'DFII10': float(df.iloc[0][cols_to_extract])}
         elif dataset_name == "vix":
-            df = yf.download('^VIX', start=execution_date, end=end_date)
+            df = yf.download(api_ticker, start=execution_date, end=end_date)
             if not df.empty:
-                result_dict = {'VIX': float(df.iloc[0]['Close'])}
+                result_dict = {'VIX': float(df.iloc[0][cols_to_extract])}
         elif dataset_name == "usd_rates":
-            df = yf.download('DX-Y.NYB', start=execution_date, end=end_date)
+            df = yf.download(api_ticker, start=execution_date, end=end_date)
             if not df.empty:
-                result_dict = {'DXY': float(df.iloc[0]['Close'])}
+                result_dict = {'DXY': float(df.iloc[0][cols_to_extract])}
 
         if not result_dict:
             print(f"[API] No data found for {dataset_name} on {execution_date}: Creating null record")
@@ -186,6 +188,7 @@ def extract_data(dataset_config, execution_date, **kwargs):
             value=data_json
         )
         remaining_msg = producer.flush(timeout=5)
+
         if remaining_msg > 0:
             print(f"[Kafka] Remaining {dataset_name} data NOT produced to Kafka for {execution_date}")
         else:
@@ -319,7 +322,6 @@ def apply_feature_engineering(**kwargs):
     current_df = pd.DataFrame([current_data])
 
     # get historical data for feature engineering
-    # max_window_size = max(DAG_CONFIG['window_sizes'].values())
     hist_df = get_historical_data(current_data['Date'], bq_hook, bq_config, max_window_size=None)
     
     # convert date string to datetime in current data
@@ -356,7 +358,6 @@ def apply_feature_engineering(**kwargs):
     full_current_data['Date'] = full_current_data['Date'].strftime('%Y-%m-%d')
     
     # exponential weighting for news sentiment score
-    # full_current_data['Exponential_Weighted_Score'] = exp_weighting_sentiment_score(bq_config, bq_hook, current_data['Sentiment_Score'], current_data['Date'], hist_df)
     full_current_data['Exponential_Weighted_Score'] = exp_weighting_sentiment_score(current_data['Sentiment_Score'], current_data['Date'], hist_df)
 
     # store the full data in XCom
@@ -440,8 +441,6 @@ def check_model_training_status(**kwargs):
     return True
 
 def get_pred_sequence(execution_date, seq_length):
-    # start_date = (datetime.strptime(execution_date, '%Y-%m-%d') - timedelta(days=seq_length)).strftime('%Y-%m-%d')
-    
     # query historical data
     bq_config = DAG_CONFIG['bigquery']
     project_id = bq_config['project_id']
@@ -451,6 +450,7 @@ def get_pred_sequence(execution_date, seq_length):
     query = f"""
     SELECT *
     FROM {project_id}.{dataset_id}.{gold_market_data_table}
+    WHERE Date < {execution_date}
     ORDER BY Date ASC
     """
     
@@ -492,7 +492,6 @@ def model_predict(model_config, **kwargs):
     if not os.path.exists(model_path):
         raise FileNotFoundError(f"[make_predictions] Model {model_name} not found at {model_path}")
     
-    # model = tf.keras.models.load_model(model_path)
     model = tf.keras.models.load_model(
         model_path,
         custom_objects={
@@ -564,97 +563,6 @@ def store_predictions(**kwargs):
         raise Exception(f"[store_predictions] Errors inserting predictions for {prediction_result['Date']}: {errors}")
     else:
         print(f"[store_predictions] Successfully stored predictions for {prediction_result['Date']}")
-        
-    return True
-
-def model_analyse(model_config, **kwargs):
-    import tensorflow as tf
-    from modelling.transformer import GoldPriceTransformer, TransformerEncoderLayer, PositionalEncoding
-
-    ti = kwargs['ti']
-
-    # Fetch historical data for analysis
-    execution_date = kwargs['execution_date'].strftime('%Y-%m-%d')
-    bq_hook = BigQueryHook(gcp_conn_id='bigquery_default')
-    bq_config = DAG_CONFIG['bigquery']
-    project_id = bq_config['project_id']
-    dataset_id = bq_config['dataset_id']
-    gold_market_data_table = bq_config['gold_market_data_table']
-
-    query = f"""
-    SELECT *
-    FROM {project_id}.{dataset_id}.{gold_market_data_table}
-    ORDER BY Date ASC
-    """
-
-    result = bq_hook.get_pandas_df(query, dialect='standard')
-
-    # Create new column for the actual price and drop rows with missing values
-    result['Actual'] = result['Price'].shift(-1)
-    result = result.dropna()
-
-    # Load the scaler_dict
-    scaler_dict = load_scaler()
-
-    # Prepare data for feature importance computation
-    features = model_config['features']
-    seq_length = model_config['seq_length']
-    X_test, y_test = prepare_data_for_analysis(scaler_dict, result, features, seq_length)
-
-    # Load the model
-    model_name = model_config['name']
-    base_dir = os.path.dirname(os.path.abspath(__file__))
-    model_path = os.path.join(base_dir, 'trained_models', f"{model_name}.keras")
-    
-    if not os.path.exists(model_path):
-        raise FileNotFoundError(f"[model_analyse] Model {model_name} not found at {model_path}")
-    
-    # model = tf.keras.models.load_model(model_path)
-    model = tf.keras.models.load_model(
-        model_path,
-        custom_objects={
-            'GoldPriceTransformer': GoldPriceTransformer,
-            'TransformerEncoderLayer': TransformerEncoderLayer,
-            'PositionalEncoding': PositionalEncoding
-        }
-    )
-
-    # Analyse feature importances with model
-    mean_importances = analyse_feature_importance(model, X_test, y_test, features)
-    mean_importances['Date'] = execution_date
-    mean_importances['Model'] = model_name
-
-    # store the model's mean feature importances in XCom
-    ti.xcom_push(key=f'mean_importances_{model_name}', value=json.dumps(mean_importances))
-    print(f"[model_analyse] Mean feature importance scores for {model_name} on {execution_date} computed")
-
-    return True
-
-def store_analysis(model_config, **kwargs):
-    # Fetch analysis results
-    ti = kwargs['ti']
-    model_name = model_config['name']
-    mean_importances = ti.xcom_pull(task_ids=f"model_analyse_{model_name}", key=f'mean_importances_{model_name}')
-    mean_importances = json.loads(mean_importances)
-
-    # Connect to BigQuery
-    bq_config = DAG_CONFIG['bigquery']
-    project_id = bq_config['project_id']
-    dataset_id = bq_config['dataset_id']
-    feature_importances_table = bq_config['feature_importances_table']
-    
-    bq_hook = BigQueryHook(gcp_conn_id='bigquery_default')
-    client = bq_hook.get_client()
-    table_ref = f"{project_id}.{dataset_id}.{feature_importances_table}"
-    table = client.get_table(table_ref)
-    
-    # Insert feature importances into BigQuery
-    errors = client.insert_rows_json(table, [mean_importances])
-    
-    if errors:
-        raise Exception(f"[store_predictions] Errors inserting predictions for {mean_importances['Date']}: {errors}")
-    else:
-        print(f"[store_predictions] Successfully stored predictions for {mean_importances['Date']}")
         
     return True
 
@@ -774,33 +682,6 @@ with DAG(
         python_callable=store_predictions,
         provide_context=True
     )
-
-    # create dynamic analysis tasks for each model based on models config
-    model_analysis_tasks = []
-    store_analysis_tasks = []
-    for model_config in DAG_CONFIG['models']:
-        model_name = model_config['name']
-
-        # analyse model's feature importances task
-        model_analysis_task = PythonOperator(
-            task_id=f"model_analyse_{model_name}",
-            python_callable=model_analyse,
-            op_kwargs={'model_config': model_config},
-            provide_context=True
-        )
-        model_analysis_tasks.append(model_analysis_task)
-
-        # store model's feature importances in BigQuery task
-        store_analysis_task = PythonOperator(
-            task_id=f"store_analysis_{model_name}",
-            python_callable=store_analysis,
-            op_kwargs={'model_config': model_config},
-            provide_context=True
-        )
-        store_analysis_tasks.append(store_analysis_task)
-
-        # set analyse + store analysis dependencies for each model
-        check_model_status_task >> model_analysis_task >> store_analysis_task
     
     # end task
     end_task = DummyOperator(
@@ -811,4 +692,4 @@ with DAG(
     # set the final dependencies
     start_task >> check_date_task
     transform_tasks >> combine_data_task >> feature_eng_task >> load_bq_task >> check_model_status_task >> model_predict_tasks >> combine_pred_task >> store_pred_task
-    [store_pred_task] + store_analysis_tasks >> end_task
+    store_pred_task >> end_task

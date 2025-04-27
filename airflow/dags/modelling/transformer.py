@@ -35,11 +35,6 @@ class PositionalEncoding(tf.keras.layers.Layer):
         return inputs + self.pos_encoding[:, :seq_length, :]
     
     def get_config(self):
-        # config = super().get_config()
-        # config.update({
-        #     "d_model": self.d_model,
-        #     "max_seq_length": self.max_seq_length
-        # })
         config = {
             "d_model": self.d_model,
             "max_seq_length": self.max_seq_length
@@ -119,14 +114,6 @@ class TransformerEncoderLayer(tf.keras.layers.Layer):
         return self.layernorm2(out1 + ffn_output)
     
     def get_config(self):
-        # config = super().get_config()
-        # config.update({
-        #     "d_model": self.d_model,
-        #     "num_heads": self.num_heads,
-        #     "dropout_rate": self.dropout_rate,
-        #     "attention_decay_factor": self.attention_decay_factor,
-        #     "ff_dim": self.ff_dim
-        # })
         config = {
             "d_model": self.d_model,
             "num_heads": self.num_heads,
@@ -180,16 +167,6 @@ class GoldPriceTransformer(tf.keras.Model):
         return self.output_projection(final_output)
     
     def get_config(self):
-        # config = super().get_config()
-        # config.update({
-        #     "input_dim": self.input_dim,
-        #     "output_dim": self.output_dim,
-        #     "d_model": self.d_model,
-        #     "num_heads": self.num_heads,
-        #     "num_layers": self.num_layers,
-        #     "dropout_rate": self.dropout_rate,
-        #     "attention_decay_factor": self.attention_decay_factor
-        # })
         config = {
             "input_dim": self.input_dim,
             "output_dim": self.output_dim,
@@ -205,9 +182,6 @@ class GoldPriceTransformer(tf.keras.Model):
 
 # Model training
 def train_transformer(df, best_hyperparameters, features, model_name, seq_length=60):
-    """
-    Transformer training process for gold price prediction
-    """
     # Prepare training data
     if "Price" not in features:
         features.append("Price")
@@ -269,5 +243,4 @@ def train_transformer(df, best_hyperparameters, features, model_name, seq_length
     abs_model_path = os.path.abspath(os.path.join(models_path, f"{model_name}.keras"))
     print(f'{model_name} saved to {abs_model_path}')
 
-    # Output scaler_dict for prediction function
-    return scaler_dict
+    return scaler_dict, abs_model_path

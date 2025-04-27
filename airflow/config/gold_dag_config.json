@@ -11,16 +11,16 @@
     },
     {
       "name": "usd_rates",
-      "mysql_table": "dxy",
+      "api_ticker": "DX-Y.NYB",
       "date_format_function": "standard_date_format",
-      "columns_to_extract": ["DXY"],
+      "columns_to_extract": ["Close"],
       "kafka_topic": "usd-rates-topic",
       "transformation_function": "None",
       "extraction_method": "api"
     },
     {
       "name": "real_yields",
-      "mysql_table": "real_yields",
+      "api_ticker": "DFII10",
       "date_format_function": "standard_date_format",
       "columns_to_extract": ["DFII10"],
       "kafka_topic": "real-yields-topic",
@@ -29,9 +29,9 @@
     },
     {
       "name": "vix",
-      "mysql_table": "volatility_index",
+      "api_ticker": "^VIX",
       "date_format_function": "standard_date_format",
-      "columns_to_extract": ["VIX"],
+      "columns_to_extract": ["Close"],
       "kafka_topic": "vix-topic",
       "transformation_function": "None",
       "extraction_method": "api"
@@ -65,8 +65,6 @@
     "project_id": "skillful-mason-454117-m5",
     "dataset_id": "IS3107_Project",
     "gold_market_data_table": "gold_market_data",
-    "exp_weighted_sentiment_table": "exp_weighted_sentiment",
-    "temp_exp_weighted_sentiment_table": "temp_exp_weighted_sentiment",
     "model_predictions_table": "model_predictions",
     "model_training_status_table": "model_training_status",
     "feature_importances_table": "feature_importances"

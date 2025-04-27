@@ -61,7 +61,6 @@ def build_lstm_model(input_shape, best_hyperparameters):
 
 # Model training
 def train_lstm(df, best_hyperparameters, features, model_name, seq_length=60):
-    
     # Prepare training data
     train_data, scaler_dict, features = prepare_data(df, features)
     
@@ -109,5 +108,4 @@ def train_lstm(df, best_hyperparameters, features, model_name, seq_length=60):
     abs_model_path = os.path.abspath(os.path.join(models_path, f"{model_name}.keras"))
     print(f'{model_name} saved to {abs_model_path}')
 
-    # Output scaler for prediction function
-    return scaler_dict
+    return scaler_dict, abs_model_path

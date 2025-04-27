@@ -73,42 +73,8 @@ def predict(model, scaler_dict, data, features):
     
     return y_pred_denorm
 
-# Prepare data for feature importance computation
-def prepare_data_for_analysis(scaler_dict, data, features, seq_length=60):
-    # Apply the same scalers to test data
-    data_scaled = data[features].copy()
-    for column in data_scaled.columns:
-        data_scaled[column] = scaler_dict[column].transform(
-            data_scaled[column].values.reshape(-1, 1)
-        )
-
-    # # Add the unscaled 'Actual' column back for supervised target
-    # data_scaled['Actual'] = data['Actual'].values
-
-    # # Create sequences for the data
-    # X_test, y_test = create_sequences(data_scaled, seq_length, target_column='Actual')
-
-    # return X_test, y_test
-
-    # Only pass features to X, and 'Actual' from original to y
-    X_data = data_scaled
-    y_data = data['Actual'].values
-
-    # Create sequences
-    xs, ys = [], []
-    for i in range(len(X_data) - seq_length):
-        x = X_data.iloc[i:(i + seq_length)].values
-        y = y_data[i + seq_length]
-        xs.append(x)
-        ys.append(y)
-
-    return np.array(xs), np.array(ys)
-
 # Analyse feature importances
-def analyse_feature_importance(model, X_test, y_test, feature_names, 
-                              batch_size=None, 
-                              n_repeats=5,
-                              normalize=True):
+def analyse_feature_importance(model, X_test, y_test, feature_names, batch_size=None, n_repeats=5, normalize=True):
     """
     Analyse feature importance using timestep-aware permutation for sequential models.
     """
@@ -153,5 +119,7 @@ def analyse_feature_importance(model, X_test, y_test, feature_names,
     
     # Return results as a dictionary
     results = dict(zip(feature_names, mean_importances))
+
+    results = {feature: float(impt) for feature, impt in results.items()}
     
     return results
