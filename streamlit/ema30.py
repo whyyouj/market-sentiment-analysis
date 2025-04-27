@@ -5,7 +5,7 @@ def app():
     """EMA30 analysis page"""
     st.title("EMA30 Analysis")
     
-    # Get authenticated BigQuery client
+    # Getting authenticated client
     client = utils.get_bigquery_client()
     
     if client is None:
@@ -13,18 +13,18 @@ def app():
         return
     
     try:
-        # Load data
+        # Loading data
         with st.spinner("Loading data from BigQuery..."):
             data = utils.load_data(client)
             
-        # Check if data loaded successfully
+        # Date load check
         if data is None or data.empty:
             st.error("No data was retrieved from BigQuery. Please check your query and connection.")
             return
             
         st.success(f"Data loaded successfully! Total records: {len(data)}")
         
-        # Information about EMA30
+        # info about EMA30
         st.markdown("""
         ## What is EMA30?
         
@@ -37,7 +37,7 @@ def app():
         When gold prices cross above the EMA30, it may signal a bullish trend, while crossing below could indicate a bearish trend.
         """)
         
-        # Run the analysis for EMA30
+        # Run the standard analysis 
         utils.run_feature_analysis(data, "EMA30")
         
     except Exception as e:

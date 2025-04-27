@@ -5,7 +5,7 @@ def app():
     """EMA252 analysis page"""
     st.title("EMA252 Analysis")
     
-    # Get authenticated BigQuery client
+    # Getting the authenticated BigQuery client
     client = utils.get_bigquery_client()
     
     if client is None:
@@ -17,14 +17,14 @@ def app():
         with st.spinner("Loading data from BigQuery..."):
             data = utils.load_data(client)
             
-        # Check if data loaded successfully
+        # Data load check
         if data is None or data.empty:
             st.error("No data was retrieved from BigQuery. Please check your query and connection.")
             return
             
         st.success(f"Data loaded successfully! Total records: {len(data)}")
         
-        # Information about EMA252
+        # info about EMA252
         st.markdown("""
         ## What is EMA252?
         
@@ -38,7 +38,7 @@ def app():
         may suggest a long-term bearish trend.
         """)
         
-        # Run the analysis for EMA252
+        # Running standard analysis for EMA252
         utils.run_feature_analysis(data, "EMA252")
         
     except Exception as e:

@@ -14,7 +14,7 @@ def app():
     """Main function to run the sentiment score analysis page"""
     st.title("Sentiment Score Analysis")
     
-    # Add explanation of sentiment scores based on the information provided
+    # Sentiment information
     with st.expander("What are Sentiment Scores?", expanded=True):
         st.markdown("""
         ### Sentiment Score Methodology
@@ -46,10 +46,10 @@ def app():
         that market sentiment impacts investor decision-making, which in turn affects asset prices.
         """)
     
-    # Get data from BigQuery
+    # Getting data from BQ
     client = get_bigquery_client()
     if client:
-        # Query to get sentiment-specific data
+        # Getting sentiment score from BQ
         try:
             query = """
                 SELECT Date, Price, Sentiment_Score, Exponential_Weighted_Score
@@ -59,16 +59,16 @@ def app():
             """
             data = client.query(query).to_dataframe()
             
-            # Convert Date to datetime if it's not already
+            # Datetime check
             if 'Date' in data.columns and data['Date'].dtype != 'datetime64[ns]':
                 data['Date'] = pd.to_datetime(data['Date'])
             
-            # Create a clean dataset without any NaN values
+            # Dataset that has no Nan values
             clean_data = data.dropna(subset=['Date', 'Price', 'Sentiment_Score', 'Exponential_Weighted_Score']).copy()
             
             
                 
-            # Analysis tabs
+            # Tab creation
             tab1, tab2, tab3, tab4 = st.tabs(["Basic Analysis", "Raw Sentiment Analysis", "Exponential Weighted Analysis", "Hypothesis Testing"])
             
             with tab1:
@@ -78,23 +78,19 @@ def app():
                 with col1:
                     st.markdown("#### Raw Sentiment Score")
                     st.dataframe(clean_data['Sentiment_Score'].describe())
-                    
-                    # Distribution plot
                     st.subheader("Distribution of Raw Sentiment Score")
                     plot_distribution(clean_data, 'Sentiment_Score')
                     
                 with col2:
                     st.markdown("#### Exponential Weighted Score")
                     st.dataframe(clean_data['Exponential_Weighted_Score'].describe())
-                    
-                    # Distribution plot
                     st.subheader("Distribution of Exponential Weighted Score")
                     plot_distribution(clean_data, 'Exponential_Weighted_Score')
                 
-                # Additional insights
+
                 st.subheader("Sentiment Analysis Insights")
                 
-                # Calculate days with neutral, positive, negative sentiment
+                # Number of days with neutral, positive, negative sentiment
                 positive_days = (clean_data['Sentiment_Score'] > 0).sum()
                 negative_days = (clean_data['Sentiment_Score'] < 0).sum()
                 neutral_days = (clean_data['Sentiment_Score'] == 0).sum()
@@ -115,7 +111,7 @@ def app():
                 correlation_text = f"Correlation: {correlation:.3f}"
                 relationship_strength = "strong" if abs(correlation) > 0.7 else "moderate" if abs(correlation) > 0.3 else "weak"
                 
-                # Create a dual y-axis time series plot
+                # Creating dual axis plot
                 fig1, ax1 = plt.subplots(figsize=(12, 6))
                 
                 # Plot gold price
@@ -125,122 +121,89 @@ def app():
                 ax1.plot(clean_data['Date'], clean_data['Price'], color=color, linewidth=2)
                 ax1.tick_params(axis='y', labelcolor=color)
                 
-                # Create second y-axis for Sentiment Score
+                # Second y-axis for Sentiment Score
                 ax2 = ax1.twinx()
                 color = 'blue'
                 ax2.set_ylabel('Raw Sentiment Score', color=color)
                 ax2.plot(clean_data['Date'], clean_data['Sentiment_Score'], color=color, linewidth=2, alpha = 0.5)
                 ax2.tick_params(axis='y', labelcolor=color)
                 
-                # Add a title and annotation
+
                 plt.title('Gold Price and Raw Sentiment Score Over Time', fontsize=14)
-                plt.figtext(0.15, 0.85, correlation_text, 
-                            bbox=dict(facecolor='white', alpha=0.8, boxstyle='round,pad=0.5'))
+                plt.figtext(0.15, 0.85, correlation_text, bbox=dict(facecolor='white', alpha=0.8, boxstyle='round,pad=0.5'))
                 
                 fig1.tight_layout()
                 st.pyplot(fig1)
                 
-                # Linear regression scatter plot to explicitly test the hypothesis
+                # Linear regression scatter plot
                 fig2, ax = plt.subplots(figsize=(10, 6))
-                
-                # Create scatter plot
                 ax.scatter(clean_data['Sentiment_Score'], clean_data['Price'], alpha=0.6, c='blue')
-                
-                # Add regression line
                 X = clean_data['Sentiment_Score'].values.reshape(-1, 1)
                 y = clean_data['Price'].values
                 
-                # Fit the model
+
                 model = LinearRegression()
                 model.fit(X, y)
                 
-                # Get regression metrics
+                # Getting regression metrics
                 r_squared = model.score(X, y)
                 slope = model.coef_[0]
                 intercept = model.intercept_
                 
-                # Generate predictions for the line
+                # Generate line predictions
                 x_range = np.linspace(clean_data['Sentiment_Score'].min(), clean_data['Sentiment_Score'].max(), 100)
                 y_pred = model.predict(x_range.reshape(-1, 1))
-                
-                # Plot the regression line
                 ax.plot(x_range, y_pred, color='red', linewidth=2)
                 
-                # Add equation and R² to the plot
+                # Adding more information to the plot
                 equation = f"Price = {intercept:.2f} + {slope:.2f} × Sentiment"
                 r2_text = f"R² = {r_squared:.3f}"
-                ax.annotate(equation + "\n" + r2_text,
-                            xy=(0.05, 0.95), xycoords='axes fraction',
-                            bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="gray", alpha=0.8),
-                            va='top')
+                ax.annotate(equation + "\n" + r2_text, xy=(0.05, 0.95), xycoords='axes fraction',bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="gray", alpha=0.8),va='top')
                 
-                # Set labels and title
+
                 ax.set_xlabel('Raw Sentiment Score')
                 ax.set_ylabel('Gold Price (USD)')
                 ax.set_title('Gold Price vs. Raw Sentiment Score: Testing Relationship', fontsize=14)
                 ax.grid(True, alpha=0.3)
-                
                 st.pyplot(fig2)
                 
-                # Emphasize the concept of relationship
+                # Relationship text dependent on results
                 if slope > 0:
                     st.success(f"The regression slope is positive ({slope:.2f}), supporting the hypothesis that positive sentiment correlates with higher gold prices.")
                 else:
                     st.warning(f"The regression slope is negative ({slope:.2f}), which does not support the hypothesis that positive sentiment correlates with higher gold prices.")
+
                 
-                # More detailed regression with statsmodels for p-values
                 X_sm = sm.add_constant(X)
                 model_sm = sm.OLS(y, X_sm).fit()
-                
-                # Extract p-value for Sentiment Score coefficient
                 p_value = model_sm.pvalues[1]
                 
-                # Display regression summary in expandable section
+                # Display regression summary 
                 with st.expander("View Detailed Regression Statistics"):
                     st.text(model_sm.summary().as_text())
                 
-                # Add rolling correlation analysis
+
                 st.subheader("Rolling Correlation Analysis")
-                
-                # Add rolling window selector
                 window_size = st.slider("Select rolling window size (days) for Raw Sentiment", 30, 365, 90)
-                
-                # Calculate rolling correlation
                 clean_data['rolling_corr_raw'] = clean_data['Sentiment_Score'].rolling(window=window_size).corr(clean_data['Price'])
-                
-                # Create the rolling correlation plot with properly aligned data
                 fig4, ax = plt.subplots(figsize=(12, 6))
                 
-                # Filter out NaN values for plotting
+                # Filtering Nan values
                 valid_data = clean_data.dropna(subset=['rolling_corr_raw'])
-                
-                # Plot the correlation line
-                ax.plot(valid_data['Date'], valid_data['rolling_corr_raw'], 
-                        color='purple', linewidth=2)
-                
-                # Add horizontal line at zero
+                ax.plot(valid_data['Date'], valid_data['rolling_corr_raw'], color='purple', linewidth=2)
                 ax.axhline(y=0, color='black', linestyle='--', alpha=0.5)
                 
-                # Fill areas based on correlation sign
-                ax.fill_between(valid_data['Date'], 
-                                valid_data['rolling_corr_raw'], 
-                                0, 
-                                where=(valid_data['rolling_corr_raw'] > 0),
-                                color='green', alpha=0.3, label='Positive Correlation\n(Higher sentiment → Higher prices)')
                 
-                ax.fill_between(valid_data['Date'], 
-                                valid_data['rolling_corr_raw'], 
-                                0, 
-                                where=(valid_data['rolling_corr_raw'] <= 0),
-                                color='red', alpha=0.3, label='Negative Correlation\n(Higher sentiment → Lower prices)')
+                ax.fill_between(valid_data['Date'], valid_data['rolling_corr_raw'], 0, where=(valid_data['rolling_corr_raw'] > 0),color='green', alpha=0.3, label='Positive Correlation\n(Higher sentiment → Higher prices)')
+                ax.fill_between(valid_data['Date'], valid_data['rolling_corr_raw'], 0, where=(valid_data['rolling_corr_raw'] <= 0),color='red', alpha=0.3, label='Negative Correlation\n(Higher sentiment → Lower prices)')
                 
-                # Add visualization enhancements
+                # Adding more visualisation enhancements
                 ax.set_xlabel('Date')
                 ax.set_ylabel('Correlation Coefficient')
                 ax.grid(True, alpha=0.3)
                 ax.legend()
                 
-                # Add title with window size information
+                # Add title
                 plt.title(f'{window_size}-day Rolling Correlation between Raw Sentiment and Gold Price')
                 
                 # Display correlation statistics
@@ -248,14 +211,14 @@ def app():
                 pos_pct = (valid_data['rolling_corr_raw'] > 0).mean() * 100
                 corr_stats = f"Mean correlation: {mean_corr:.3f} | Positive correlation: {pos_pct:.1f}% of time"
                 
-                # Add annotation for correlation stats
+                # Add annotatio
                 plt.figtext(0.5, 0.01, corr_stats, ha='center', 
                             bbox=dict(facecolor='whitesmoke', alpha=0.8, boxstyle='round,pad=0.5'))
                 
                 fig4.tight_layout(rect=[0, 0.03, 1, 0.95])  # Adjust layout to make room for the annotation
                 st.pyplot(fig4)
                 
-                # Additional interpretation based on rolling correlation
+                # Additional interpretation based on results
                 st.markdown(f"""
                 **Rolling Correlation Insights:**
                 - The mean correlation between raw sentiment and gold prices over this period is **{mean_corr:.3f}**.
@@ -266,6 +229,8 @@ def app():
                 """)
 
             with tab3:
+                
+                # Same steps as above, just for exponential weighted score now
                 st.header("Testing Exponential Weighted Score Relationship with Gold")
                 
                 # Calculate Pearson correlation coefficient
@@ -273,17 +238,15 @@ def app():
                 exp_correlation_text = f"Correlation: {exp_correlation:.3f}"
                 exp_relationship_strength = "strong" if abs(exp_correlation) > 0.7 else "moderate" if abs(exp_correlation) > 0.3 else "weak"
                 
-                # Create a dual y-axis time series plot
+
                 fig1, ax1 = plt.subplots(figsize=(12, 6))
-                
-                # Plot gold price
+
                 color = 'goldenrod'
                 ax1.set_xlabel('Date')
                 ax1.set_ylabel('Gold Price (USD)', color=color)
                 ax1.plot(clean_data['Date'], clean_data['Price'], color=color, linewidth=2)
                 ax1.tick_params(axis='y', labelcolor=color)
                 
-                # Create second y-axis for Exponential Weighted Score
                 ax2 = ax1.twinx()
                 color = 'red'
                 ax2.set_ylabel('Exponential Weighted Score', color=color)
@@ -292,56 +255,44 @@ def app():
                 
                 # Add a title and annotation
                 plt.title('Gold Price and Exponential Weighted Score Over Time', fontsize=14)
-                plt.figtext(0.15, 0.85, exp_correlation_text, 
-                            bbox=dict(facecolor='white', alpha=0.8, boxstyle='round,pad=0.5'))
+                plt.figtext(0.15, 0.85, exp_correlation_text, bbox=dict(facecolor='white', alpha=0.8, boxstyle='round,pad=0.5'))
                 
                 fig1.tight_layout()
                 st.pyplot(fig1)
                 
-                # Linear regression scatter plot to explicitly test the hypothesis
                 fig2, ax = plt.subplots(figsize=(10, 6))
                 
-                # Create scatter plot
                 ax.scatter(clean_data['Exponential_Weighted_Score'], clean_data['Price'], alpha=0.6, c='red')
-                
-                # Add regression line
                 X_exp = clean_data['Exponential_Weighted_Score'].values.reshape(-1, 1)
                 y = clean_data['Price'].values
-                
-                # Fit the model
+
                 model_exp = LinearRegression()
                 model_exp.fit(X_exp, y)
-                
-                # Get regression metrics
+
                 r_squared_exp = model_exp.score(X_exp, y)
                 slope_exp = model_exp.coef_[0]
                 intercept_exp = model_exp.intercept_
-                
-                # Generate predictions for the line
-                x_range_exp = np.linspace(clean_data['Exponential_Weighted_Score'].min(), 
-                                            clean_data['Exponential_Weighted_Score'].max(), 100)
+                x_range_exp = np.linspace(clean_data['Exponential_Weighted_Score'].min(), clean_data['Exponential_Weighted_Score'].max(), 100)
                 y_pred_exp = model_exp.predict(x_range_exp.reshape(-1, 1))
                 
-                # Plot the regression line
+
                 ax.plot(x_range_exp, y_pred_exp, color='red', linewidth=2)
                 
-                # Add equation and R² to the plot
+                # Add more information to the plot
                 equation_exp = f"Price = {intercept_exp:.2f} + {slope_exp:.2f} × ExpWeightedScore"
                 r2_text_exp = f"R² = {r_squared_exp:.3f}"
                 ax.annotate(equation_exp + "\n" + r2_text_exp,
                             xy=(0.05, 0.95), xycoords='axes fraction',
                             bbox=dict(boxstyle="round,pad=0.3", fc="white", ec="gray", alpha=0.8),
                             va='top')
-                
-                # Set labels and title
+
                 ax.set_xlabel('Exponential Weighted Score')
                 ax.set_ylabel('Gold Price (USD)')
                 ax.set_title('Gold Price vs. Exponential Weighted Score: Testing Relationship', fontsize=14)
                 ax.grid(True, alpha=0.3)
-                
                 st.pyplot(fig2)
                 
-                # Emphasize the concept of relationship
+                # Relationship text changes based on results
                 if slope_exp > 0:
                     st.success(f"The regression slope is positive ({slope_exp:.2f}), supporting the hypothesis that positive exponential weighted sentiment correlates with higher gold prices.")
                 else:
