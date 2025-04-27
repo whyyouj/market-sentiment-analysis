@@ -5,6 +5,7 @@ __pycache__/
 
 # Virtual environment folder
 is3107_venv/
+venv/
 
 # Distribution / packaging
 build/
@@ -23,3 +24,6 @@ dist/
 # Environment variables or secrets
 .env
 *.env
+
+# airflow logs
+airflow/logs/*
